@@ -41,7 +41,7 @@ NULL
 #' @rdname select_sample
 #' @export
 select_sample_str <- function(sampling_frame, allocation,
-    sample_size = sample_size, stratum = stratum, frac = FALSE){
+    sample_size = sample_size, stratum = stratum, is_frac = FALSE){
 
     sample_size <- dplyr::enquo(sample_size)
     sample_size_name <- dplyr::quo_name(sample_size)
@@ -49,7 +49,7 @@ select_sample_str <- function(sampling_frame, allocation,
     stratum_var_string <- deparse(substitute(stratum))
     stratum <- dplyr::enquo(stratum)
 
-    if (frac) {
+    if (is_frac) {
         sample <- sampling_frame %>%
             dplyr::left_join(allocation, by = stratum_var_string) %>%
             split(.[stratum_var_string]) %>%
