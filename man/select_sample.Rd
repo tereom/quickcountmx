@@ -4,10 +4,10 @@
 \alias{select_sample}
 \alias{select_sample_str}
 \alias{select_sample_prop}
-\title{Randomly select samples from a sampling frame with or without strata.}
+\title{Select simple and stratified random samples from a sampling frame.}
 \usage{
 select_sample_str(sampling_frame, allocation, sample_size = sample_size,
-  stratum = stratum, frac = FALSE)
+  stratum = stratum, is_frac = FALSE)
 
 select_sample_prop(sampling_frame, stratum = stratum, frac)
 }
@@ -26,11 +26,11 @@ sampling_frame \code{data.frame}'s (the columns must have the same name in the
 two \code{data.frame}'s). If one wants to select a SRS the stratum
 parameter is not used.}
 
-\item{frac}{when sampling with equal probability across strata, frac is a
-numeric value indicating the fraction of the data to select.}
-
 \item{is_frac}{logical value indicating whether the allocation data.frame contains
 proportions to be sampled within each stratum (TRUE) or sample sizes.}
+
+\item{frac}{when sampling with equal probability across strata, frac is a
+numeric value indicating the fraction of the data to select.}
 }
 \value{
 A \code{data.frame} with the selected sample, it will have the same
@@ -39,10 +39,10 @@ A \code{data.frame} with the selected sample, it will have the same
 }
 \description{
 Select random samples of a sampling frame (a data.frame).
- \code{select_sample_prop} can be used when sampling with equal probability
- across strata or when selecting a simple random sample.
- \code{select_sample_str} selects samples when sample size varies across
- strata.
+\code{select_sample_prop} can be used when sampling with equal probability
+  across strata or when selecting a simple random sample.
+\code{select_sample_str} selects samples when sample size varies across
+  strata.
 }
 \examples{
 sampling_frame <- data.frame(id = 1:100,
