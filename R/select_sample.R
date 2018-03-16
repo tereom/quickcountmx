@@ -1,10 +1,10 @@
-#' Randomly select samples from a sampling frame with or without strata.
+#' Select simple and stratified random samples from a sampling frame.
 #'
 #' Select random samples of a sampling frame (a data.frame).
-#'  \code{select_sample_prop} can be used when sampling with equal probability
-#'  across strata or when selecting a simple random sample.
-#'  \code{select_sample_str} selects samples when sample size varies across
-#'  strata.
+#' \code{select_sample_prop} can be used when sampling with equal probability
+#'   across strata or when selecting a simple random sample.
+#' \code{select_sample_str} selects samples when sample size varies across
+#'   strata.
 #' @param sampling_frame \code{data.frame} with the sampling frame it must contain a
 #'   column with the stratum.
 #' @param allocation \code{data.frame} with a column defining the strata and a
