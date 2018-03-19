@@ -19,13 +19,17 @@
 #'   proportions to be sampled within each stratum (TRUE) or sample sizes.
 #' @param frac when sampling with equal probability across strata, frac is a
 #'   numeric value indicating the fraction of the data to select.
+#' @param replace logical value indicating whether the sample should be selected
+#' with replacement.
 #' @return A \code{data.frame} with the selected sample, it will have the same
 #'   columns as the original sampling frame plus a column indicating the sample
 #'   size in the stratum of each selected observation.
 #' @examples
+#' # stratified random sampling
 #' sampling_frame <- data.frame(id = 1:100,
 #'   str = sample(1:5, 100, replace = TRUE),
 #'   val = rnorm(100))
+#' # allocation given by column n in allo data.frame
 #' allo <- sampling_frame %>%
 #'     group_by(str) %>%
 #'     summarise(n = 0.4 * n())
@@ -41,7 +45,7 @@ NULL
 #' @rdname select_sample
 #' @export
 select_sample_str <- function(sampling_frame, allocation,
-    sample_size = sample_size, stratum = stratum, is_frac = FALSE){
+    sample_size = sample_size, stratum = stratum, is_frac = FALSE, replace = FALSE){
 
     sample_size <- dplyr::enquo(sample_size)
     sample_size_name <- dplyr::quo_name(sample_size)
@@ -54,7 +58,7 @@ select_sample_str <- function(sampling_frame, allocation,
             dplyr::left_join(allocation, by = stratum_var_string) %>%
             split(.[stratum_var_string]) %>%
             purrr::map_df(~dplyr::sample_frac(.,
-                size = dplyr::pull(., sample_size_name)[1])) %>%
+                size = dplyr::pull(., sample_size_name)[1], replace = replace)) %>%
             dplyr::select(dplyr::one_of(colnames(sampling_frame)))
     } else {
         # if sample size not integer we round it
@@ -66,7 +70,7 @@ select_sample_str <- function(sampling_frame, allocation,
             dplyr::left_join(allocation, by = stratum_var_string) %>%
             split(.[stratum_var_string]) %>%
             purrr::map_df(~dplyr::sample_n(.,
-                size = dplyr::pull(., sample_size_name)[1])) %>%
+                size = dplyr::pull(., sample_size_name)[1], replace = replace)) %>%
             dplyr::select(dplyr::one_of(colnames(sampling_frame)))
     }
     return(sample)
@@ -74,15 +78,15 @@ select_sample_str <- function(sampling_frame, allocation,
 
 #' @rdname select_sample
 #' @export
-select_sample_prop <- function(sampling_frame, stratum = stratum, frac){
+select_sample_prop <- function(sampling_frame, stratum = stratum, frac, replace = FALSE){
     if(missing(stratum)){
-        sample <- dplyr::sample_frac(sampling_frame, size = frac)
+        sample <- dplyr::sample_frac(sampling_frame, size = frac, replace = replace)
     } else {
         stratum_var_string <- deparse(substitute(stratum))
         stratum <- dplyr::enquo(stratum)
         sample <- sampling_frame %>%
             dplyr::group_by(!!stratum) %>%
-            dplyr::sample_frac(size = frac)
+            dplyr::sample_frac(size = frac, replace = replace)
     }
     return(sample)
 }
