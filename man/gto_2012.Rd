@@ -4,7 +4,7 @@
 \name{gto_2012}
 \alias{gto_2012}
 \title{Governor electoral results for the State of Guanaguato 2012.}
-\format{A data frame with 53940 rows and 10 variables:
+\format{A data frame with 6746 rows and 21 variables:
 \describe{
   \item{casilla_id}{numeric identifier of the polling station}
   \item{distrito_fed_17, distrito_fed_12}{federal district, the districts
@@ -48,7 +48,7 @@
 gto_2012
 }
 \description{
-A dataset containing the election results for governor in Guanajuato 2012,
+A dataset containing the election results for governor of Guanajuato in 2012,
 each row corresponds to a polling station and the variables include the
 total counts per party.
 }
