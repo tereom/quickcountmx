@@ -7,9 +7,9 @@
 \title{Select simple and stratified random samples from a sampling frame.}
 \usage{
 select_sample_str(sampling_frame, allocation, sample_size = sample_size,
-  stratum = stratum, is_frac = FALSE)
+  stratum = stratum, is_frac = FALSE, replace = FALSE)
 
-select_sample_prop(sampling_frame, stratum = stratum, frac)
+select_sample_prop(sampling_frame, stratum = stratum, frac, replace = FALSE)
 }
 \arguments{
 \item{sampling_frame}{\code{data.frame} with the sampling frame it must contain a
@@ -28,6 +28,9 @@ parameter is not used.}
 
 \item{is_frac}{logical value indicating whether the allocation data.frame contains
 proportions to be sampled within each stratum (TRUE) or sample sizes.}
+
+\item{replace}{logical value indicating whether the sample should be selected
+with replacement.}
 
 \item{frac}{when sampling with equal probability across strata, frac is a
 numeric value indicating the fraction of the data to select.}
