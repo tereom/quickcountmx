@@ -76,13 +76,13 @@ mrp_party_estimation <- function(data, party, stratum, frac_sample = 1,
                 for(j in 1:n_distritos){
                     beta_distrito[j] ~ dnorm(beta_region[region[j]], tau_distrito)
                 }
-                beta_0 ~ dnorm(0, 0.0002)
-                beta_rural ~ dnorm(0, 0.0002)
-                beta_tamano_md  ~ dnorm(0, 0.0002)
-                beta_tamano_gd  ~ dnorm(0, 0.0002)
-                beta_tipo_ex  ~ dnorm(0, 0.0002)
+                beta_0 ~ dnorm(0, 0.0005)
+                beta_rural ~ dnorm(0, 0.0005)
+                beta_tamano_md  ~ dnorm(0, 0.0005)
+                beta_tamano_gd  ~ dnorm(0, 0.0005)
+                beta_tipo_ex  ~ dnorm(0, 0.0005)
                 for(i in 1:n_regiones){
-                    beta_region[i] ~ dnorm(0, 0.0002)
+                    beta_region[i] ~ dnorm(0, 0.0005)
                 }
                 sigma ~ dunif(0, 40)
                 tau <- pow(sigma, -2)

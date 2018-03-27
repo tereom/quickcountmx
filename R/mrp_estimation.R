@@ -35,6 +35,6 @@ mrp_estimation <- function(data, ..., frac_sample = 1,
             median_post = 100 * median(prop),
             std_dev_post = 100 * sd(prop)
             ) %>%
-        dplyr::arrange(mean_post)
+        dplyr::arrange(desc(mean_post))
     return(list(jags_fits = jags_fits, post_summary = post_summary))
 }
