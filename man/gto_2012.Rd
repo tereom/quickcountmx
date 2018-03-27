@@ -40,6 +40,8 @@
   is in the western (1) or eastern (2) side of the state.}
   \item{casilla_ex}{Binary variable indicating if the polling station is of
   type Extraordinaria}
+  \item{rural}{Binary variable indicating if the polling station is on a
+  rural section}
 }}
 \source{
 \url{https://cartografia.ife.org.mx}
