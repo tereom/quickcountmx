@@ -14,21 +14,24 @@
 #' @param std_errors binary value indicating whether to compute standard errors
 #'  (bootstrap).
 #' @param B number of bootstrap replicates used to compute standard errors.
-#' @return A \code{list} with the object fitted using R2jags::jags and the vector
-#'   of simulated counts per candidate.
+#' @param seed integer value used to set the state of the random number
+#' generator (optional). It will only be used when computing standard errors.
+#' @return A \code{list} with the object fitted using R2jags::jags and the
+#' vector of simulated counts per candidate.
 #' @examples
 #' # count number of polling stations per stratum
 #' gto_stratum_sizes <- gto_2012 %>%
-#'     group_by(distrito_loc_17) %>%
-#'     mutate(n_stratum = n())
+#'     dplyr::group_by(distrito_loc_17) %>%
+#'     dplyr::mutate(n_stratum = n())
 #' # stratified random sample (size 6%), sample size proportional to strata sizes
 #' gto_sample <- select_sample_prop(gto_stratum_sizes, stratum = distrito_loc_17, 0.06)
 #' gto_sample %>%
-#'     ratio_estimator(stratum = distrito_loc_17, n_stratum = n_stratum, ... = pri_pvem:otros)
+#'     ratio_estimation(stratum = distrito_loc_17, n_stratum = n_stratum, ... = pri_pvem:otros)
 #' @importFrom magrittr %>%
 #' @importFrom rlang !! !!! :=
-ratio_estimator <- function(data, stratum, n_stratum, std_errors = TRUE, B = 50,
-    ...){
+#' @export
+ratio_estimation <- function(data, stratum, n_stratum, std_errors = TRUE, B = 50,
+    seed = NA, ...){
     stratum <- dplyr::enquo(stratum)
     n_stratum <- dplyr::enquo(n_stratum)
     parties <- dplyr::quos(...)
@@ -49,27 +52,28 @@ ratio_estimator <- function(data, stratum, n_stratum, std_errors = TRUE, B = 50,
         dplyr::ungroup() %>%
         dplyr::mutate(r = 100 * y / sum(y)) %>%
         dplyr::select(-y)
-    if(std_errors == TRUE){
-        ratios_sd <- sd_ratio_estimator(data, B = B, stratum = !!stratum,
+    if (std_errors == TRUE){
+        ratios_sd <- sd_ratio_estimation(data, B = B, stratum = !!stratum,
             n_stratum = !!n_stratum, ... = !!!parties)
-        ratios <- left_join(ratios, ratios_sd, by = "party")
+        ratios <- dplyr::left_join(ratios, ratios_sd, by = "party") %>%
+            dplyr::arrange(desc(r))
     }
     return(ratios)
 }
-
-sd_ratio_estimator <- function(data, B, stratum, n_stratum, ...){
+sd_ratio_estimation <- function(data, B, stratum, n_stratum, ...){
     # B bootstrap replicates
-    ratio_reps <- rerun(B, sd_ratio_estimator_aux(data, stratum = !!enquo(stratum),
-        n_stratum = !!enquo(n_stratum), ... = !!!quos(...)))
-    std_errors <- bind_rows(!!!ratio_reps) %>%
-        group_by(party) %>%
-        summarise(std_error = sd(r))
+    ratio_reps <- purrr::rerun(B, sd_ratio_estimation_aux(data,
+        stratum = !!enquo(stratum), n_stratum = !!enquo(n_stratum),
+        ... = !!!quos(...)))
+    std_errors <- dplyr::bind_rows(!!!ratio_reps) %>%
+        dplyr::group_by(party) %>%
+        dplyr::summarise(std_error = sd(r))
     return(std_errors)
 }
 # auxiliary function, bootstrap samples of the data and computes ratio estimator
-sd_ratio_estimator_aux <- function(data, stratum, n_stratum, ...){
-    sample_boot <- select_sample_prop(data, stratum = !!enquo(stratum), frac = 1,
-        replace = TRUE)
-    ratio_estimator(sample_boot, stratum = !!enquo(stratum),
+sd_ratio_estimation_aux <- function(data, stratum, n_stratum, ...){
+    sample_boot <- select_sample_prop(data, stratum = !!enquo(stratum),
+        frac = 1, replace = TRUE)
+    ratio_estimation(sample_boot, stratum = !!enquo(stratum),
         n_stratum = !!enquo(n_stratum), std_errors = FALSE, ... = !!!quos(...))
 }
