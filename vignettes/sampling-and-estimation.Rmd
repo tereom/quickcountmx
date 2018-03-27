@@ -11,15 +11,16 @@ vignette: >
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
+    collapse = TRUE,
+    comment = "#>", 
+    cache = TRUE
 )
 ```
 
 To install the package use [devtools](https://github.com/r-lib/devtools) 
 (devtools is available on CRAN).
 
-```{r}
+```{r, message=FALSE}
 # devtools::install_github("tereom/quickcount")
 library(quickcount)
 library(tidyverse)
@@ -38,8 +39,8 @@ The variables are described in the package documentation `?gto_2012`.
 ### Random sampling
 
 The functions `select_sample_str` and `select_sample_prop` allow for simple 
-random sampling and stratified random sampling. For example if we want to 
-select a simple random sample with 2% of the data one simply do:
+random sampling and stratified random sampling. For example to 
+select a simple random sample with 2% of the data:
 
 ```{r}
 gto_srs <- select_sample_prop(gto_2012, frac = 0.02)
@@ -75,18 +76,18 @@ Note that there is a parameter `seed` so we can replicate a sample.
 
 ### Estimation
 
-We begin exemplifying ratio estimation, to compute estimations we using ratio
+We begin exemplifying ratio estimation, to compute estimations using ratio
 estimator we need to know the size of each strata (in this case strata are the 
 local districts):
 
 ```{r}
 # count number of polling stations per stratum
-gto_strata_sizes <- gto_2012 %>%
+gto_stratum_sizes <- gto_2012 %>%
     dplyr::group_by(distrito_loc_17) %>%
     dplyr::mutate(n_stratum = n())
 ```
 
-Now lets suppose we have a stratified random sample with 4% of te data (pps):
+Now lets suppose we have a stratified random sample with 4% of the data (pps):
 
 ```{r}
 gto_sample <- select_sample_prop(gto_stratum_sizes, stratum = distrito_loc_17, 
@@ -107,17 +108,17 @@ before calling the function, and use the parameter `frac_sample=1`, however,
 for the estimation to take place the `data` must include all polling stations 
 and NA whenever the polling station was not in the sample.
 
-```{r}
+```{r, message=FALSE}
 mrp_gto <- mrp_estimation(gto_2012, pri_pvem:otros, frac_sample = 0.06, 
-    n_iter = 500, n_burnin = 250, n_chains = 2, seed = 19291)
+    n_iter = 2000, n_burnin = 1500, n_chains = 2, seed = 19291)
 ```
 
 `mrp_estimation` returns a list with the fitted models, so we can evaluate
 examine the model and evaluate convergence:
 
-```{r}
+```{r, fig.width=8, fig.height=12}
 mrp_gto$jags_fits$pri_pvem$model
-plot(mrp_gto$jags_fits$pri_pvem)
+plot(mrp_gto$jags_fits$pan_na)
 ```
 
 It also includes a summary table with posterior estimations:
