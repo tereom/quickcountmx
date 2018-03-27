@@ -7,9 +7,10 @@
 \title{Select simple and stratified random samples from a sampling frame.}
 \usage{
 select_sample_str(sampling_frame, allocation, sample_size = sample_size,
-  stratum = stratum, is_frac = FALSE, replace = FALSE)
+  stratum = stratum, is_frac = FALSE, seed = NA, replace = FALSE)
 
-select_sample_prop(sampling_frame, stratum = stratum, frac, replace = FALSE)
+select_sample_prop(sampling_frame, stratum = stratum, frac, seed = NA,
+  replace = FALSE)
 }
 \arguments{
 \item{sampling_frame}{\code{data.frame} with the sampling frame it must contain a
@@ -28,6 +29,8 @@ parameter is not used.}
 
 \item{is_frac}{logical value indicating whether the allocation data.frame contains
 proportions to be sampled within each stratum (TRUE) or sample sizes.}
+
+\item{seed}{integer value used to set the state of the random number generator.}
 
 \item{replace}{logical value indicating whether the sample should be selected
 with replacement.}
@@ -48,9 +51,11 @@ Select random samples of a sampling frame (a data.frame).
   strata.
 }
 \examples{
+# stratified random sampling
 sampling_frame <- data.frame(id = 1:100,
   str = sample(1:5, 100, replace = TRUE),
   val = rnorm(100))
+# allocation given by column n in allo data.frame
 allo <- sampling_frame \%>\%
     group_by(str) \%>\%
     summarise(n = 0.4 * n())
