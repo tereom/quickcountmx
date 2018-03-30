@@ -49,7 +49,7 @@ mrp_party_estimation <- function(data, party, stratum, frac_sample = 1,
             frac = frac_sample, seed = seed)
         data_model <- data %>%
             dplyr::mutate(!!party_name := ifelse(casilla_id %in%
-                    data_sample$casilla_id, !!party_enquo, NA))
+                data_sample$casilla_id, !!party_enquo, NA))
     }
 
     data_district <- dplyr::distinct(data, !!stratum_enquo, region) %>%
@@ -59,30 +59,32 @@ mrp_party_estimation <- function(data, party, stratum, frac_sample = 1,
         n_distritos = nrow(data_district),
         x = dplyr::pull(data_model, !!party_enquo),
         rural = data_model$rural,
-        distrito = data_model$distrito_loc_17,
+        estrato = dplyr::pull(data_model, !!stratum_enquo),
         tamano_md = data_model$tamano_md,
         tamano_gd = data_model$tamano_gd, tipo_ex = data_model$casilla_ex,
         region = data_district$region)
-    if(is.na(model_string)){
+    if (is.na(model_string)){
         model_string <-
             "
             model{
                 for(k in 1:N){
-                    x[k] ~ dnorm(theta[k], tau / n[k])
+                    x[k] ~ dnorm(theta[k], tau / n[k]) T(0, 750)
                     theta[k] <- beta_0 + beta_rural * rural[k] +
-                    beta_distrito[distrito[k]] + beta_tamano_md * tamano_md[k] +
+                    beta_rural_tamano_md * rural[k] * tamano_md[k] +
+                    beta_estrato[estrato[k]] + beta_tamano_md * tamano_md[k] +
                     beta_tamano_gd * tamano_gd[k] + beta_tipo_ex * tipo_ex[k]
                 }
                 for(j in 1:n_distritos){
-                    beta_distrito[j] ~ dnorm(beta_region[region[j]], tau_distrito)
+                    beta_estrato[j] ~ dnorm(beta_region[region[j]], tau_distrito)
                 }
-                beta_0 ~ dnorm(0, 0.0002)
-                beta_rural ~ dnorm(0, 0.0002)
-                beta_tamano_md  ~ dnorm(0, 0.0002)
-                beta_tamano_gd  ~ dnorm(0, 0.0002)
-                beta_tipo_ex  ~ dnorm(0, 0.0002)
-                for(i in 1:n_regiones){
-                    beta_region[i] ~ dnorm(0, 0.0002)
+                beta_0 ~ dnorm(0, 0.0005)
+                beta_rural ~ dnorm(0, 0.0005)
+                beta_tamano_md  ~ dnorm(0, 0.0005)
+                beta_tamano_gd  ~ dnorm(0, 0.0005)
+                beta_tipo_ex  ~ dnorm(0, 0.0005)
+                beta_rural_tamano_md  ~ dnorm(0, 0.0005)
+                for(j in 1:n_regiones){
+                    beta_region[j] ~ dnorm(0, 0.0005)
                 }
                 sigma ~ dunif(0, 40)
                 tau <- pow(sigma, -2)
@@ -98,9 +100,10 @@ mrp_party_estimation <- function(data, party, stratum, frac_sample = 1,
         model.file = temp_file,
         # inits = jags_inits,
         data = data_jags,
-        parameters.to.save = c("x", "beta_0", "beta_rural", "beta_distrito",
+        parameters.to.save = c("x", "beta_0", "beta_rural", "beta_estrato",
             "beta_tamano_md", "beta_tamano_gd", "beta_tipo_ex",
-            "beta_region", "sigma", "sigma_distrito"),
+            "beta_region", "sigma", "sigma_distrito", "beta_rural_tamano_md",
+            "beta_rural_tamano_gd"),
         n.chains = n_chains,
         n.iter = n_iter,
         n.burnin = n_burnin
