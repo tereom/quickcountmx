@@ -1,0 +1,131 @@
+---
+title: "Sampling and estimation methods"
+author: "Teresa Ortiz"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>", 
+    cache = TRUE
+)
+```
+
+To install the package use [devtools](https://github.com/r-lib/devtools) 
+(devtools is available on CRAN).
+
+```{r, message=FALSE}
+# devtools::install_github("tereom/quickcount")
+library(quickcount)
+library(tidyverse)
+```
+
+The package includes the results of the 2012 Guanajuato Governor election, which
+will be used to exemplify the functions.
+
+```{r}
+data("gto_2012")
+glimpse(gto_2012)
+```
+
+The variables are described in the package documentation `?gto_2012`.
+
+### Random sampling
+
+The functions `select_sample_str` and `select_sample_prop` allow for simple 
+random sampling and stratified random sampling. For example to 
+select a simple random sample with 2% of the data:
+
+```{r}
+gto_srs <- select_sample_prop(gto_2012, frac = 0.02)
+```
+
+For stratified sample we can specify the desired sample size in each stratum 
+or we can specify the percentage of the observations to be selected within 
+each stratum (allocation corresponding to probability proportional to size).
+
+If we are to specify sample size within strata we need to supply a data.frame
+with the sample sizes. For example, lets suppose we are stratifying by federal 
+district and the data.frame `allo_df` specifies the allocation in each stratum, 
+in this case we want to sample 3 polling stations in each stratum:
+
+```{r}
+allo_df <- data.frame(distrito_fed_17 = 1:20, n = rep(3, 20))
+allo_df
+```
+We use the function `select_sample_str`:
+```{r}
+gto_equal <- select_sample_str(gto_2012, allo_df, n, distrito_fed_17)
+table(gto_equal$distrito_fed_17)
+```
+
+And selecting with probability proportional to size (pps) we can choose a 
+stratified sample with 2% of the polling stations:
+
+```{r}
+gto_str <- select_sample_prop(gto_2012, distrito_fed_17, 0.02, seed = 281982)
+table(gto_str$distrito_fed_17)
+```
+Note that there is a parameter `seed` so we can replicate a sample.
+
+### Estimation
+
+We begin exemplifying ratio estimation, to compute estimations using ratio
+estimator we need to know the size of each strata (in this case strata are the 
+local districts):
+
+```{r}
+# count number of polling stations per stratum
+gto_stratum_sizes <- gto_2012 %>%
+    dplyr::group_by(distrito_loc_17) %>%
+    dplyr::mutate(n_stratum = n())
+```
+
+Now lets suppose we have a stratified random sample with 4% of the data (pps):
+
+```{r}
+gto_sample <- select_sample_prop(gto_stratum_sizes, stratum = distrito_loc_17, 
+    0.06, seed = 19291)
+```
+
+We then call the function `ratio_estimation()`
+
+```{r}
+ratio_estimation(gto_sample, stratum = distrito_loc_17, n_stratum = n_stratum, 
+    ... = pri_pvem:otros)
+```
+For Mr. P, we fit a model per candidate and then compute the proportions using
+the simulated counts for each polling station-candidate. The following 
+function selects a sample of 6% percent of the data, fits the model using the 
+sample and predicts for the population. Alternatively, one can select a sample
+before calling the function, and use the parameter `frac_sample=1`, however, 
+for the estimation to take place the `data` must include all polling stations 
+and NA whenever the polling station was not in the sample.
+
+```{r, message=FALSE}
+mrp_gto <- mrp_estimation(gto_2012, pri_pvem:otros, frac_sample = 0.06, 
+    n_iter = 2000, n_burnin = 1500, n_chains = 2, seed = 19291)
+```
+
+`mrp_estimation` returns a list with the fitted models, so we can evaluate
+examine the model and evaluate convergence:
+
+```{r, fig.width=8, fig.height=12}
+mrp_gto$jags_fits$pri_pvem$model
+plot(mrp_gto$jags_fits$pan_na)
+```
+
+It also includes a summary table with posterior estimations:
+
+```{r}
+mrp_gto$post_summary
+```
+
+
+
