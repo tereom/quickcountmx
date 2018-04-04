@@ -6,12 +6,13 @@
 \title{Governor electoral results for the State of Guanaguato 2012.}
 \format{A data frame with 6746 rows and 21 variables:
 \describe{
-  \item{casilla_id}{numeric identifier of the polling station}
-  \item{distrito_fed_17, distrito_fed_12}{federal district, the districts
-  where redefined in 2017, we include both variables}
-  \item{distrito_loc_17, distrito_loc_12}{local district, the districts
-  where redefined in 2017, we include both variables}
-  \item{seccion}{the section is the miminal electoral geographical unit that
+  \item{casilla_id}{Numeric identifier of the polling station.}
+  \item{distrito_fed_17, distrito_fed_12}{Federal district, the districts
+  where redefined in 2017, we include both variables.}
+  \item{distrito_loc_17, distrito_loc_12}{Local district, the districts
+  where redefined in 2017, we include both variables.}
+  \item {are}{Electoral Responsability Area identifier for the 2012 election.}
+  \item{seccion}{The section is the miminal electoral geographical unit that
   contains the polling station.}
   \item{casilla}{Type of polling station, Basic (B) is the
   basic and most common type, Contigua (C) these polling stations arise when
