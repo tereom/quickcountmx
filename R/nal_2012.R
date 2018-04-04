@@ -47,17 +47,9 @@
 #' @source \url{https://cartografia.ife.org.mx}
 "nal_2012"
 
-# nal <- readr::read_delim("~/Documents/GitHub/ine_cotecora/datos/Resultados electorales federales/Computos_Distritales_Presidente_2012.txt",
-#     "|", escape_double = FALSE, trim_ws = TRUE,
-#     locale = readr::locale(encoding = "ISO-8859-1")) %>%
-#     filter(TIPO_CASILLA != "M")
 # nal_estratos <- readr::read_delim("~/Documents/GitHub/ine_cotecora/datos/Presidente2012/Presidente2012_completo.csv",
 #     ",", escape_double = FALSE, trim_ws = TRUE,
 #     locale = readr::locale(encoding = "ISO-8859-1"))
-# nal está mal para Morelos, nal_estrato <- left_join(nal, nal_estratos)
-# View(nal_estrato)
-# glimpse(nal)
-
 # nal_2012 <- nal_estratos %>%
 #     dplyr::mutate(
 #         casilla_id = 1:n(),

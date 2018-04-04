@@ -52,8 +52,7 @@
 nal_2012
 }
 \description{
-A dataset containing the election results for governor of Guanajuato in 2012,
-each row corresponds to a polling station and the variables include the
-total counts per party.
+A dataset containing the election results for president 2012, each row
+corresponds to a polling station.
 }
 \keyword{datasets}

@@ -7,7 +7,7 @@
 \title{Select simple and stratified random samples from a sampling frame.}
 \usage{
 select_sample_str(sampling_frame, allocation, sample_size = sample_size,
-  stratum = stratum, is_frac = º, seed = NA, replace = FALSE)
+  stratum = stratum, is_frac = FALSE, seed = NA, replace = FALSE)
 
 select_sample_prop(sampling_frame, stratum = stratum, frac, seed = NA,
   replace = FALSE)

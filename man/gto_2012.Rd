@@ -11,7 +11,7 @@
   where redefined in 2017, we include both variables.}
   \item{distrito_loc_17, distrito_loc_12}{Local district, the districts
   where redefined in 2017, we include both variables.}
-  \item {are}{Electoral Responsability Area identifier for the 2012 election.}
+  \item{are}{Electoral Responsability Area identifier for the 2012 election.}
   \item{seccion}{The section is the miminal electoral geographical unit that
   contains the polling station.}
   \item{casilla}{Type of polling station, Basic (B) is the
