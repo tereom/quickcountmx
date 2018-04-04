@@ -1,10 +1,10 @@
 Package: quickcount
 Type: Package
-Title: Estimate Election Results
+Title: Estimate Election Results Mexico
 Version: 0.1.0
-Author@R: person("Teresa", "Ortiz", email = "mortiz@conabio.gob.mx", role = c("aut", "cre"))
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: Functions to simulate and estimate election results based on a simple or stratified random sample.
+Description: Functions to simulate and estimate Mexican election results based on a simple or stratified random sample.
+Author@R: person("Teresa", "Ortiz", email = "terexom@gmail.com", role = c("aut", "cre"))
+URL: https://github.com/tereom/quickcount
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -15,3 +15,4 @@ Imports: dplyr,
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr
+Enhances: parallel
