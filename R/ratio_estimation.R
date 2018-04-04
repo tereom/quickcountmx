@@ -4,8 +4,9 @@
 #' with bootstrap resampling within each stratum and computing the standard
 #' error of the samples (no corrections).
 #' @details The bootstrap approach we use is not suitable
-#' when the number of polling stations within a strata is small. Coverage might
-#' improve if confidence intervals are constructed with ABCs or t-tables.
+#' when the number of sampled polling stations within a strata is small.
+#' Coverage mightimprove if confidence intervals are constructed with ABCs or
+#' t-tables.
 #' @param data \code{data.frame}
 #' @param ... unquoted variables indicating the number of votes in each polling
 #'   station for each candidate.
@@ -30,8 +31,8 @@
 #' @importFrom magrittr %>%
 #' @importFrom rlang !! !!! :=
 #' @export
-ratio_estimation <- function(data, stratum, n_stratum, std_errors = TRUE, B = 50,
-    seed = NA, ...){
+ratio_estimation <- function(data, stratum, n_stratum, std_errors = TRUE,
+    B = 50, seed = NA, ...){
     stratum <- dplyr::enquo(stratum)
     n_stratum <- dplyr::enquo(n_stratum)
     parties <- dplyr::quos(...)
@@ -63,8 +64,8 @@ ratio_estimation <- function(data, stratum, n_stratum, std_errors = TRUE, B = 50
 sd_ratio_estimation <- function(data, B, stratum, n_stratum, ...){
     # B bootstrap replicates
     ratio_reps <- purrr::rerun(B, sd_ratio_estimation_aux(data,
-        stratum = !!enquo(stratum), n_stratum = !!enquo(n_stratum),
-        ... = !!!quos(...)))
+        stratum = !!dplyr::enquo(stratum),
+        n_stratum = !!dplyr::enquo(n_stratum), ... = !!!dplyr::quos(...)))
     std_errors <- dplyr::bind_rows(!!!ratio_reps) %>%
         dplyr::group_by(party) %>%
         dplyr::summarise(std_error = sd(r))
@@ -72,8 +73,9 @@ sd_ratio_estimation <- function(data, B, stratum, n_stratum, ...){
 }
 # auxiliary function, bootstrap samples of the data and computes ratio estimator
 sd_ratio_estimation_aux <- function(data, stratum, n_stratum, ...){
-    sample_boot <- select_sample_prop(data, stratum = !!enquo(stratum),
+    sample_boot <- select_sample_prop(data, stratum = !!dplyr::enquo(stratum),
         frac = 1, replace = TRUE)
-    ratio_estimation(sample_boot, stratum = !!enquo(stratum),
-        n_stratum = !!enquo(n_stratum), std_errors = FALSE, ... = !!!quos(...))
+    ratio_estimation(sample_boot, stratum = !!dplyr::enquo(stratum),
+        n_stratum = !!dplyr::enquo(n_stratum), std_errors = FALSE,
+        ... = !!!dplyr::quos(...))
 }
