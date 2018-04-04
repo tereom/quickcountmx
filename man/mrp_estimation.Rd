@@ -4,8 +4,8 @@
 \alias{mrp_estimation}
 \title{Compute all postratified estimates}
 \usage{
-mrp_estimation(data, ..., frac_sample = 1, n_iter = 2000, n_burnin = 500,
-  n_chains = 3, seed = NA)
+mrp_estimation(data, ..., stratum, frac = 1, n_iter = 2000,
+  n_burnin = 500, n_chains = 3, seed = NA, parallel = FALSE, clust)
 }
 \arguments{
 \item{data}{A \code{data.frame} with variables: ln_total, region,
@@ -15,7 +15,11 @@ number of votes for the party.}
 \item{...}{One or more unquoted expressions separated by commas, indicating
 the column names with the votes for each candidate.}
 
-\item{frac_sample}{If sampling the data, numeric value indicating the fraction
+\item{stratum}{If sampling the data, unquoted variable indicating the column
+from the data.frame to be used as strata. The strata will also be used in
+the hierarchical structure of the model.}
+
+\item{frac}{If sampling the data, numeric value indicating the fraction
 of the data to sample, the sample is selected using stratified sampling
 with probability proportional to size.}
 
@@ -28,7 +32,8 @@ to be used in \code{\link[R2jags]{jags}}.}
 \item{n_chains}{Number of iterations, chains and burnin size
 to be used in \code{\link[R2jags]{jags}}.}
 
-\item{seed}{Integer value used to set the state of the random number generator.}
+\item{seed}{Integer value used to set the state of the random number
+generator.}
 }
 \description{
 This function calls \code{\link{mrp_party_estimation}} using all the parties

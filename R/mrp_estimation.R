@@ -7,8 +7,9 @@
 #'   the column names with the votes for each candidate.
 #' @inheritParams mrp_party_estimation
 #' @parallel Logical value indicating whether to parallelize the models, if TRUE
-#'   package \pkg{parallel} must be installed.
-#' @clust \code{\link[parallel]{makeCluster}}
+#'   package parallel must be installed.
+#' @clust If parallelizing an object of class \code{c("SOCKcluster", "cluster")}
+#' as returned by \code{\link[parallel]{makeCluster}}.
 #' @importFrom magrittr %>%
 #' @importFrom rlang !! !!! :=
 #' @export
@@ -18,7 +19,7 @@ mrp_estimation <- function(data, ..., stratum, frac = 1,
     if (is.na(seed)) seed <- sample(1:1000, 1)
     parties <- dplyr::quos(...)
     stratum_enquo <- dplyr::enquo(stratum)
-    data_long <- tidyr::gather(data, party, n_votes, !!!parties)
+    data_long <- tidyr::gather(data, "party", "n_votes", !!!parties)
     parties_split <- data_long %>%
         split(.$party)
     if (parallel){
