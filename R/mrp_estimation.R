@@ -6,9 +6,10 @@
 #' @param ... One or more unquoted expressions separated by commas, indicating
 #'   the column names with the votes for each candidate.
 #' @inheritParams mrp_party_estimation
-#' @parallel Logical value indicating whether to parallelize the models, if TRUE
-#'   package parallel must be installed.
-#' @clust If parallelizing an object of class \code{c("SOCKcluster", "cluster")}
+#' @param parallel Logical value indicating whether to parallelize the models,
+#'   if TRUE package parallel must be installed.
+#' @param clust If parallelizing an object of class
+#'   \code{c("SOCKcluster", "cluster")}
 #' as returned by \code{\link[parallel]{makeCluster}}.
 #' @importFrom magrittr %>%
 #' @importFrom rlang !! !!! :=

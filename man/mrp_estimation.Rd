@@ -34,6 +34,13 @@ to be used in \code{\link[R2jags]{jags}}.}
 
 \item{seed}{Integer value used to set the state of the random number
 generator.}
+
+\item{parallel}{Logical value indicating whether to parallelize the models,
+if TRUE package parallel must be installed.}
+
+\item{clust}{If parallelizing an object of class
+  \code{c("SOCKcluster", "cluster")}
+as returned by \code{\link[parallel]{makeCluster}}.}
 }
 \description{
 This function calls \code{\link{mrp_party_estimation}} using all the parties
