@@ -11,12 +11,13 @@
 #' @param stratum If sampling the data, unquoted variable indicating the column
 #'   from the data.frame to be used as strata. The strata will also be used in
 #'   the hierarchical structure of the model.
-#' @param frac_sample If sampling the data, numeric value indicating the fraction
+#' @param frac If sampling the data, numeric value indicating the fraction
 #'   of the data to sample, the sample is selected using stratified sampling
 #'   with probability proportional to size.
 #' @param n_iter,n_chains,n_burnin Number of iterations, chains and burnin size
 #'  to be used in \code{\link[R2jags]{jags}}.
-#' @param seed Integer value used to set the state of the random number generator.
+#' @param seed Integer value used to set the state of the random number
+#'   generator.
 #' @return A \code{list} with the object fitted using R2jags::jags and the vector
 #'   of simulated counts per candidate.
 #' @param modelo_jags optional string specifying variations of the jags model.
@@ -32,21 +33,22 @@
 #' @examples
 #' data("gto_2012")
 #' mrp_party_estimation(gto_2012, party = pan_na, stratum = distrito_loc_17,
-#'   frac_sample = 1, seed = 2212)
+#'   frac = 1, seed = 2212)
 #' @importFrom magrittr %>%
 #' @importFrom rlang !! !!! :=
 #' @export
-mrp_party_estimation <- function(data, party, stratum, frac_sample = 1,
-    n_chains = 3, n_iter = 1000, n_burnin = 500, seed = NA, model_string = NA){
+mrp_party_estimation <- function(data, party, stratum, frac = 1,
+    n_chains = 3, n_iter = 1000, n_burnin = 500, seed = NA, model_string = NA,
+    parallel = FALSE){
     stratum_enquo <- dplyr::enquo(stratum)
     party_enquo <- dplyr::enquo(party)
     party_name <- dplyr::quo_name(party_enquo)
 
-    if (frac_sample >= 1){
+    if (frac >= 1){
         data_model <- data
     } else {
         data_sample <- select_sample_prop(data, stratum = !!stratum_enquo,
-            frac = frac_sample, seed = seed)
+            frac = frac, seed = seed)
         data_model <- data %>%
             dplyr::mutate(!!party_name := ifelse(casilla_id %in%
                 data_sample$casilla_id, !!party_enquo, NA))
@@ -99,20 +101,20 @@ mrp_party_estimation <- function(data, party, stratum, frac_sample = 1,
             }
         "
     }
-
     temp_file <- tempfile(pattern = "model_string", fileext = ".txt")
     cat(model_string, file = temp_file)
     fit_jags <- R2jags::jags(
-        model.file = temp_file,
         # inits = jags_inits,
         data = data_jags,
-        parameters.to.save = c("x", "beta_rural",
+        parameters.to.save = c("x", "beta_rural", "beta_0", "beta_estrato",
             "beta_tamano_md", "beta_tamano_gd", "beta_tipo_ex",
             "sigma", "sigma_estrato", "beta_rural_tamano_md",
             "beta_0_adj", "sigma_region", "beta_region_adj", "beta_estrato_adj"),
+        model.file = temp_file,
         n.chains = n_chains,
         n.iter = n_iter,
-        n.burnin = n_burnin
+        n.burnin = n_burnin,
+        jags.seed = seed
     )
     n_votes <- apply(fit_jags$BUGSoutput$sims.list$x, 1, sum)
     return(list(fit = fit_jags, n_votes = n_votes))
