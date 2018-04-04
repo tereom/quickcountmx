@@ -4,8 +4,9 @@
 \alias{mrp_party_estimation}
 \title{Postratified estimation for the number of votes for a given candidate.}
 \usage{
-mrp_party_estimation(data, party, stratum, frac_sample = 1, n_chains = 3,
-  n_iter = 2000, n_burnin = 500, seed = NA, model_string = NA)
+mrp_party_estimation(data, party, stratum, frac = 1, n_chains = 3,
+  n_iter = 1000, n_burnin = 500, seed = NA, model_string = NA,
+  parallel = FALSE)
 }
 \arguments{
 \item{data}{A \code{data.frame} with variables: ln_total, region,
@@ -19,14 +20,15 @@ be modeled.}
 from the data.frame to be used as strata. The strata will also be used in
 the hierarchical structure of the model.}
 
-\item{frac_sample}{If sampling the data, numeric value indicating the fraction
+\item{frac}{If sampling the data, numeric value indicating the fraction
 of the data to sample, the sample is selected using stratified sampling
 with probability proportional to size.}
 
 \item{n_iter, n_chains, n_burnin}{Number of iterations, chains and burnin size
 to be used in \code{\link[R2jags]{jags}}.}
 
-\item{seed}{Integer value used to set the state of the random number generator.}
+\item{seed}{Integer value used to set the state of the random number
+generator.}
 
 \item{modelo_jags}{optional string specifying variations of the jags model.}
 }
@@ -52,5 +54,5 @@ The default model is:
 \examples{
 data("gto_2012")
 mrp_party_estimation(gto_2012, party = pan_na, stratum = distrito_loc_17,
-  frac_sample = 1, seed = 2212)
+  frac = 1, seed = 2212)
 }
