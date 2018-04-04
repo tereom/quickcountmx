@@ -5,7 +5,7 @@
 #' error of the samples (no corrections).
 #' @details The bootstrap approach we use is not suitable
 #' when the number of sampled polling stations within a strata is small.
-#' Coverage mightimprove if confidence intervals are constructed with ABCs or
+#' Coverage might improve if confidence intervals are constructed with ABCs or
 #' t-tables.
 #' @param data \code{data.frame}
 #' @param ... unquoted variables indicating the number of votes in each polling
@@ -24,10 +24,12 @@
 #' gto_stratum_sizes <- gto_2012 %>%
 #'     dplyr::group_by(distrito_loc_17) %>%
 #'     dplyr::mutate(n_stratum = n())
-#' # stratified random sample (size 6%), sample size proportional to strata sizes
-#' gto_sample <- select_sample_prop(gto_stratum_sizes, stratum = distrito_loc_17, 0.06)
+#' # stratified random sample (size 6%), sample size proportional to strata size
+#' gto_sample <- select_sample_prop(gto_stratum_sizes,
+#' stratum = distrito_loc_17, 0.06)
 #' gto_sample %>%
-#'     ratio_estimation(stratum = distrito_loc_17, n_stratum = n_stratum, ... = pri_pvem:otros)
+#'     ratio_estimation(stratum = distrito_loc_17, n_stratum = n_stratum,
+#'     ... = pri_pvem:otros)
 #' @importFrom magrittr %>%
 #' @importFrom rlang !! !!! :=
 #' @export
