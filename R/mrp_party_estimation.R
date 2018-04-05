@@ -38,8 +38,7 @@
 #' @importFrom rlang !! !!! :=
 #' @export
 mrp_party_estimation <- function(data, party, stratum, frac = 1,
-    n_chains = 3, n_iter = 1000, n_burnin = 500, seed = NA, model_string = NA,
-    parallel = FALSE){
+    n_chains = 3, n_iter = 1000, n_burnin = 500, seed = NA, model_string = NA){
     stratum_enquo <- dplyr::enquo(stratum)
     party_enquo <- dplyr::enquo(party)
     party_name <- dplyr::quo_name(party_enquo)
