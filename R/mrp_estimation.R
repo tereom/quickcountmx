@@ -24,11 +24,16 @@ mrp_estimation <- function(data, ..., stratum, frac = 1,
     parties_split <- data_long %>%
         split(.$party)
     if (parallel){
-        parties_models <- parallel::parLapply(clust, parties_split, function(x){
-            quickcount::mrp_party_estimation(data = x, party = n_votes,
-            stratum = rlang::`!!`(stratum_enquo), frac = frac,
-                n_chains = n_chains, n_iter = n_iter, n_burnin = n_burnin,
-                seed = seed)
+        parties_split_vars <- purrr::map(parties_split, ~list(data = .,
+            party = .$party[1], stratum = rlang::quo_text(stratum_enquo),
+            frac = frac, n_chains = n_chains, n_iter = n_iter,
+            n_burnin = n_burnin, n_chains = n_chains, seed = seed))
+        parties_models <- parallel::parLapply(cl = clust, X = parties_split_vars,
+            fun = function(x){
+            quickcount::mrp_party_estimation(x$data, party = n_votes,
+                stratum = !!rlang::sym(x$stratum), frac = x$frac,
+                n_chains = x$n_chains, n_iter = x$n_iter, n_burnin = x$n_burnin,
+                seed = x$seed)
             })
     } else {
         parties_models <- parties_split %>%
@@ -53,9 +58,10 @@ mrp_estimation <- function(data, ..., stratum, frac = 1,
             mean_post = 100 * mean(prop),
             median_post = 100 * median(prop),
             std_dev_post = 100 * sd(prop),
-            int_l = mean_post - 1.96 * std_dev_post,
-            int_r = mean_post + 1.96 * std_dev_post
+            int_l = max(0, mean_post - 1.96 * std_dev_post),
+            int_r = min(100, mean_post + 1.96 * std_dev_post)
             ) %>%
         dplyr::arrange(desc(mean_post))
     return(list(jags_fits = jags_fits, post_summary = post_summary))
 }
+
