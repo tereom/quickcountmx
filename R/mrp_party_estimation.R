@@ -31,9 +31,11 @@
 #'    \deqn{\beta_{dl}\sim N(\beta_{region(k)}^{region}, \sigma_{dl}^2)}
 #'
 #' @examples
+#' \donotrun{
 #' data("gto_2012")
 #' mrp_party_estimation(gto_2012, party = pan_na, stratum = distrito_loc_17,
 #'   frac = 1, seed = 2212)
+#'   }
 #' @importFrom magrittr %>%
 #' @importFrom rlang !! !!! :=
 #' @export
@@ -78,8 +80,7 @@ mrp_party_estimation <- function(data, party, stratum, frac = 1,
                 beta_0_adj <- beta_0 + mean(beta_estrato[])
                 for(j in 1:n_distritos){
                     beta_estrato[j] ~ dnorm(beta_region[region[j]], tau_estrato)
-                    beta_estrato_adj[j] <- beta_estrato[j] -
-                        mean(beta_estrato[])
+                    beta_estrato_adj[j] <- beta_estrato[j] - mean(beta_estrato[])
                 }
                 for(j in 1:n_regiones){
                     beta_region[j] ~ dnorm(mu_region, tau_region)
@@ -107,7 +108,7 @@ mrp_party_estimation <- function(data, party, stratum, frac = 1,
         # inits = jags_inits,
         data = data_jags,
         parameters.to.save = c("x", "beta_rural", "beta_0", "beta_estrato",
-            "beta_tamano_md", "beta_tamano_gd", "beta_tipo_ex",
+            "beta_tamano_md", "beta_tamano_gd", "beta_tipo_ex", "beta_region",
             "sigma", "sigma_estrato", "beta_rural_tamano_md",
             "beta_0_adj", "sigma_region", "beta_region_adj",
             "beta_estrato_adj"),
