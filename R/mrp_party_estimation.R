@@ -40,7 +40,8 @@
 #' @importFrom rlang !! !!! :=
 #' @export
 mrp_party_estimation <- function(data, party, stratum, frac = 1,
-    n_chains = 3, n_iter = 1000, n_burnin = 500, seed = NA, model_string = NA){
+    n_chains = 3, n_iter = 1000, n_burnin = 500, seed = NA,
+    model_string = NA){
     stratum_enquo <- dplyr::enquo(stratum)
     party_enquo <- dplyr::enquo(party)
     party_name <- dplyr::quo_name(party_enquo)
@@ -93,9 +94,9 @@ mrp_party_estimation <- function(data, party, stratum, frac = 1,
                 beta_tipo_ex  ~ dnorm(0, 0.0005)
                 beta_rural_tamano_md  ~ dnorm(0, 0.0005)
                 mu_region ~ dnorm(0, 0.0001)
-                sigma ~ dunif(0, 50)
+                sigma ~ dunif(0, 10)
                 tau <- pow(sigma, -2)
-                sigma_estrato ~ dunif(0, 80)
+                sigma_estrato ~ dunif(0, 100)
                 tau_estrato <- pow(sigma_estrato, -2)
                 sigma_region ~ dunif(0, 100)
                 tau_region <- pow(sigma_region, -2)
@@ -107,8 +108,8 @@ mrp_party_estimation <- function(data, party, stratum, frac = 1,
     fit_jags <- R2jags::jags(
         # inits = jags_inits,
         data = data_jags,
-        parameters.to.save = c("x", "beta_rural", "beta_0", "beta_estrato",
-            "beta_tamano_md", "beta_tamano_gd", "beta_tipo_ex", "beta_region",
+        parameters.to.save = c("x", "beta_rural",
+            "beta_tamano_md", "beta_tamano_gd", "beta_tipo_ex",
             "sigma", "sigma_estrato", "beta_rural_tamano_md",
             "beta_0_adj", "sigma_region", "beta_region_adj",
             "beta_estrato_adj"),
