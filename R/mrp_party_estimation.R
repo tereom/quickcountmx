@@ -151,8 +151,10 @@ model_hier <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
         }
         beta_0_adj = beta_0 + mean(beta_estrato)
         for(j in 1:n_strata){
-            beta_estrato[j] ~ dnorm(beta_estrato_0 + beta_region[region[j]], tau_estrato)
-            beta_estrato_adj[j] = beta_estrato[j] - mean(beta_estrato)
+            beta_estrato[j] ~ dnorm(beta_estrato_0 + beta_region[region[j]],
+                tau_estrato)
+            beta_estrato_adj[j] = beta_estrato[j] - mean(beta_estrato) +
+                beta_region[region[j]
         }
         for(j in 1:n_regiones){
             beta_region[j] ~ dnorm(0, 0.1)
@@ -179,7 +181,7 @@ model_hier <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
         data = data_jags,
         parameters.to.save = c("x", "beta_0", "beta_0_adj", "beta_rural",
             "beta_tamano_md", "beta_tamano_gd", "beta_tipo_ex",
-            "beta_estrato", "beta_estrato_adj",
+            "beta_estrato", "beta_estrato_0", "beta_estrato_adj",
             "sigma", "sigma_estrato", "beta_rural_tamano_md",
             "beta_region"),
         model.file = temp_file,
