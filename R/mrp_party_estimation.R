@@ -18,6 +18,7 @@
 #'  to be used in \code{\link[R2jags]{jags}}.
 #' @param seed Integer value used to set the state of the random number
 #'   generator.
+#' @param seed_jags Seed for the call \code{\link[R2jags]{jags}}.
 #' @param model_string String with JAGS model, or string indicating the model
 #'  to be used, defaults to \code{"model_hier"}, also available
 #'  \code{"model_2hier"}, this last one has two nested hierarchies: strata

@@ -4,8 +4,9 @@
 \alias{mrp_party_estimation}
 \title{Postratified estimation for the number of votes for a given candidate.}
 \usage{
-mrp_party_estimation(data, party, stratum, frac = 1, n_chains = 3,
-  n_iter = 1000, n_burnin = 500, seed = NA, model_string = "model_hier")
+mrp_party_estimation(data, party, stratum, frac = 1, n_chains = 2,
+  n_iter = 1000, n_burnin = 500, seed = NA, seed_jags = NA,
+  model_string = "model_hier")
 }
 \arguments{
 \item{data}{A \code{data.frame} with variables: ln_total, region,
@@ -28,6 +29,8 @@ to be used in \code{\link[R2jags]{jags}}.}
 
 \item{seed}{Integer value used to set the state of the random number
 generator.}
+
+\item{seed_jags}{Seed for the call \code{\link[R2jags]{jags}}.}
 
 \item{model_string}{String with JAGS model, or string indicating the model
 to be used, defaults to \code{"model_hier"}, also available
@@ -57,9 +60,7 @@ The default model is:
    \deqn{\beta_{strata}\sim N(\beta_{region(k)}^{region}, \sigma_{dl}^2)}
 }
 \examples{
-\\donotrun{
 data("gto_2012")
 mrp_party_estimation(gto_2012, party = pan_na, stratum = distrito_loc_17,
   frac = 1, seed = 2212)
-}
 }
