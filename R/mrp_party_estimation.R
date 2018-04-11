@@ -18,6 +18,10 @@
 #'  to be used in \code{\link[R2jags]{jags}}.
 #' @param seed Integer value used to set the state of the random number
 #'   generator.
+#' @param model_string String with JAGS model, or string indicating the model
+#'  to be used, defaults to \code{"model_hier"}, also available
+#'  \code{"model_2hier"}, this last one has two nested hierarchies: strata
+#'  within regions, and regions modeled form a common distribution.
 #' @return A \code{list} with the object fitted using R2jags::jags and the vector
 #'   of simulated counts per candidate.
 #' @param modelo_jags optional string specifying variations of the jags model.
@@ -27,25 +31,25 @@
 #'   \theta_k=\beta^0 + \beta^{rural}\cdot rural_k + \beta^{tipoSp}\cdot
 #'    tipoSp_k + \\ \beta^{tipoEx}\cdot tipoEx_k + \beta^{tamanoMd}\cdot
 #'    tamanoMd_k + \beta^{tamanoGd}\cdot tamanoGd_k +
-#'    \beta^{distrito}_{distrito(k)} }
-#'    \deqn{\beta_{dl}\sim N(\beta_{region(k)}^{region}, \sigma_{dl}^2)}
+#'    \beta^{strata}_{strata(k)}
+#'    }
+#'    \deqn{\beta_{strata}\sim N(\beta_{region(k)}^{region}, \sigma_{dl}^2)}
 #'
 #' @examples
-#' \donotrun{
 #' data("gto_2012")
 #' mrp_party_estimation(gto_2012, party = pan_na, stratum = distrito_loc_17,
 #'   frac = 1, seed = 2212)
-#'   }
 #' @importFrom magrittr %>%
 #' @importFrom rlang !! !!! :=
 #' @export
 mrp_party_estimation <- function(data, party, stratum, frac = 1,
-    n_chains = 3, n_iter = 1000, n_burnin = 500, seed = NA,
-    model_string = NA){
+    n_chains = 2, n_iter = 1000, n_burnin = 500, seed = NA, seed_jags = NA,
+    model_string = "model_hier"){
     stratum_enquo <- dplyr::enquo(stratum)
     party_enquo <- dplyr::enquo(party)
     party_name <- dplyr::quo_name(party_enquo)
-
+    if (is.na(seed_jags)) seed_jags <- sample(1:1000, 1)
+    if (is.na(seed)) seed <- sample(1:1000, 1)
     if (frac >= 1){
         data_model <- data
     } else {
@@ -60,51 +64,60 @@ mrp_party_estimation <- function(data, party, stratum, frac = 1,
         dplyr::arrange(!!stratum_enquo)
     data_jags <- list(N = nrow(data_model), n = data_model$ln_total,
         n_regiones = dplyr::n_distinct(data_district$region),
-        n_distritos = nrow(data_district),
+        n_strata = nrow(data_district),
         x = dplyr::pull(data_model, !!party_enquo),
         rural = data_model$rural,
         estrato = dplyr::pull(data_model, !!stratum_enquo),
         tamano_md = data_model$tamano_md,
         tamano_gd = data_model$tamano_gd, tipo_ex = data_model$casilla_ex,
         region = data_district$region)
-    if (is.na(model_string)){
-        model_string <-
-            "
-            model{
-                for(k in 1:N){
-                    x[k] ~ dnorm(theta[k], tau / n[k]) T(0, 750)
-                    theta[k] <- beta_0 + beta_rural * rural[k] +
-                    beta_rural_tamano_md * rural[k] * tamano_md[k] +
-                    beta_estrato[estrato[k]] + beta_tamano_md * tamano_md[k] +
-                    beta_tamano_gd * tamano_gd[k] + beta_tipo_ex * tipo_ex[k]
-                }
-                beta_0_adj <- beta_0 + mean(beta_estrato[])
-                for(j in 1:n_distritos){
-                    beta_estrato[j] ~ dnorm(beta_region[region[j]], tau_estrato)
-                    beta_estrato_adj[j] <- beta_estrato[j] - mean(beta_estrato[])
-                }
-                for(j in 1:n_regiones){
-                    beta_region[j] ~ dnorm(mu_region, tau_region)
-                    beta_region_adj[j] <- beta_region[j] - mean(beta_region[])
-                }
-                beta_0 ~ dnorm(0, 0.0005)
-                beta_rural ~ dnorm(0, 0.0005)
-                beta_tamano_md  ~ dnorm(0, 0.0005)
-                beta_tamano_gd  ~ dnorm(0, 0.0005)
-                beta_tipo_ex  ~ dnorm(0, 0.0005)
-                beta_rural_tamano_md  ~ dnorm(0, 0.0005)
-                mu_region ~ dnorm(0, 0.0001)
-                sigma ~ dunif(0, 10)
-                tau <- pow(sigma, -2)
-                sigma_estrato ~ dunif(0, 100)
-                tau_estrato <- pow(sigma_estrato, -2)
-                sigma_region ~ dunif(0, 100)
-                tau_region <- pow(sigma_region, -2)
-            }
-        "
+    if(model_string == "model_2hier"){
+        fit_ests <- model_2hier(data_jags, n_chains, n_iter, n_burnin,
+            seed_jags)
+    } else if (model_string == "model_hier"){
+        fit_ests <- model_hier(data_jags, n_chains, n_iter, n_burnin,
+            seed_jags)
     }
+    return(fit_ests)
+}
+model_2hier <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
+    model_string <-
+    "
+    model{
+    for(k in 1:N){
+        x[k] ~ dnorm(n[k] * theta[k], tau / n[k]) T(0, 750)
+        theta[k] <- beta_0 + beta_rural * rural[k] +
+            beta_rural_tamano_md * rural[k] * tamano_md[k] +
+            beta_estrato[estrato[k]] + beta_tamano_md * tamano_md[k] +
+            beta_tamano_gd * tamano_gd[k] + beta_tipo_ex * tipo_ex[k]
+    }
+    beta_0_adj <- beta_0 + mean(beta_estrato[])
+    for(j in 1:n_strata){
+        beta_estrato[j] ~ dnorm(beta_region[region[j]], tau_estrato)
+        beta_estrato_adj[j] <- beta_estrato[j] - mean(beta_estrato[])
+    }
+    for(j in 1:n_regiones){
+        beta_region[j] ~ dnorm(mu_region, tau_region)
+        beta_region_adj[j] <- beta_region[j] - mean(beta_region[])
+    }
+    beta_0 ~ dnorm(0, 0.0005)
+    beta_rural ~ dnorm(0, 0.0005)
+    beta_tamano_md  ~ dnorm(0, 0.0005)
+    beta_tamano_gd  ~ dnorm(0, 0.0005)
+    beta_tipo_ex  ~ dnorm(0, 0.0005)
+    beta_rural_tamano_md  ~ dnorm(0, 0.0005)
+    mu_region ~ dnorm(0, 0.0001)
+    sigma ~ dunif(0, 10)
+    tau <- pow(sigma, -2)
+    sigma_estrato ~ dunif(0, 100)
+    tau_estrato <- pow(sigma_estrato, -2)
+    sigma_region ~ dunif(0, 100)
+    tau_region <- pow(sigma_region, -2)
+    }
+    "
     temp_file <- tempfile(pattern = "model_string", fileext = ".txt")
     cat(model_string, file = temp_file)
+
     fit_jags <- R2jags::jags(
         # inits = jags_inits,
         data = data_jags,
@@ -117,7 +130,62 @@ mrp_party_estimation <- function(data, party, stratum, frac = 1,
         n.chains = n_chains,
         n.iter = n_iter,
         n.burnin = n_burnin,
-        jags.seed = seed
+        jags.seed = seed_jags
+    )
+    n_votes <- apply(fit_jags$BUGSoutput$sims.list$x, 1, sum)
+    return(list(fit = fit_jags, n_votes = n_votes))
+}
+
+
+model_hier <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
+    model_string <-
+    "
+    model{
+        for(k in 1:N){
+            x[k] ~ dnorm(n[k] * theta[k], tau / n[k]) T(0, 750)
+                theta[k] <- beta_0 + beta_rural * rural[k] +
+                beta_rural_tamano_md * rural[k] * tamano_md[k] +
+                beta_estrato[estrato[k]] + beta_tamano_md * tamano_md[k] +
+                beta_tamano_gd * tamano_gd[k] + beta_tipo_ex * tipo_ex[k]
+        }
+        beta_0_adj = beta_0 + mean(beta_estrato)
+        for(j in 1:n_strata){
+            beta_estrato[j] ~ dnorm(beta_estrato_0 + beta_region[region[j]], tau_estrato)
+            beta_estrato_adj[j] = beta_estrato[j] - mean(beta_estrato)
+        }
+        for(j in 1:n_regiones){
+            beta_region[j] ~ dnorm(0, 0.1)
+        }
+        beta_0 ~ dnorm(0, 0.1)
+        beta_estrato_0 ~ dnorm(0, 0.1)
+        beta_rural ~ dnorm(0, 0.1)
+        beta_tamano_md  ~ dnorm(0, 0.1)
+        beta_tamano_gd  ~ dnorm(0, 0.1)
+        beta_tipo_ex  ~ dnorm(0, 0.1)
+        beta_rural_tamano_md  ~ dnorm(0, 0.1)
+        sigma ~ dunif(0, 10)
+        tau <- pow(sigma, -2)
+        sigma_estrato ~ dunif(0, 10)
+        tau_estrato <- pow(sigma_estrato, -2)
+    }
+    "
+
+    temp_file <- tempfile(pattern = "model_string", fileext = ".txt")
+    cat(model_string, file = temp_file)
+
+    fit_jags <- R2jags::jags(
+        # inits = jags_inits,
+        data = data_jags,
+        parameters.to.save = c("x", "beta_0", "beta_0_adj", "beta_rural",
+            "beta_tamano_md", "beta_tamano_gd", "beta_tipo_ex",
+            "beta_estrato", "beta_estrato_adj",
+            "sigma", "sigma_estrato", "beta_rural_tamano_md",
+            "beta_region"),
+        model.file = temp_file,
+        n.chains = n_chains,
+        n.iter = n_iter,
+        n.burnin = n_burnin,
+        jags.seed = seed_jags
     )
     n_votes <- apply(fit_jags$BUGSoutput$sims.list$x, 1, sum)
     return(list(fit = fit_jags, n_votes = n_votes))

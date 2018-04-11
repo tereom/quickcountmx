@@ -5,8 +5,7 @@
 \title{Postratified estimation for the number of votes for a given candidate.}
 \usage{
 mrp_party_estimation(data, party, stratum, frac = 1, n_chains = 3,
-  n_iter = 1000, n_burnin = 500, seed = NA, model_string = NA,
-  parallel = FALSE)
+  n_iter = 1000, n_burnin = 500, seed = NA, model_string = "model_hier")
 }
 \arguments{
 \item{data}{A \code{data.frame} with variables: ln_total, region,
@@ -30,6 +29,11 @@ to be used in \code{\link[R2jags]{jags}}.}
 \item{seed}{Integer value used to set the state of the random number
 generator.}
 
+\item{model_string}{String with JAGS model, or string indicating the model
+to be used, defaults to \code{"model_hier"}, also available
+\code{"model_2hier"}, this last one has two nested hierarchies: strata
+within regions, and regions modeled form a common distribution.}
+
 \item{modelo_jags}{optional string specifying variations of the jags model.}
 }
 \value{
@@ -48,11 +52,14 @@ The default model is:
   \theta_k=\beta^0 + \beta^{rural}\cdot rural_k + \beta^{tipoSp}\cdot
    tipoSp_k + \\ \beta^{tipoEx}\cdot tipoEx_k + \beta^{tamanoMd}\cdot
    tamanoMd_k + \beta^{tamanoGd}\cdot tamanoGd_k +
-   \beta^{distrito}_{distrito(k)} }
-   \deqn{\beta_{dl}\sim N(\beta_{region(k)}^{region}, \sigma_{dl}^2)}
+   \beta^{strata}_{strata(k)}
+   }
+   \deqn{\beta_{strata}\sim N(\beta_{region(k)}^{region}, \sigma_{dl}^2)}
 }
 \examples{
+\\donotrun{
 data("gto_2012")
 mrp_party_estimation(gto_2012, party = pan_na, stratum = distrito_loc_17,
   frac = 1, seed = 2212)
+}
 }
