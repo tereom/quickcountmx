@@ -88,10 +88,10 @@ model_2hier <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
     model{
     for(k in 1:N){
         x[k] ~ dnorm(n[k] * theta[k], tau / n[k]) T(0, 750)
-        theta[k] <- beta_0 + beta_rural * rural[k] +
+        theta[k] <- ilogit(beta_0 + beta_rural * rural[k] +
             beta_rural_tamano_md * rural[k] * tamano_md[k] +
             beta_estrato[estrato[k]] + beta_tamano_md * tamano_md[k] +
-            beta_tamano_gd * tamano_gd[k] + beta_tipo_ex * tipo_ex[k]
+            beta_tamano_gd * tamano_gd[k] + beta_tipo_ex * tipo_ex[k])
     }
     beta_0_adj <- beta_0 + mean(beta_estrato[])
     for(j in 1:n_strata){
@@ -144,21 +144,21 @@ model_hier <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
     "
     model{
         for(k in 1:N){
-            x[k] ~ dnorm(n[k] * theta[k], tau / n[k]) T(0, 750)
-            theta[k] <- beta_0 + beta_rural * rural[k] +
+            x[k] ~ dt(n[k] * theta[k], tau / n[k], 20) T(0, 750)
+            theta[k] <- ilogit(beta_0 + beta_rural * rural[k] +
                 beta_rural_tamano_md * rural[k] * tamano_md[k] +
                 beta_estrato_raw[estrato[k]] + beta_tamano_md * tamano_md[k] +
                 beta_tamano_gd * tamano_gd[k] + beta_tipo_ex * tipo_ex[k] +
-                beta_region * region[k]
+                beta_region * region[k])
         }
-        beta_0 ~ dnorm(0, 0.1)
-        beta_rural ~ dnorm(0, 0.1)
-        beta_region ~ dnorm(0, 0.1)
-        beta_tamano_md  ~ dnorm(0, 0.1)
-        beta_tamano_gd  ~ dnorm(0, 0.1)
-        beta_tipo_ex  ~ dnorm(0, 0.1)
-        beta_rural_tamano_md  ~ dnorm(0, 0.1)
-        sigma ~ dunif(0, 10)
+        beta_0 ~ dnorm(0, 0.5)
+        beta_rural ~ dnorm(0, 0.5)
+        beta_region ~ dnorm(0, 0.5)
+        beta_tamano_md  ~ dnorm(0, 0.5)
+        beta_tamano_gd  ~ dnorm(0, 0.5)
+        beta_tipo_ex  ~ dnorm(0, 0.5)
+        beta_rural_tamano_md  ~ dnorm(0, 0.5)
+        sigma ~ dunif(0, 1)
         tau <- pow(sigma, -2)
 
         beta_0_adj <- beta_0 + mean(beta_estrato_raw[])
@@ -167,8 +167,8 @@ model_hier <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
             beta_estrato[j] <-  beta_estrato_raw[j] - mean(beta_estrato_raw[])
             beta_estrato_raw[j] ~ dnorm(mu_estrato, tau_estrato)
         }
-        mu_estrato ~ dnorm(0, 0.1)
-        sigma_estrato ~ dunif(0, 10)
+        mu_estrato ~ dnorm(0, 0.5)
+        sigma_estrato ~ dunif(0, 1)
         tau_estrato <- pow(sigma_estrato, -2)
     }
     "
