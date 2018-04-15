@@ -144,7 +144,7 @@ model_hier <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
     "
     model{
         for(k in 1:N){
-            x[k] ~ dt(n[k] * theta[k], tau / n[k], 20) T(0, 750)
+            x[k] ~ dnorm(n[k] * theta[k], tau / n[k]) T(0, 750)
             theta[k] <- ilogit(beta_0 + beta_rural * rural[k] +
                 beta_rural_tamano_md * rural[k] * tamano_md[k] +
                 beta_estrato_raw[estrato[k]] + beta_tamano_md * tamano_md[k] +
