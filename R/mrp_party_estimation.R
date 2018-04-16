@@ -151,14 +151,14 @@ model_hier <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
                 beta_tamano_gd * tamano_gd[k] + beta_tipo_ex * tipo_ex[k] +
                 beta_region * region[k])
         }
-        beta_0 ~ dnorm(0, 0.5)
+        beta_0 ~ dnorm(0, 0.1)
         beta_rural ~ dnorm(0, 0.5)
         beta_region ~ dnorm(0, 0.5)
         beta_tamano_md  ~ dnorm(0, 0.5)
         beta_tamano_gd  ~ dnorm(0, 0.5)
         beta_tipo_ex  ~ dnorm(0, 0.5)
         beta_rural_tamano_md  ~ dnorm(0, 0.5)
-        sigma ~ dunif(0, 1)
+        sigma ~ dunif(0, 5)
         tau <- pow(sigma, -2)
 
         beta_0_adj <- beta_0 + mean(beta_estrato_raw[])
