@@ -144,13 +144,14 @@ model_hier <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
     "
     model{
         for(k in 1:N){
-            x[k] ~ dnorm(n[k] * theta[k], tau / n[k]) T(0, 750)
+            x[k] ~ dt(n[k] * theta[k], tau / n[k], nu) T(0, 750)
             theta[k] <- ilogit(beta_0 + beta_rural * rural[k] +
                 beta_rural_tamano_md * rural[k] * tamano_md[k] +
                 beta_estrato_raw[estrato[k]] + beta_tamano_md * tamano_md[k] +
                 beta_tamano_gd * tamano_gd[k] + beta_tipo_ex * tipo_ex[k] +
                 beta_region * region[k])
         }
+        nu ~ dunif(15, 50)
         beta_0 ~ dnorm(0, 0.1)
         beta_rural ~ dnorm(0, 0.5)
         beta_region ~ dnorm(0, 0.5)
@@ -168,7 +169,7 @@ model_hier <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
             beta_estrato_raw[j] ~ dnorm(mu_estrato, tau_estrato)
         }
         mu_estrato ~ dnorm(0, 0.5)
-        sigma_estrato ~ dunif(0, 1)
+        sigma_estrato ~ dunif(0, 2)
         tau_estrato <- pow(sigma_estrato, -2)
     }
     "
@@ -185,7 +186,7 @@ model_hier <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
             "beta_tamano_md", "beta_tamano_gd", "beta_tipo_ex",
             "beta_estrato", "beta_estrato_raw",
             "sigma", "sigma_estrato", "beta_rural_tamano_md",
-            "beta_region"),
+            "beta_region", "nu"),
         model.file = temp_file,
         n.chains = n_chains,
         n.iter = n_iter,
