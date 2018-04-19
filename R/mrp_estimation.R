@@ -30,7 +30,7 @@ mrp_estimation <- function(data, ..., stratum, frac = 1,
             n_burnin = n_burnin, n_chains = n_chains, seed = seed))
         parties_models <- parallel::parLapply(cl = clust, X = parties_split_vars,
             fun = function(x){
-            quickcount::mrp_party_estimation(x$data, party = n_votes,
+            quickcountmx::mrp_party_estimation(x$data, party = n_votes,
                 stratum = !!rlang::sym(x$stratum), frac = x$frac,
                 n_chains = x$n_chains, n_iter = x$n_iter, n_burnin = x$n_burnin,
                 seed = x$seed)
