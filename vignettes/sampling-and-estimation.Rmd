@@ -109,8 +109,9 @@ for the estimation to take place the `data` must include all polling stations
 and NA whenever the polling station was not in the sample.
 
 ```{r, message=FALSE}
-mrp_gto <- mrp_estimation(gto_2012, pri_pvem:otros, frac_sample = 0.06, 
-    n_iter = 2000, n_burnin = 1500, n_chains = 2, seed = 19291)
+mrp_gto <- mrp_estimation(gto_2012, pri_pvem:otros, frac = 0.06, 
+    stratum = distrito_fed_17, n_iter = 2000, n_burnin = 1500, 
+    n_chains = 2, seed = 19291)
 ```
 
 `mrp_estimation` returns a list with the fitted models, so we can evaluate
