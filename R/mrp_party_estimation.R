@@ -95,7 +95,7 @@ model_bern_t <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
         beta_tamano_gd_p * tamano_gd[k] + beta_tipo_ex_p * tipo_ex[k] +
         beta_region_p * region[k])
 
-    x[k] ~ dt(n[k] * theta[k] * b[k], tau[estrato[k]] / n[k] * (1 / (b[k] + 0.001)), nu[estrato[k]]) T(0, 750)
+    x[k] ~ dt(n[k] * theta[k] * b[k], tau[estrato[k]] / n[k] * (1 / (b[k] + 0.001)), nu[estrato[k]]) T(-0.01, 750)
 
     theta[k] <- ilogit(beta_0 + beta_rural * rural[k] +
     beta_rural_tamano_md * rural[k] * tamano_md[k] +
@@ -177,7 +177,7 @@ model_t <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
     "
   model{
   for(k in 1:N){
-    x[k] ~ dt(n[k] * theta[k], tau[estrato[k]] / n[k] , nu[estrato[k]]) T(0, 750)
+    x[k] ~ dt(n[k] * theta[k], tau[estrato[k]] / n[k] , nu[estrato[k]]) T(-0.01, 750)
     theta[k] <- ilogit(beta_0 + beta_rural * rural[k] +
     beta_rural_tamano_md * rural[k] * tamano_md[k] +
     beta_estrato_raw[estrato[k]] + beta_tamano_md * tamano_md[k] +
