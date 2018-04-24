@@ -1,0 +1,89 @@
+---
+title: "Model calibration"
+author: "Teresa Ortiz"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>", 
+    cache = TRUE
+)
+```
+
+To install the package use [devtools](https://github.com/r-lib/devtools) 
+(devtools is available on CRAN).
+
+```{r, message=FALSE}
+# devtools::install_github("tereom/quickcountmx")
+library(quickcountmx)
+library(tidyverse)
+```
+
+The package includes the results of the 2012 Guanajuato Governor election, which
+will be used to exemplify the functions.
+
+```{r}
+data("gto_2012")
+glimpse(gto_2012)
+```
+
+The variables are described in the package documentation `?gto_2012`.
+
+
+
+## Calibration for one model (vote count)
+
+Posterior predictive check for one run:
+
+```{r}
+counts <- mrp_party_estimation(gto_2012, party = pan_na, 
+  stratum = distrito_loc_17, frac = 0.04, 
+  seed = 211871, n_chains = 2, n_burnin = 500, n_iter = 1000)
+qplot(counts$n_votes, binwidth = 1000) + 
+  geom_vline(xintercept = sum(gto_2012$pan_na), colour ='red')
+```
+
+Calibration run for one party (pan):
+
+```{r}
+out <- calibration_party(gto_2012, party = pan_na, frac = 0.02,
+        stratum = distrito_loc_17, n_iter = 1000, n_burnin = 500, 
+        cl_cores = 3, n_chains = 2, seed = 19112, n_rep = 10)
+alpha_r <- 1 - 0.95
+cal_summary <- out %>% group_by(n_sim) %>%
+  summarise(mean_post = mean(n_votes), inf = quantile(n_votes, alpha_r / 2), 
+            sup = quantile(n_votes, 1 - alpha_r/2), actual_votes = actual_votes[1])
+ggplot(cal_summary, aes(x = factor(n_sim), y = mean_post, ymin = inf, ymax = sup)) + 
+  geom_hline(aes(yintercept = actual_votes[1]), colour = 'red') +
+  geom_point() + geom_linerange()
+## Coverage 
+cal_summary %>% summarise(coverage = mean(inf < actual_votes & sup > actual_votes))
+```
+
+Calibration run for one party (pan):
+
+
+```{r}
+out <- calibration_party(gto_2012, party = prd, frac = 0.02,
+        stratum = distrito_loc_17, n_iter = 1000, n_burnin = 500,
+        cl_cores = 3, n_chains = 2, seed = 19112, n_rep = 10)
+alpha_r <- 1 - 0.95
+cal_summary <- out %>% group_by(n_sim) %>%
+  summarise(mean_post = mean(n_votes), inf = quantile(n_votes, alpha_r / 2), 
+            sup = quantile(n_votes, 1 - alpha_r/2), actual_votes = actual_votes[1])
+ggplot(cal_summary, aes(x = factor(n_sim), y = mean_post, ymin = inf, ymax = sup)) + 
+  geom_hline(aes(yintercept = actual_votes[1]), colour = 'red') +
+  geom_point() + geom_linerange()
+## Coverage 
+cal_summary %>% summarise(coverage = mean(inf < actual_votes & sup > actual_votes))
+```
+
+
+

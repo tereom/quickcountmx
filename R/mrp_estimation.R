@@ -24,23 +24,17 @@ mrp_estimation <- function(data, ..., stratum, frac = 1,
     parties_split <- data_long %>%
         split(.$party)
     if (parallel){
-        parties_split_vars <- purrr::map(parties_split, ~list(data = .,
-            party = .$party[1], stratum = rlang::quo_text(stratum_enquo),
-            frac = frac, n_chains = n_chains, n_iter = n_iter,
-            n_burnin = n_burnin, n_chains = n_chains, seed = seed))
-        parties_models <- parallel::parLapply(cl = clust, X = parties_split_vars,
-            fun = function(x){
-            quickcountmx::mrp_party_estimation(x$data, party = n_votes,
-                stratum = !!rlang::sym(x$stratum), frac = x$frac,
-                n_chains = x$n_chains, n_iter = x$n_iter, n_burnin = x$n_burnin,
-                seed = x$seed)
-            })
+      parties_models <- parallel::mclapply(parties_split, function(x){
+        quickcountmx::mrp_party_estimation(x, party = n_votes,
+            stratum = !!stratum_enquo, frac = frac,
+            n_chains = n_chains, n_iter = n_iter, n_burnin = n_burnin,
+            seed = seed)}, mc.cores = 6)
     } else {
         parties_models <- parties_split %>%
             purrr::map(~mrp_party_estimation(., party = n_votes,
-                stratum = !!stratum_enquo, frac = frac,
-                n_chains = n_chains, n_iter = n_iter, n_burnin = n_burnin,
-                seed = seed))
+            stratum = !!stratum_enquo, frac = frac,
+            n_chains = n_chains, n_iter = n_iter, n_burnin = n_burnin,
+            seed = seed))
     }
 
     jags_fits <- purrr::map(parties_models, ~.$fit)

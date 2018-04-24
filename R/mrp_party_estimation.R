@@ -45,7 +45,10 @@
 #' @export
 mrp_party_estimation <- function(data, party, stratum, frac = 1,
     n_chains = 2, n_iter = 1000, n_burnin = 500, seed = NA, seed_jags = NA,
-    model_string = "model_bern_t"){
+    model_string = NULL){
+    if(is.null(model_string)){
+      model_string <- "model_bern_t"
+    }
     stratum_enquo <- dplyr::enquo(stratum)
     party_enquo <- dplyr::enquo(party)
     party_name <- dplyr::quo_name(party_enquo)
@@ -73,14 +76,10 @@ mrp_party_estimation <- function(data, party, stratum, frac = 1,
         tamano_gd = data_model$tamano_gd, tipo_ex = data_model$casilla_ex,
         region = (data_model$region == 1) * 1, # región binaria covariable
         region_mod = data_district$region) # region para modelar (jerárquica)
-    if(model_string == "model_2hier"){
-        fit_ests <- model_2hier(data_jags, n_chains, n_iter, n_burnin,
-            seed_jags)
-    } else if (model_string == "model_bern_t"){
-        fit_ests <- model_bern_t(data_jags, n_chains, n_iter, n_burnin,
-            seed_jags)
-    }
-    return(fit_ests)
+    model_function <- get(model_string)
+    fit <- model_function(data_jags, n_chains, n_iter, n_burnin,
+                               seed_jags)
+    return(fit)
 }
 
 model_bern_t <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
@@ -131,7 +130,7 @@ model_bern_t <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
       beta_estrato_raw_p[j] ~ dnorm(mu_estrato_p, tau_estrato_p)
       tau[j] <- pow(sigma[j], -2)
       sigma[j] ~ dunif(0, 10)
-      nu[j] ~ rgamma(2, 0.1)
+      nu[j] ~ dgamma(2, 0.1)
     }
     mu_estrato ~ dnorm(0, 0.25)
     sigma_estrato ~ dunif(0, 25)
@@ -194,16 +193,13 @@ model_t <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
   beta_rural_tamano_md  ~ dnorm(0, 0.25)
   
   beta_0_adj <- beta_0 + mean(beta_estrato_raw[])
-  beta_0_p_adj <- beta_0_p + mean(beta_estrato_raw_p[])
-  
+
   for(j in 1:n_strata){
     beta_estrato[j] <-  beta_estrato_raw[j] - mean(beta_estrato_raw[])
     beta_estrato_raw[j] ~ dnorm(mu_estrato, tau_estrato)
-    beta_estrato_p[j] <-  beta_estrato_raw_p[j] - mean(beta_estrato_raw_p[])
-    beta_estrato_raw_p[j] ~ dnorm(mu_estrato_p, tau_estrato_p)
     tau[j] <- pow(sigma[j], -2)
     sigma[j] ~ dunif(0, 10)
-    nu[j] ~ rgamma(2, 0.1)
+    nu[j] ~ dgamma(2, 0.1)
   }
 
   mu_estrato ~ dnorm(0, 0.25)
