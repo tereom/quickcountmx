@@ -6,7 +6,7 @@
 \usage{
 mrp_party_estimation(data, party, stratum, frac = 1, n_chains = 2,
   n_iter = 1000, n_burnin = 500, seed = NA, seed_jags = NA,
-  model_string = "model_hier")
+  model_string = NULL)
 }
 \arguments{
 \item{data}{A \code{data.frame} with variables: ln_total, region,

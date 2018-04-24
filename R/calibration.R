@@ -12,9 +12,10 @@
 #' @param n_rep 
 #'
 #' @return
-#' @export
 #'
 #' @examples
+#' @importFrom magrittr %>%
+#' @importFrom rlang !! !!! :=
 #' @name calibration
 NULL
 #> NULL
@@ -26,7 +27,7 @@ calibration_party <- function(data, party, stratum, frac = 1,
   party_enquo <- dplyr::enquo(party)
   stratum_enquo <- dplyr::enquo(stratum)
   data_enquo <- dplyr::enquo(data)
-  actual <- data %>% pull(!!party_enquo) 
+  actual <- data %>% dplyr::pull(!!party_enquo) 
   # set up cluster
   clust <-  parallel::makeCluster(getOption("cl.cores", cl_cores))
   parallel::clusterSetRNGStream(clust, seed)
@@ -42,7 +43,7 @@ calibration_party <- function(data, party, stratum, frac = 1,
                                                  party = !!party_enquo, frac = frac, stratum = !!stratum_enquo, 
                                                  n_iter = n_iter, n_burnin = n_burnin, 
                                                  n_chains = n_chains, seed = NA)
-    df <- data_frame(n_votes = counts$n_votes, n_sim = x)
+    df <- dplyr::data_frame(n_votes = counts$n_votes, n_sim = x)
     df
   })
   parallel::stopCluster(clust)
