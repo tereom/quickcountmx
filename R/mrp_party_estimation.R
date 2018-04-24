@@ -131,7 +131,7 @@ model_bern_t <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
       beta_estrato_raw_p[j] ~ dnorm(mu_estrato_p, tau_estrato_p)
       tau[j] <- pow(sigma[j], -2)
       sigma[j] ~ dunif(0, 10)
-      nu[j] ~ rgamma(2, 0.1)
+      nu[j] ~ dgamma(2, 0.1)
     }
     mu_estrato ~ dnorm(0, 0.25)
     sigma_estrato ~ dunif(0, 25)
@@ -203,7 +203,7 @@ model_t <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
     beta_estrato_raw_p[j] ~ dnorm(mu_estrato_p, tau_estrato_p)
     tau[j] <- pow(sigma[j], -2)
     sigma[j] ~ dunif(0, 10)
-    nu[j] ~ rgamma(2, 0.1)
+    nu[j] ~ dgamma(2, 0.1)
   }
 
   mu_estrato ~ dnorm(0, 0.25)
