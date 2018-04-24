@@ -52,7 +52,7 @@ qplot(counts$n_votes, binwidth = 1000) +
 
 Calibration run for one party (pan):
 
-```{r}
+```{r, pancalib}
 out <- calibration_party(gto_2012, party = pan_na, frac = 0.02,
         stratum = distrito_loc_17, n_iter = 1000, n_burnin = 500, 
         cl_cores = 3, n_chains = 2, seed = 19112, n_rep = 10)
@@ -70,8 +70,8 @@ cal_summary %>% summarise(coverage = mean(inf < actual_votes & sup > actual_vote
 Calibration run for one party (pan):
 
 
-```{r}
-out <- calibration_party(gto_2012, party = prd, frac = 0.02,
+```{r, prdcalib}
+out <- calibration_party(gto_2012, party = prd, frac = 0.05,
         stratum = distrito_loc_17, n_iter = 1000, n_burnin = 500,
         cl_cores = 3, n_chains = 2, seed = 19112, n_rep = 10)
 alpha_r <- 1 - 0.95
@@ -85,5 +85,50 @@ ggplot(cal_summary, aes(x = factor(n_sim), y = mean_post, ymin = inf, ymax = sup
 cal_summary %>% summarise(coverage = mean(inf < actual_votes & sup > actual_votes))
 ```
 
+## Calibration for vote proportion model
 
+```{r, propcalib}
+calibration_gto <- calibration_prop(gto_2012, pri_pvem:otros, frac = 0.02, 
+        stratum = distrito_loc_17, n_iter = 1500, n_burnin = 500, 
+        n_chains = 2, seed = 1911275, cl_cores = 2, n_rep = 10)
+```
+
+
+
+```{r}
+head(calibration_gto)
+calibration_summary <- calibration_gto %>% 
+  mutate(covered = ((mean_post - 1.96 * std_dev_post) < prop_votes & (mean_post + 1.96 * std_dev_post) > prop_votes)*1) %>% 
+  group_by(party) %>% summarise(coverage = mean(covered), n_sims = length(covered))
+calibration_summary
+```
+
+
+```{r}
+means_party <- calibration_gto %>% group_by(party) %>% 
+  summarise(mean_party = mean(mean_post), prop_votes = mean(prop_votes),
+            `2_ee` = 1.96*mean(std_dev_post))
+arrange(means_party, prop_votes) %>% mutate(dif = mean_party - prop_votes)
+ggplot(calibration_gto, aes(x = n_sim, ymin = mean_post - 1.96 * std_dev_post,
+                            ymax = mean_post + 1.96 * std_dev_post)) +
+  geom_linerange(colour='red') + 
+  facet_wrap(~party, scales = 'free_y') +
+  geom_hline(data = means_party, aes(yintercept = mean_party), colour ='red') +
+  geom_hline(data = means_party, aes(yintercept = prop_votes), colour ='black') 
+```
+
+Número de votos
+
+```{r, numvotecalib}
+num_party <- calibration_gto %>% group_by(party) %>% 
+  summarise(mean_party = mean(mean_post), prop_votes = mean(prop_votes),
+            `2_ee` = 1.96*mean(std_dev_post))
+arrange(means_party, prop_votes) %>% mutate(dif = mean_party - prop_votes)
+ggplot(calibration_gto, aes(x = n_sim, ymin = mean_post - 1.96 * std_dev_post,
+                            ymax = mean_post + 1.96 * std_dev_post)) +
+  geom_linerange(colour='red') + 
+  facet_wrap(~party, scales = 'free_y') +
+  geom_hline(data = means_party, aes(yintercept = mean_party), colour ='red') +
+  geom_hline(data = means_party, aes(yintercept = prop_votes), colour ='black')
+```
 
