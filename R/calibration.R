@@ -31,7 +31,8 @@ calibration_party <- function(data, party, stratum, frac = 1,
   # set up cluster
   clust <-  parallel::makeCluster(getOption("cl.cores", cl_cores))
   parallel::clusterSetRNGStream(clust, seed)
-  parallel::clusterExport(clust, c("frac", "n_iter", "n_burnin", "n_chains", "actual"), 
+  parallel::clusterExport(clust, c("frac", "n_iter", "n_burnin", "n_chains", "actual",
+                                   "stratum_enquo", "party_enquo"), 
                           envir = environment())
   parallel::clusterExport(clust, dplyr::quo_name(data_enquo))
   parallel::clusterEvalQ(clust, {
@@ -55,7 +56,7 @@ calibration_party <- function(data, party, stratum, frac = 1,
 calibration_prop <- function(data, ..., stratum, frac = 1, n_iter = 2000, 
                         n_burnin = 500, n_chains = 3, seed = NA, 
                         cl_cores = 3, n_rep = 5){
-  startum_enquo <- dplyr::enquo(stratum)
+  stratum_enquo <- dplyr::enquo(stratum)
   data_enquo <- dplyr::enquo(data)
   parties <- dplyr::quos(...)
   gto_gather <- gto_2012 %>% dplyr::select(casilla_id, !!!parties) %>%
@@ -64,7 +65,8 @@ calibration_prop <- function(data, ..., stratum, frac = 1, n_iter = 2000,
     mutate(prop_votes = 100*n_votes/sum(n_votes))
   clust <-  parallel::makeCluster(getOption("cl.cores", cl_cores))
   parallel::clusterSetRNGStream(clust, seed)
-  parallel::clusterExport(clust, c("frac", "n_iter", "n_burnin", "n_chains", "actual"), 
+  parallel::clusterExport(clust, c("frac", "n_iter", "n_burnin", "n_chains", "actual",
+                                   "stratum_enquo", "parties"), 
                           envir = environment())
   parallel::clusterExport(clust, dplyr::quo_name(data_enquo))
   parallel::clusterEvalQ(clust, {
@@ -72,8 +74,8 @@ calibration_prop <- function(data, ..., stratum, frac = 1, n_iter = 2000,
   })
   clb <- parallel::parLapply(clust, 1:n_rep, function(x){
     mrp_gto <- quickcountmx::mrp_estimation(data, !!!parties, frac = frac, 
-                                            stratum = !!stratum_enquo, n_iter = n_iter, n_burnin = n_burnin, 
-                                            n_chains = n_chains, seed = NA, parallel = TRUE)
+                stratum = !!stratum_enquo, n_iter = n_iter, n_burnin = n_burnin, 
+                n_chains = n_chains, seed = NA, parallel = TRUE)
     df <- mrp_gto$post_summary %>% left_join(actual) %>% mutate(n_sim = x)
     df
   })
