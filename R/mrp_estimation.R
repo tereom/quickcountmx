@@ -15,8 +15,8 @@
 #' @importFrom rlang !! !!! :=
 #' @export
 mrp_estimation <- function(data, ..., stratum, frac = 1,
-    n_iter = 2000, n_burnin = 500, n_chains = 3, seed = NA, parallel = FALSE,
-    clust){
+    n_iter = 2000, n_burnin = 500, n_chains = 3, seed = NA,
+    cl_clust = 1, mc_cores = 6, parallel = FALSE){
     if (is.na(seed)) seed <- sample(1:1000, 1)
     parties <- dplyr::quos(...)
     stratum_enquo <- dplyr::enquo(stratum)
@@ -28,7 +28,7 @@ mrp_estimation <- function(data, ..., stratum, frac = 1,
         quickcountmx::mrp_party_estimation(x, party = n_votes,
             stratum = !!stratum_enquo, frac = frac,
             n_chains = n_chains, n_iter = n_iter, n_burnin = n_burnin,
-            seed = seed)}, mc.cores = 6)
+            seed = seed)}, mc_cores = mc_cores)
     } else {
         parties_models <- parties_split %>%
             purrr::map(~mrp_party_estimation(., party = n_votes,
