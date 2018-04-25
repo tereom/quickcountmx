@@ -23,15 +23,15 @@ To install the package use [devtools](https://github.com/r-lib/devtools)
 ```{r, message=FALSE}
 # devtools::install_github("tereom/quickcountmx")
 library(quickcountmx)
-library(tidyverse)
 ```
 
 The package includes the results of the 2012 Guanajuato Governor election, which
 will be used to exemplify the functions.
 
 ```{r}
+library(dplyr)
 data("gto_2012")
-glimpse(gto_2012)
+dplyr::glimpse(gto_2012)
 ```
 
 The variables are described in the package documentation `?gto_2012`.
@@ -45,7 +45,7 @@ Posterior predictive check for one run:
 ```{r}
 counts <- mrp_party_estimation(gto_2012, party = pan_na, 
   stratum = distrito_loc_17, frac = 0.04, 
-  seed = 211871, n_chains = 2, n_burnin = 500, n_iter = 1000)
+  seed = 211871, n_chains = 2, n_burnin = 500, n_iter = 1000, model_string = "model_bern_t")
 qplot(counts$n_votes, binwidth = 1000) + 
   geom_vline(xintercept = sum(gto_2012$pan_na), colour ='red')
 ```
@@ -90,7 +90,7 @@ cal_summary %>% summarise(coverage = mean(inf < actual_votes & sup > actual_vote
 ```{r, propcalib}
 calibration_gto <- calibration_prop(gto_2012, pri_pvem:otros, frac = 0.02, 
         stratum = distrito_loc_17, n_iter = 1500, n_burnin = 500, 
-        n_chains = 2, seed = 1911275, cl_cores = 2, n_rep = 10)
+        n_chains = 2, seed = 1911275, cl_cores = 2, n_rep = 2, model_string = "model_t")
 ```
 
 
