@@ -38,10 +38,11 @@ calibration_party <- function(data, party, stratum, frac = 1,
   parallel::clusterExport(clust, dplyr::quo_name(data_enquo))
   parallel::clusterEvalQ(clust, {
     library(tidyverse)
+    library(quickcountmx)
   })
   # run replicates
   clb_party <- parallel::parLapply(clust, 1:n_rep, function(x){
-    counts <- quickcountmx::mrp_party_estimation(data, 
+    counts <- mrp_party_estimation(data, 
                 party = !!party_enquo, frac = frac, stratum = !!stratum_enquo, 
                 n_iter = n_iter, n_burnin = n_burnin, 
                 n_chains = n_chains, seed = NA, 
