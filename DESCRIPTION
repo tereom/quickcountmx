@@ -4,7 +4,7 @@ Title: Estimate Election Results Mexico
 Version: 0.1.0
 Description: Functions to simulate and estimate Mexican election results based on a simple or stratified random sample.
 Author@R: person("Teresa", "Ortiz", email = "terexom@gmail.com", role = c("aut", "cre"))
-URL: https://github.com/tereom/quickcount
+URL: https://github.com/tereom/quickcountmx
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
