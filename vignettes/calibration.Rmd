@@ -55,7 +55,7 @@ Calibration run for one party (pan):
 ```{r, pancalib}
 out <- calibration_party(gto_2012, party = pan_na, frac = 0.02,
         stratum = distrito_loc_17, n_iter = 1000, n_burnin = 500, 
-        cl_cores = 3, n_chains = 2, seed = 19112, n_rep = 10)
+        cl_cores = 1, n_chains = 2, seed = 19112, n_rep = 10)
 alpha_r <- 1 - 0.95
 cal_summary <- out %>% group_by(n_sim) %>%
   summarise(mean_post = mean(n_votes), inf = quantile(n_votes, alpha_r / 2), 
@@ -73,7 +73,7 @@ Calibration run for one party (pan):
 ```{r, prdcalib}
 out <- calibration_party(gto_2012, party = prd, frac = 0.05,
         stratum = distrito_loc_17, n_iter = 1000, n_burnin = 500,
-        cl_cores = 3, n_chains = 2, seed = 19112, n_rep = 10)
+        cl_cores = 1, n_chains = 2, seed = 19112, n_rep = 10)
 alpha_r <- 1 - 0.95
 cal_summary <- out %>% group_by(n_sim) %>%
   summarise(mean_post = mean(n_votes), inf = quantile(n_votes, alpha_r / 2), 
@@ -90,7 +90,7 @@ cal_summary %>% summarise(coverage = mean(inf < actual_votes & sup > actual_vote
 ```{r, propcalib}
 calibration_gto <- calibration_prop(gto_2012, pri_pvem:otros, frac = 0.02, 
         stratum = distrito_loc_17, n_iter = 1500, n_burnin = 500, 
-        n_chains = 2, seed = 1911275, cl_cores = 2, n_rep = 2, model_string = "model_t")
+        n_chains = 2, seed = 1911275, cl_cores = 1, n_rep = 2, model_string = "model_t")
 ```
 
 
