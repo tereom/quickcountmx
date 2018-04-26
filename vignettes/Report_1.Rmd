@@ -1,0 +1,43 @@
+---
+title: "Estimation of vote proportions for Guanajuato"
+output: html_notebook
+---
+
+## Model
+
+
+```{r}
+library(quickcountmx)
+library(tidyverse)
+a <- eval(parse(text=deparse(quickcountmx:::model_bern_t)[3] ))
+model_string %>% cat
+```
+
+
+## Calibration run
+
+Sample coverage report for one party (vote counts):
+
+```{r}
+gto_pan <- calibration_party(gto_2012, party = pan_na, frac = 0.075,
+        stratum = distrito_loc_17, n_iter = 1500, n_burnin = 500, 
+        cl_cores = 14, n_chains = 1, seed = 19112, n_rep = 40)
+pan <- summary_calibration_party(gto_pan)
+pan$plot
+pan$coverage
+```
+
+
+
+Coverage report for vote proportions
+
+
+```{r, propcalib}
+calibration_gto <- calibration_prop(gto_2012, pri_pvem:otros,
+        frac = 0.075, stratum = distrito_loc_17, n_iter = 2000, n_burnin = 500, 
+        n_chains = 1, seed = 1911275, cl_cores = 3, n_rep = 100, 
+        model_string = "model_bern_t")
+summary_calibration(calibration_gto)
+```
+
+
