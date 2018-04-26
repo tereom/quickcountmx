@@ -5,7 +5,8 @@
 \title{Compute all postratified estimates}
 \usage{
 mrp_estimation(data, ..., stratum, frac = 1, n_iter = 2000,
-  n_burnin = 500, n_chains = 3, seed = NA, parallel = FALSE, clust)
+  n_burnin = 500, n_chains = 3, seed = NA, cl_clust = 1, mc_cores = 6,
+  parallel = FALSE, model_string = NULL)
 }
 \arguments{
 \item{data}{A \code{data.frame} with variables: ln_total, region,
@@ -37,6 +38,11 @@ generator.}
 
 \item{parallel}{Logical value indicating whether to parallelize the models,
 if TRUE package parallel must be installed.}
+
+\item{model_string}{String with JAGS model, or string indicating the model
+to be used, defaults to \code{"model_hier"}, also available
+\code{"model_2hier"}, this last one has two nested hierarchies: strata
+within regions, and regions modeled form a common distribution.}
 
 \item{clust}{If parallelizing an object of class
   \code{c("SOCKcluster", "cluster")}

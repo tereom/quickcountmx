@@ -88,3 +88,48 @@ calibration_prop <- function(data, ..., stratum, frac = 1, n_iter = 2000,
   parallel::stopCluster(clust)
   dplyr::bind_rows(clb)
 }
+
+#' @rdname calibration
+#' @export
+summary_calibration_party <- function(calib_run_party, alpha_r = 0.05) {
+  cal_summary <- calib_run_party %>% group_by(n_sim) %>%
+    summarise(mean_post = mean(n_votes), 
+              inf = mean(n_votes) - 2*sd(n_votes), 
+              sup = mean(n_votes) + 2*sd(n_votes), 
+              actual_votes = actual_votes[1])
+  # plot
+  plot_calib <- ggplot(cal_summary, aes(x = factor(n_sim), 
+                                        y = mean_post, ymin = inf, ymax = sup)) + 
+    geom_hline(aes(yintercept = actual_votes[1]), colour = 'red') +
+    geom_hline(aes(yintercept = mean(cal_summary$mean_post))) +
+    geom_point() + geom_linerange()
+  # coverage report
+  coverage_report <- cal_summary %>% 
+    summarise(coverage = mean(inf < actual_votes & sup > actual_votes))
+  
+  list(plot = plot_calib, coverage = coverage_report)
+}
+
+#' @rdname calibration
+#' @export
+summary_calibration <- function(calib_run, alpha_r = 0.05) {
+    means_party <- calib_run %>% dplyr::group_by(party) %>% 
+    dplyr::summarise(mean_party = mean(mean_post), prop_votes = mean(prop_votes))
+    # plot
+    plot_calib <- ggplot(calib_run, 
+      aes(x = n_sim, ymin = mean_post - 2 * std_dev_post,
+          ymax = mean_post + 2 * std_dev_post)) +
+      geom_linerange(colour='red') + 
+      facet_wrap(~party, scales = 'free_y') +
+      geom_hline(data = means_party, aes(yintercept = mean_party), colour ='orange') +
+      geom_hline(data = means_party, aes(yintercept = prop_votes), colour ='black')
+    # coverage report
+    coverage_report <- calib_run %>% 
+      dplyr::mutate(covered = ((mean_post - 2 * std_dev_post) < prop_votes & 
+        (mean_post + 2 * std_dev_post) > prop_votes)*1) %>% 
+      dplyr::group_by(party) %>% 
+      dplyr::summarise(coverage = mean(covered), 
+          n_sims = length(covered),
+          mean_error = mean(2*std_dev_post))
+  list(plot = plot_calib, coverage = coverage_report)
+}
