@@ -1,0 +1,119 @@
+---
+title: "Estimation of vote proportions for Guanajuato"
+output: html_notebook
+---
+
+## Model
+
+
+```{r, message = FALSE}
+devtools::install_github("tereom/quickcountmx", force = TRUE)
+library(quickcountmx)
+library(tidyverse)
+a <- eval(parse(text=deparse(quickcountmx:::model_bern_t)[3] ))
+model_string %>% cat
+```
+
+
+## Calibration run
+
+Sample coverage report for one party (vote counts):
+
+```{r}
+data("gto_2012")
+gto_pan <- calibration_party(gto_2012, party = pan_na, frac = 0.075,
+        stratum = distrito_loc_17, n_iter = 1500, n_burnin = 500, 
+        cl_cores = 14, n_chains = 1, seed = 19112, n_rep = 40)
+pan <- summary_calibration_party(gto_pan)
+pan$plot
+pan$coverage
+```
+
+
+
+
+
+### Coverage report for vote proportions
+
+
+```{r, propcalib}
+calibration_gto <- calibration_prop(gto_2012, pri_pvem:otros,
+        frac = 0.075, stratum = distrito_loc_17, n_iter = 1500, n_burnin = 500, 
+        n_chains = 1, seed = 19331, cl_cores = 3, n_rep = 100, 
+        model_string = "model_bern_t")
+```
+
+Report and plot
+
+```{r ss}
+report <- summary_calibration(calibration_gto)
+report$plot
+```
+
+
+```{r tt}
+report$coverage
+```
+
+
+### Coverage for combined ratio estimator
+
+```{r}
+set.seed(1211)
+gto_stratum_sizes <- gto_2012 %>%
+  dplyr::group_by(distrito_loc_17) %>%
+  dplyr::mutate(n_stratum = n())
+calib_ratio <- parallel::mclapply(1:200, function(i) {
+  gto_sample <- select_sample_prop(gto_stratum_sizes, stratum = distrito_loc_17, 
+                                   0.075)
+  ratio <- ratio_estimation(gto_sample, stratum = distrito_loc_17, 
+                            n_stratum = n_stratum, ... = pri_pvem:otros)
+  ratio <- ratio %>% mutate(n_sim = i)
+  ratio 
+}, mc.cores = 6) %>% bind_rows
+```
+
+```{r}
+gto_gather <- gto_2012 %>% dplyr::select(casilla_id, pri_pvem:otros) %>%
+  tidyr::gather(party, votes, pri_pvem:otros)
+actual <- gto_gather %>% group_by(party) %>% summarise(n_votes = sum(votes)) %>%
+  mutate(prop_votes = 100*n_votes/sum(n_votes))
+calib_ratio <- calib_ratio %>% left_join(actual) %>% ungroup() %>%
+  mutate(coverage = r - 2*std_error < prop_votes & r + 2*std_error > prop_votes,
+         precision = 2 * std_error)
+```
+
+
+
+```{r b}
+ggplot(filter(calib_ratio, n_sim <= 200), aes(x = n_sim, y = r, ymin = r - 2*std_error,
+       ymax = r + 2*std_error )) + geom_linerange(colour='red') +
+  geom_hline(data = actual, aes(yintercept = prop_votes)) + 
+  facet_wrap(~party, scales="free_y")
+```
+
+```{r a}
+calib_summary <- calib_ratio %>% group_by(party) %>% summarise(coverage = mean(coverage), 
+          precision_media = mean(precision))
+calib_summary
+```
+
+
+### Coverage report for vote proportions with missing strata
+
+
+
+```{r, propcalib2}
+calibration_gto <- calibration_prop(gto_2012, pri_pvem:otros,
+        frac = 0.075, stratum = distrito_loc_17, n_iter = 1500, n_burnin = 500, 
+        n_chains = 1, seed = 19331, cl_cores = 3, n_rep = 100, 
+        model_string = "model_bern_t", num_missing_strata = 2)
+```
+
+Report and plot
+
+```{r ss2}
+report <- summary_calibration(calibration_gto)
+report$plot
+report$coverage
+```
