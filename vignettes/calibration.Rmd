@@ -78,6 +78,8 @@ prd$plot
 prd$coverage
 ```
 
+
+
 ## Calibration for vote proportion model
 
 ```{r, propcalib}
@@ -87,10 +89,9 @@ calibration_gto <- calibration_prop(gto_2012, pri_pvem:otros, frac = 0.02,
         model_string = "model_bern_t")
 ```
 
+
 ```{r a}
-calib_summary <- calibration_gto %>% group_by(party) %>% 
-  summarise(coverage = mean(coverage), 
-  precision_media = mean(precision))
+calib_summary <- summary_calibration(calibration_gto)
 calib_summary
 ```
 
@@ -105,7 +106,7 @@ calibration_gto <- calibration_prop(gto_2012, pri_pvem:otros,
         frac = 0.075, stratum = distrito_loc_17, 
         n_iter = 1500, n_burnin = 500, 
         n_chains = 1, seed = 19331, cl_cores = 1, n_rep = 5, 
-        model_string = "model_bern_t", num_missing_strata = 2)
+        model_string = "model_bern_t", num_missing_strata = 10)
 ```
 
 ```{r a}
