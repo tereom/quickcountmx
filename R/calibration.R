@@ -59,13 +59,25 @@ calibration_party <- function(data, party, stratum, frac = 1,
 #' @export
 calibration_prop <- function(data, ..., stratum, frac = 1, n_iter = 2000, 
                         n_burnin = 500, n_chains = 3, seed = NA, 
-                        cl_cores = 3, n_rep = 5, model_string = NULL){
+                        cl_cores = 3, n_rep = 5, 
+                        model_string = NULL, num_missing_strata = 0){
   stratum_enquo <- dplyr::enquo(stratum)
   parties <- dplyr::quos(...)
-  gto_gather <- gto_2012 %>% dplyr::select(casilla_id, !!!parties) %>%
-    tidyr::gather(party, votes, !!!parties)
-  actual <- gto_gather %>% group_by(party) %>% summarise(n_votes = sum(votes)) %>%
-    mutate(prop_votes = 100*n_votes/sum(n_votes))
+  # gather data for calculations
+  dat_gather <- data %>%
+    tidyr::gather(party, n_votes, !!!parties)
+  if(num_missing_strata > 0){
+    strata <- unique(data %>% dplyr::pull(!!stratum_enquo))
+    not_selected <- sample(strata, num_missing_strata)
+    dat_gather_subset <- dat_gather %>%
+      dplyr::mutate(n_votes = 
+                ifelse((!!stratum_enquo) %in% not_selected, NA, n_votes))
+    data <- tidyr::spread(dat_gather, party, n_votes)
+  }
+
+  actual <-dat_gather %>% dplyr::group_by(party) %>% 
+    dplyr::summarise(n_votes = sum(n_votes)) %>%
+    dplyr::mutate(prop_votes = 100*n_votes/sum(n_votes))
   clust <-  parallel::makeCluster(getOption("cl.cores", cl_cores))
   parallel::clusterSetRNGStream(clust, seed)
   parallel::clusterExport(clust, c("frac", "n_iter", "n_burnin", "n_chains", "actual",

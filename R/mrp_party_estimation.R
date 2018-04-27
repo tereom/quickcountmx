@@ -162,7 +162,7 @@ model_bern_t <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
             "beta_tamano_md_p", "beta_tamano_gd_p", "beta_tipo_ex_p",
             "beta_estrato_p", "beta_estrato_raw_p", "beta_0_p_adj",
             "sigma_estrato_p",
-            "beta_region_p"),
+            "beta_region_p", "p"),
         model.file = temp_file,
         n.chains = n_chains,
         n.iter = n_iter,
