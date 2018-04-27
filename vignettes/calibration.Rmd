@@ -109,9 +109,7 @@ calibration_gto <- calibration_prop(gto_2012, pri_pvem:otros,
         model_string = "model_bern_t", num_missing_strata = 10)
 ```
 
-```{r a}
-calib_summary <- calibration_gto %>% group_by(party) %>% 
-  summarise(coverage = mean(coverage), 
-  precision_media = mean(precision))
+```{r b}
+calib_summary <- summary_calibration(calibration_gto)
 calib_summary
 ```
