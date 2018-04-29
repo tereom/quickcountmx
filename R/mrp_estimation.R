@@ -24,11 +24,13 @@ mrp_estimation <- function(data, ..., stratum, frac = 1,
     parties_split <- data_long %>%
         split(.$party)
     if (parallel){
-      parties_models <- parallel::mclapply(parties_split, function(x){
-        quickcountmx::mrp_party_estimation(x, party = n_votes,
-            stratum = !!stratum_enquo, frac = frac,
-            n_chains = n_chains, n_iter = n_iter, n_burnin = n_burnin,
-            seed = seed, model_string = model_string)}, mc.cores = mc_cores)
+        parties_models <- parallel::mclapply(parties_split, function(x){
+            quickcountmx::mrp_party_estimation(x, party = n_votes,
+                stratum = !!stratum_enquo, frac = frac, n_chains = n_chains,
+                n_iter = n_iter, n_burnin = n_burnin, seed = seed,
+                model_string = model_string)
+            },
+            mc.cores = mc_cores)
     } else {
         parties_models <- parties_split %>%
             purrr::map(~mrp_party_estimation(., party = n_votes,
