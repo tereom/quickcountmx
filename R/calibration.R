@@ -23,7 +23,7 @@ NULL
 #' @export
 calibration_party <- function(data, party, stratum, frac = 1,
                               n_iter = 2000, n_burnin = 500, n_chains = 3, seed = NA, cl_cores = 14,
-                              n_rep = 5, model_string = NULL){
+                              n_rep = 5, model_string = NULL, num_missing_strata = 0){
   party_enquo <- dplyr::enquo(party)
   stratum_enquo <- dplyr::enquo(stratum)
   data_enquo <- dplyr::enquo(data)
@@ -33,7 +33,7 @@ calibration_party <- function(data, party, stratum, frac = 1,
   parallel::clusterSetRNGStream(clust, seed)
   parallel::clusterExport(clust, c("frac", "n_iter", "n_burnin", "n_chains", "actual",
                                    "model_string", "cl_cores",
-                                   "stratum_enquo", "party_enquo"), 
+                                   "stratum_enquo", "party_enquo", "num_missing_strata"), 
                           envir = environment())
   parallel::clusterExport(clust, dplyr::quo_name(data_enquo))
   parallel::clusterEvalQ(clust, {
@@ -46,7 +46,7 @@ calibration_party <- function(data, party, stratum, frac = 1,
                 party = !!party_enquo, frac = frac, stratum = !!stratum_enquo, 
                 n_iter = n_iter, n_burnin = n_burnin, 
                 n_chains = n_chains, seed = NA, 
-                model_string = model_string
+                model_string = model_string, num_missing_strata = num_missing_strata
                 )
     df <- dplyr::data_frame(n_votes = counts$n_votes, n_sim = x)
     df
@@ -63,18 +63,12 @@ calibration_prop <- function(data, ..., stratum, frac = 1, n_iter = 2000,
                         model_string = NULL, num_missing_strata = 0){
   stratum_enquo <- dplyr::enquo(stratum)
   parties <- dplyr::quos(...)
+  # get names
+  parties_name <- data %>% dplyr::select(!!!parties) %>% names
   # gather data for calculations
+  strata <- unique(data %>% dplyr::pull(!!stratum_enquo))
   dat_gather <- data %>%
     tidyr::gather(party, n_votes, !!!parties)
-  if(num_missing_strata > 0){
-    strata <- unique(data %>% dplyr::pull(!!stratum_enquo))
-    not_selected <- sample(strata, num_missing_strata)
-    dat_gather_subset <- dat_gather %>%
-      dplyr::mutate(n_votes = 
-                ifelse((!!stratum_enquo) %in% not_selected, NA, n_votes))
-    data <- tidyr::spread(dat_gather, party, n_votes)
-  }
-
   actual <-dat_gather %>% dplyr::group_by(party) %>% 
     dplyr::summarise(n_votes = sum(n_votes)) %>%
     dplyr::mutate(prop_votes = 100*n_votes/sum(n_votes))
@@ -82,17 +76,22 @@ calibration_prop <- function(data, ..., stratum, frac = 1, n_iter = 2000,
   parallel::clusterSetRNGStream(clust, seed)
   parallel::clusterExport(clust, c("frac", "n_iter", "n_burnin", "n_chains", "actual",
                                    "cl_cores", "model_string",
-                                   "stratum_enquo", "parties", "data"), 
+                                   "stratum_enquo", "parties", "data",
+                                   "num_missing_strata","strata"), 
                           envir = environment())
   parallel::clusterEvalQ(clust, {
     library(dplyr)
     library(quickcountmx)
   })
   clb <- parallel::parLapply(clust, 1:n_rep, function(x){
+     not_selected <- integer(0)
+     if(num_missing_strata > 0){
+        not_selected <- sample(strata, num_missing_strata)
+     }
      mrp <- mrp_estimation(data, !!!parties, frac = frac, 
                 stratum = !!stratum_enquo, n_iter = n_iter, n_burnin = n_burnin, 
                 n_chains = n_chains, seed = NA, parallel = TRUE,
-                model_string = NULL)
+                model_string = NULL, set_strata_na = not_selected)
      df <- mrp$post_summary %>% dplyr::left_join(actual) %>% 
           dplyr::mutate(n_sim = x)
       df

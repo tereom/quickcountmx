@@ -45,7 +45,7 @@
 #' @export
 mrp_party_estimation <- function(data, party, stratum, frac = 1,
     n_chains = 2, n_iter = 1000, n_burnin = 500, seed = NA, seed_jags = NA,
-    model_string = NULL){
+    model_string = NULL, set_strata_na = integer(0)){
     if(is.null(model_string)){
       model_string <- "model_bern_t"
     }
@@ -66,10 +66,15 @@ mrp_party_estimation <- function(data, party, stratum, frac = 1,
 
     data_district <- dplyr::distinct(data, !!stratum_enquo, region) %>%
         dplyr::arrange(!!stratum_enquo)
+    x <- dplyr::pull(data_model, !!party_enquo)
+    stratum_vec <- dplyr::pull(data_model, !!stratum_enquo)
+    if(length(set_strata_na) > 0) {
+      x[stratum_vec %in% set_strata_na] <- NA
+    }
     data_jags <- list(N = nrow(data_model), n = data_model$ln_total,
         n_regiones = dplyr::n_distinct(data_district$region),
         n_strata = nrow(data_district),
-        x = dplyr::pull(data_model, !!party_enquo),
+        x = x,
         rural = data_model$rural,
         estrato = dplyr::pull(data_model, !!stratum_enquo),
         tamano_md = data_model$tamano_md,
@@ -131,16 +136,16 @@ model_bern_t <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
       beta_estrato_p[j] <-  beta_estrato_raw_p[j] - mean(beta_estrato_raw_p[])
       beta_estrato_raw_p[j] ~ dnorm(mu_estrato_p, tau_estrato_p)
       tau[j] <- pow(sigma[j], -2)
-      sigma[j] ~ dunif(0, 10)
+      sigma[j] ~ dunif(0, 1)
       nu[j] ~ dgamma(2, 0.1)
     }
 
     mu_estrato ~ dnorm(0, 0.25)
-    sigma_estrato ~ dunif(0, 5)
+    sigma_estrato ~ dunif(0, 1)
     tau_estrato <- pow(sigma_estrato, -2)
 
     mu_estrato_p ~ dnorm(0, 0.25)
-    sigma_estrato_p ~ dunif(0, 5)
+    sigma_estrato_p ~ dunif(0, 1)
     tau_estrato_p <- pow(sigma_estrato, -2)
   }
   "
