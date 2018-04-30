@@ -1,0 +1,4 @@
+- Check for more than two cases per stratum in ratio estimation
+- Recheck prior for sigma in model_bern_t
+- Add hierarchical structure for sigma
+- Add stan models
