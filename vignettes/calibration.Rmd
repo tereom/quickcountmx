@@ -59,7 +59,7 @@ Calibration run for one party (pan):
 ```{r}
 gto_pan <- calibration_party(gto_2012, party = pan_na, frac = 0.075,
         stratum = distrito_loc_17, n_iter = 1500, n_burnin = 500, 
-        cl_cores = 5, n_chains = 1, seed = 19112, n_rep = 5)
+        cl_cores = 5, n_chains = 1, seed = 19112, n_rep = 3)
 pan <- summary_calibration_party(gto_pan)
 ```
 
@@ -74,7 +74,7 @@ Calibration run for one party (prd):
 ```{r}
 gto_prd <- calibration_party(gto_2012, party = prd, frac = 0.075,
         stratum = distrito_loc_17, n_iter = 1500, n_burnin = 500, 
-        cl_cores = 5, n_chains = 1, seed = 19112, n_rep = 5)
+        cl_cores = 5, n_chains = 1, seed = 19112, n_rep = 3)
 prd <- summary_calibration_party(gto_prd)
 ```
 
@@ -89,9 +89,9 @@ prd$coverage
 ## Calibration for vote proportion model
 
 ```{r, propcalib}
-calibration_gto <- calibration_prop(gto_2012, pri_pvem:otros, frac = 0.02, 
+calibration_gto <- calibration_prop(gto_2012, pri_pvem:otros, frac = 0.075, 
         stratum = distrito_loc_17, n_iter = 1500, n_burnin = 500, 
-        n_chains = 1, seed = 1911275, cl_cores = 1, n_rep = 5, 
+        n_chains = 1, seed = 191127, cl_cores = 1, n_rep = 3, 
         model_string = "model_bern_t")
 ```
 
@@ -108,15 +108,15 @@ calib_summary
 
 
 ```{r, propcalib2}
-calibration_gto <- calibration_prop(gto_2012, pri_pvem:otros,
+calibration_gto_miss <- calibration_prop(gto_2012, pri_pvem:otros,
         frac = 0.075, stratum = distrito_loc_17, 
         n_iter = 1500, n_burnin = 500, 
-        n_chains = 1, seed = 19331, cl_cores = 1, n_rep = 5, 
+        n_chains = 1, seed = 19331, cl_cores = 1, n_rep = 10, 
         model_string = "model_bern_t", num_missing_strata = 2)
 ```
 
 ```{r b}
-calib_summary <- summary_calibration(calibration_gto)
+calib_summary <- summary_calibration(calibration_gto_miss)
 calib_summary
 ```
 
@@ -125,24 +125,24 @@ calib_summary
 ### Coverage report for vote proportions  (ratio estimator)
 
 
-```{r fddvv}
+```{r calibrat}
 set.seed(1211)
 gto_stratum_sizes <- gto_2012 %>%
   dplyr::group_by(distrito_loc_17) %>%
   dplyr::mutate(n_stratum = n())
 
 calib_ratio <- parallel::mclapply(1:200, function(i) {
-  mor_sample <- select_sample_prop(mor_stratum_sizes, stratum = distrito_loc_17, 
+  gto_sample <- select_sample_prop(gto_stratum_sizes, stratum = distrito_loc_17, 
                                    0.075)
-  ratio <- ratio_estimation(mor_sample, stratum = distrito_loc_17, 
+  ratio <- ratio_estimation(gto_sample, stratum = distrito_loc_17, 
                             n_stratum = n_stratum, ... = pri_pvem:otros)
   ratio <- ratio %>% mutate(n_sim = i)
   ratio 
 }, mc.cores = 4) %>% bind_rows
 ```
 
-```{r ddaee}
-gto_gather <- gto_"012" %>% dplyr::select(casilla_id, pri_pvem:otros) %>%
+```{r sumcalib}
+gto_gather <- gto_2012 %>% dplyr::select(casilla_id, pri_pvem:otros) %>%
   tidyr::gather(party, votes, pri_pvem:otros)
 actual <- gto_gather %>% group_by(party) %>% 
   summarise(n_votes = sum(votes, na.rm = T)) %>%
@@ -154,47 +154,111 @@ calib_ratio <- calib_ratio %>% left_join(actual) %>% ungroup() %>%
 
 
 
-```{r b}
+```{r plotcalib}
 ggplot(filter(calib_ratio, n_sim <= 200), aes(x = n_sim, y = r, ymin = r - 2*std_error,
        ymax = r + 2*std_error )) + geom_linerange(colour='red') +
   geom_hline(data = actual, aes(yintercept = prop_votes)) + 
   facet_wrap(~party, scales="free_y")
 ```
 
-### Coverage report for vote proportions with missing strata (ratio estimator)
-
-
-```{r f2}
-set.seed(1211)
-mor_stratum_sizes <- mor_2012_f %>%
-  dplyr::group_by(distrito_loc_17) %>%
-  dplyr::mutate(n_stratum = n())
-mor_stratum_sizes <- mor_stratum_sizes %>% filter(!is.na(pri_pvem_pna) & !is.na(prd_pt_mc) & !is.na(pan) & !is.na(psd) & !is.na(otros) )
-calib_ratio <- parallel::mclapply(1:200, function(i) {
-  mor_sample <- select_sample_prop(mor_stratum_sizes, stratum = distrito_loc_17, 
-                                   0.075)
-  ratio <- ratio_estimation(mor_sample, stratum = distrito_loc_17, 
-                            n_stratum = n_stratum, ... = pri_pvem_pna:otros)
-  ratio <- ratio %>% mutate(n_sim = i)
-  ratio 
-}, mc.cores = 30) %>% bind_rows
+```{r ax}
+calib_summary <- calib_ratio %>% group_by(party) %>% summarise(coverage = mean(coverage), 
+          precision_media = mean(precision), n_sims = n())
+calib_summary
 ```
 
-```{r d2}
-mor_gather <- mor_2012_f %>% dplyr::select(casilla_id, pri_pvem_pna:otros) %>%
-  tidyr::gather(party, votes, pri_pvem_pna:otros)
-actual <- mor_gather %>% group_by(party) %>% summarise(n_votes = sum(votes, na.rm = T)) %>%
+### Coverage report for vote proportions with missing strata (ratio estimator)
+
+Randomly collapsing to observed strata
+
+
+```{r calibrat2}
+set.seed(1211)
+gto_stratum_sizes <- gto_2012 %>%
+  dplyr::group_by(distrito_loc_17) %>%
+  dplyr::mutate(n_stratum = n())
+
+calib_ratio_miss <- parallel::mclapply(1:200, function(i) {
+  # select sample
+  gto_sample <- select_sample_prop(gto_stratum_sizes, 
+                  stratum = distrito_loc_17, 0.075) %>%
+                mutate(distrito_coll = distrito_loc_17) %>%
+                select(-n_stratum)
+  strata <- unique(gto_2012$distrito_loc_17)
+  missing <- sample(strata, 3)
+  present <- setdiff(strata, missing)
+  gto_sample_miss <- gto_sample %>% filter(distrito_loc_17 %in% present)
+  collapse_to <- sample(present, length(missing))
+  new_strata <- data_frame(distrito_loc_17 = c(missing, present), 
+             distrito_coll = c(collapse_to, present)) 
+  gto_2012_collapsed <- left_join(gto_2012, new_strata, 
+                                  by = "distrito_loc_17") 
+  gto_sample_miss <- gto_sample_miss %>%
+    left_join(gto_2012_collapsed %>% group_by(distrito_coll) %>%
+      summarise(n_stratum = n()), by ="distrito_coll")
+  ratio <- ratio_estimation(gto_sample_miss, stratum = distrito_coll, 
+                            n_stratum = n_stratum, ... = pri_pvem:otros)
+  ratio <- ratio %>% mutate(n_sim = i)
+  ratio 
+  }, mc.cores = 4) %>% bind_rows
+```
+
+```{r sumcalib2}
+gto_gather <- gto_2012 %>% dplyr::select(casilla_id, pri_pvem:otros) %>%
+  tidyr::gather(party, votes, pri_pvem:otros)
+actual <- gto_gather %>% group_by(party) %>% 
+  summarise(n_votes = sum(votes, na.rm = T)) %>%
   mutate(prop_votes = 100*n_votes/sum(n_votes, na.rm=T))
-calib_ratio <- calib_ratio %>% left_join(actual) %>% ungroup() %>%
+calib_ratio_miss <- calib_ratio_miss %>% left_join(actual) %>% ungroup() %>%
   mutate(coverage = r - 2*std_error < prop_votes & r + 2*std_error > prop_votes,
          precision = 2 * std_error)
 ```
 
 
 
-```{r b2}
+```{r plotcalib2}
 ggplot(filter(calib_ratio, n_sim <= 200), aes(x = n_sim, y = r, ymin = r - 2*std_error,
        ymax = r + 2*std_error )) + geom_linerange(colour='red') +
   geom_hline(data = actual, aes(yintercept = prop_votes)) + 
   facet_wrap(~party, scales="free_y")
+```
+
+
+```{r ax2}
+calib_summary <- calib_ratio %>% group_by(party) %>% summarise(coverage = mean(coverage), 
+          precision_media = mean(precision), n_sims = n())
+calib_summary
+```
+
+
+## Reporting unique intervals
+
+```{r}
+calib_ratio <- calib_ratio %>% mutate(int_l = r - 2*std_error,
+                                      int_r = r + 2*std_error)
+calibration_gto <- calibration_gto %>% 
+  mutate(coverage = prop_votes < int_r & prop_votes > int_l)
+
+```
+
+```{r}
+ratio <- select(calib_ratio, n_sim, party, int_l, int_r)  %>% 
+  mutate(method = 'ratio')
+bayesian <- select(calibration_gto, n_sim, party, int_l, int_r) %>% mutate(method = 'bayesian')
+intervals <- bind_rows(ratio, bayesian) 
+```
+
+```{r}
+# also try with median and mean instad of min/max
+intervals_max <- intervals %>% group_by(n_sim, party) %>%
+  (int_l = min(int_l), int_r = max(int_r)) %>% left_join(actual)
+```
+
+```{r}
+intervals_max %>% 
+  ungroup %>%
+  mutate(coverage = int_l < prop_votes & int_r > prop_votes) %>%
+  group_by(party) %>%
+  summarise(coverage = mean(coverage))
+  
 ```
