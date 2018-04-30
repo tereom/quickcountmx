@@ -8,3 +8,8 @@
 
 - Clean data and define strata
 - Run tests and calibration
+
+#### Total turnover
+
+- Add turnover estimate at postprocessing
+- Individual turnover model?
