@@ -2,3 +2,4 @@
 - Recheck prior for sigma in model_bern_t
 - Add hierarchical structure for sigma
 - Add stan models
+- Add option in ratio estimation for bootstrap or Taylor
