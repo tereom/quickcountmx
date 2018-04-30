@@ -251,13 +251,16 @@ intervals <- bind_rows(ratio, bayesian)
 ```{r}
 # also try with median and mean instad of min/max
 intervals_max <- intervals %>% group_by(n_sim, party) %>%
-  (int_l = min(int_l), int_r = max(int_r)) %>% left_join(actual)
+  mutate(int_l = min(int_l), int_r = max(int_r)) %>% left_join(actual)
 ```
 
 ```{r}
 intervals_max %>% 
   ungroup %>%
   mutate(coverage = int_l < prop_votes & int_r > prop_votes) %>%
+  group_by(party, method) %>%
+  mutate(n = max(n_sim)) %>%
+  filter(n_sim < min(n)) %>%
   group_by(party) %>%
   summarise(coverage = mean(coverage))
   
