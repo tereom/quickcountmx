@@ -217,7 +217,7 @@ calib_ratio_miss <- calib_ratio_miss %>% left_join(actual) %>% ungroup() %>%
 
 
 ```{r plotcalib2}
-ggplot(filter(calib_ratio, n_sim <= 200), aes(x = n_sim, y = r, ymin = r - 2*std_error,
+ggplot(filter(calib_ratio_miss, n_sim <= 200), aes(x = n_sim, y = r, ymin = r - 2*std_error,
        ymax = r + 2*std_error )) + geom_linerange(colour='red') +
   geom_hline(data = actual, aes(yintercept = prop_votes)) + 
   facet_wrap(~party, scales="free_y")
@@ -225,7 +225,7 @@ ggplot(filter(calib_ratio, n_sim <= 200), aes(x = n_sim, y = r, ymin = r - 2*std
 
 
 ```{r ax2}
-calib_summary <- calib_ratio %>% group_by(party) %>% summarise(coverage = mean(coverage), 
+calib_summary <- calib_ratio_miss %>% group_by(party) %>% summarise(coverage = mean(coverage), 
           precision_media = mean(precision), n_sims = n())
 calib_summary
 ```
