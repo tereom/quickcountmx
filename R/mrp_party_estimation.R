@@ -139,7 +139,7 @@ model_bern_t <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
                 mean(beta_estrato_raw_p[])
             beta_estrato_raw_p[j] ~ dnorm(mu_estrato_p, tau_estrato_p)
             tau[j] <- pow(sigma[j], -2)
-            sigma[j] ~ dgamma(5, 5)
+            sigma[j] ~ dexp(1)
             nu[j] ~ dgamma(2, 0.1)
         }
 
