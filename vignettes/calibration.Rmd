@@ -41,7 +41,6 @@ The variables are described in the package documentation `?gto_2012`.
 
 ## Calibration for one model (vote count)
 
-Posterior predictive check for one run:
 
 ```{r}
 counts <- mrp_party_estimation(gto_2012, party = pan_na, 
@@ -52,7 +51,7 @@ qplot(counts$n_votes, binwidth = 1000) +
 ```
 
 ```{r}
-R2jags::traceplot(counts, varname = 'deviance')
+R2jags::traceplot(counts$fit, varname = 'deviance')
 ```
 
 Calibration run for one party (pan):
@@ -60,8 +59,11 @@ Calibration run for one party (pan):
 ```{r}
 gto_pan <- calibration_party(gto_2012, party = pan_na, frac = 0.075,
         stratum = distrito_loc_17, n_iter = 1500, n_burnin = 500, 
-        cl_cores = 2, n_chains = 1, seed = 19112, n_rep = 5)
+        cl_cores = 5, n_chains = 1, seed = 19112, n_rep = 5)
 pan <- summary_calibration_party(gto_pan)
+```
+
+```{r}
 pan$plot
 pan$coverage
 ```
@@ -72,8 +74,11 @@ Calibration run for one party (prd):
 ```{r}
 gto_prd <- calibration_party(gto_2012, party = prd, frac = 0.075,
         stratum = distrito_loc_17, n_iter = 1500, n_burnin = 500, 
-        cl_cores = 2, n_chains = 1, seed = 19112, n_rep = 5)
+        cl_cores = 5, n_chains = 1, seed = 19112, n_rep = 5)
 prd <- summary_calibration_party(gto_prd)
+```
+
+```{r}
 prd$plot
 prd$coverage
 ```
@@ -105,8 +110,8 @@ calib_summary
 calibration_gto <- calibration_prop(gto_2012, pri_pvem:otros,
         frac = 0.075, stratum = distrito_loc_17, 
         n_iter = 1500, n_burnin = 500, 
-        n_chains = 1, seed = 19331, cl_cores = 1, n_rep = 5, 
-        model_string = "model_bern_t", num_missing_strata = 10)
+        n_chains = 1, seed = 19331, cl_cores = 5, n_rep = 5, 
+        model_string = "model_bern_t", num_missing_strata = 2)
 ```
 
 ```{r b}
