@@ -38,9 +38,22 @@ ratio_estimation <- function(data, stratum, n_stratum, std_errors = TRUE,
     stratum <- dplyr::enquo(stratum)
     n_stratum <- dplyr::enquo(n_stratum)
     parties <- dplyr::quos(...)
+    # check if more than two cases by stratum
+    data <- data %>% mutate(stratum = !!stratum)
+    collapsed_data <- data
+  
+  #  greater_2 <- FALSE
+  #  while(!greater_2)
+  #    collapsed_data %>% dplyr::group_by(!!stratum, stratum) %>%
+  #      dplyr::summarise(n_h = n())  %>%
+  #      mutate()
+  #    mutate(stratum = ifelse(n_h < 2, stratum = stratum - 1))
+    
+    
+    # calculate estimates
     ratios <- data %>%
         dplyr::group_by(!!stratum) %>%
-        dplyr::mutate(n_h = n()) %>%
+        dplyr::mutate(n_h = n())%>% 
         dplyr::ungroup() %>%
         tidyr::gather(party, n_votes, !!!parties) %>%
         dplyr::mutate(

@@ -16,7 +16,8 @@
 #' @export
 mrp_estimation <- function(data, ..., stratum, frac = 1,
     n_iter = 2000, n_burnin = 500, n_chains = 3, seed = NA,
-    cl_clust = 1, mc_cores = 6, parallel = FALSE, model_string = NULL){
+    cl_clust = 1, mc_cores = 6, parallel = FALSE, model_string = NULL,
+    set_strata_na = integer(0)){
     if (is.na(seed)) seed <- sample(1:1000, 1)
     parties <- dplyr::quos(...)
     stratum_enquo <- dplyr::enquo(stratum)
@@ -24,19 +25,18 @@ mrp_estimation <- function(data, ..., stratum, frac = 1,
     parties_split <- data_long %>%
         split(.$party)
     if (parallel){
-        parties_models <- parallel::mclapply(parties_split, function(x){
-            quickcountmx::mrp_party_estimation(x, party = n_votes,
-                stratum = !!stratum_enquo, frac = frac, n_chains = n_chains,
-                n_iter = n_iter, n_burnin = n_burnin, seed = seed,
-                model_string = model_string)
-            },
-            mc.cores = mc_cores)
+      parties_models <- parallel::mclapply(parties_split, function(x){
+        quickcountmx::mrp_party_estimation(x, party = n_votes,
+            stratum = !!stratum_enquo, frac = frac,
+            n_chains = n_chains, n_iter = n_iter, n_burnin = n_burnin,
+            seed = seed, model_string = model_string, set_strata_na = set_strata_na)}, 
+        mc.cores = mc_cores)
     } else {
         parties_models <- parties_split %>%
             purrr::map(~mrp_party_estimation(., party = n_votes,
             stratum = !!stratum_enquo, frac = frac,
             n_chains = n_chains, n_iter = n_iter, n_burnin = n_burnin,
-            seed = seed, model_string = model_string))
+            seed = seed, model_string = model_string, set_strata_na = set_strata_na))
     }
     jags_fits <- purrr::map(parties_models, ~.$fit)
     votes_all <- purrr::map_df(parties_models, ~.$n_votes) %>%

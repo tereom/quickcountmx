@@ -23,6 +23,7 @@ To install the package use [devtools](https://github.com/r-lib/devtools)
 ```{r, message=FALSE}
 # devtools::install_github("tereom/quickcountmx")
 library(quickcountmx)
+library(tidyverse)
 ```
 
 The package includes the results of the 2012 Guanajuato Governor election, which
@@ -50,85 +51,65 @@ qplot(counts$n_votes, binwidth = 1000) +
   geom_vline(xintercept = sum(gto_2012$pan_na), colour ='red')
 ```
 
-Calibration run for one party (pan):
-
-```{r, pancalib}
-out <- calibration_party(gto_2012, party = pan_na, frac = 0.02,
-        stratum = distrito_loc_17, n_iter = 1000, n_burnin = 500, 
-        cl_cores = 1, n_chains = 2, seed = 19112, n_rep = 10)
-alpha_r <- 1 - 0.95
-cal_summary <- out %>% group_by(n_sim) %>%
-  summarise(mean_post = mean(n_votes), inf = quantile(n_votes, alpha_r / 2), 
-            sup = quantile(n_votes, 1 - alpha_r/2), actual_votes = actual_votes[1])
-ggplot(cal_summary, aes(x = factor(n_sim), y = mean_post, ymin = inf, ymax = sup)) + 
-  geom_hline(aes(yintercept = actual_votes[1]), colour = 'red') +
-  geom_point() + geom_linerange()
-## Coverage 
-cal_summary %>% summarise(coverage = mean(inf < actual_votes & sup > actual_votes))
+```{r}
+R2jags::traceplot(counts, varname = 'deviance')
 ```
 
 Calibration run for one party (pan):
 
-
-```{r, prdcalib}
-out <- calibration_party(gto_2012, party = prd, frac = 0.05,
-        stratum = distrito_loc_17, n_iter = 1000, n_burnin = 500,
-        cl_cores = 1, n_chains = 2, seed = 19112, n_rep = 10)
-alpha_r <- 1 - 0.95
-cal_summary <- out %>% group_by(n_sim) %>%
-  summarise(mean_post = mean(n_votes), inf = quantile(n_votes, alpha_r / 2), 
-            sup = quantile(n_votes, 1 - alpha_r/2), actual_votes = actual_votes[1])
-ggplot(cal_summary, aes(x = factor(n_sim), y = mean_post, ymin = inf, ymax = sup)) + 
-  geom_hline(aes(yintercept = actual_votes[1]), colour = 'red') +
-  geom_point() + geom_linerange()
-## Coverage 
-cal_summary %>% summarise(coverage = mean(inf < actual_votes & sup > actual_votes))
+```{r}
+gto_pan <- calibration_party(gto_2012, party = pan_na, frac = 0.075,
+        stratum = distrito_loc_17, n_iter = 1500, n_burnin = 500, 
+        cl_cores = 2, n_chains = 1, seed = 19112, n_rep = 5)
+pan <- summary_calibration_party(gto_pan)
+pan$plot
+pan$coverage
 ```
+
+Calibration run for one party (prd):
+
+
+```{r}
+gto_prd <- calibration_party(gto_2012, party = prd, frac = 0.075,
+        stratum = distrito_loc_17, n_iter = 1500, n_burnin = 500, 
+        cl_cores = 2, n_chains = 1, seed = 19112, n_rep = 5)
+prd <- summary_calibration_party(gto_prd)
+prd$plot
+prd$coverage
+```
+
+
 
 ## Calibration for vote proportion model
 
 ```{r, propcalib}
 calibration_gto <- calibration_prop(gto_2012, pri_pvem:otros, frac = 0.02, 
         stratum = distrito_loc_17, n_iter = 1500, n_burnin = 500, 
-        n_chains = 2, seed = 1911275, cl_cores = 1, n_rep = 2, model_string = "model_t")
+        n_chains = 1, seed = 1911275, cl_cores = 1, n_rep = 5, 
+        model_string = "model_bern_t")
+```
+
+
+```{r a}
+calib_summary <- summary_calibration(calibration_gto)
+calib_summary
 ```
 
 
 
-```{r}
-head(calibration_gto)
-calibration_summary <- calibration_gto %>% 
-  mutate(covered = ((mean_post - 1.96 * std_dev_post) < prop_votes & (mean_post + 1.96 * std_dev_post) > prop_votes)*1) %>% 
-  group_by(party) %>% summarise(coverage = mean(covered), n_sims = length(covered))
-calibration_summary
+### Coverage report for vote proportions with missing strata
+
+
+
+```{r, propcalib2}
+calibration_gto <- calibration_prop(gto_2012, pri_pvem:otros,
+        frac = 0.075, stratum = distrito_loc_17, 
+        n_iter = 1500, n_burnin = 500, 
+        n_chains = 1, seed = 19331, cl_cores = 1, n_rep = 5, 
+        model_string = "model_bern_t", num_missing_strata = 10)
 ```
 
-
-```{r}
-means_party <- calibration_gto %>% group_by(party) %>% 
-  summarise(mean_party = mean(mean_post), prop_votes = mean(prop_votes),
-            `2_ee` = 1.96*mean(std_dev_post))
-arrange(means_party, prop_votes) %>% mutate(dif = mean_party - prop_votes)
-ggplot(calibration_gto, aes(x = n_sim, ymin = mean_post - 1.96 * std_dev_post,
-                            ymax = mean_post + 1.96 * std_dev_post)) +
-  geom_linerange(colour='red') + 
-  facet_wrap(~party, scales = 'free_y') +
-  geom_hline(data = means_party, aes(yintercept = mean_party), colour ='red') +
-  geom_hline(data = means_party, aes(yintercept = prop_votes), colour ='black') 
+```{r b}
+calib_summary <- summary_calibration(calibration_gto)
+calib_summary
 ```
-
-Número de votos
-
-```{r, numvotecalib}
-num_party <- calibration_gto %>% group_by(party) %>% 
-  summarise(mean_party = mean(mean_post), prop_votes = mean(prop_votes),
-            `2_ee` = 1.96*mean(std_dev_post))
-arrange(means_party, prop_votes) %>% mutate(dif = mean_party - prop_votes)
-ggplot(calibration_gto, aes(x = n_sim, ymin = mean_post - 1.96 * std_dev_post,
-                            ymax = mean_post + 1.96 * std_dev_post)) +
-  geom_linerange(colour='red') + 
-  facet_wrap(~party, scales = 'free_y') +
-  geom_hline(data = means_party, aes(yintercept = mean_party), colour ='red') +
-  geom_hline(data = means_party, aes(yintercept = prop_votes), colour ='black')
-```
-
