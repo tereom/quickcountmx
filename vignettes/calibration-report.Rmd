@@ -41,7 +41,7 @@ calibration_gto <- calibration_prop(gto_2012, pri_pvem:otros,
         frac = 0.075, stratum = distrito_loc_17, n_iter = 3000, n_burnin = 1500, 
         n_chains = 1, seed = 1933210, cl_cores = 6, n_rep = 100, 
         model_string = "model_bern_t", num_missing_strata = 2)
-saveRDS(calibration_gto_miss, file = "report_calib.rds")
+saveRDS(calibration_gto, file = "report_calib.rds")
 ```
 
 Report and plot
@@ -109,7 +109,7 @@ calibration_gto_miss <- calibration_prop(gto_2012, pri_pvem:otros,
         frac = 0.075, stratum = distrito_loc_17, n_iter = 3000, n_burnin = 1500, 
         n_chains = 1, seed = 1933210, cl_cores = 6, n_rep = 200, 
         model_string = "model_bern_t", num_missing_strata = 2)
-saveRDS(calibration_gto, file = "report_calib_missing.rds")
+saveRDS(calibration_gto_miss, file = "report_calib_missing.rds")
 ```
 
 Report and plot
