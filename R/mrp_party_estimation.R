@@ -88,29 +88,68 @@ mrp_party_estimation <- function(data, party, stratum, frac = 1,
 }
 
 model_bern_t <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
-  model_string <- "
-  model{
-    for(k in 1:N){
-      b[k] ~ dbern(p[k])
-      p[k] <- ilogit(beta_0_p + beta_rural_p * rural[k] +
-          beta_rural_tamano_md_p * rural[k] * tamano_md[k] +
-          beta_estrato_raw_p[estrato[k]] + beta_tamano_md_p * tamano_md[k] +
-          beta_tamano_gd_p * tamano_gd[k] + beta_tipo_ex_p * tipo_ex[k] +
-          beta_region_p * region[k])
+    model_string <- "
+        model{
+        for(k in 1:N){
+            b[k] ~ dbern(p[k])
+            p[k] <- ilogit(beta_0_p + beta_rural_p * rural[k] +
+                beta_rural_tamano_md_p * rural[k] * tamano_md[k] +
+                beta_estrato_raw_p[estrato[k]] +
+                beta_tamano_md_p * tamano_md[k] +
+                beta_tamano_gd_p * tamano_gd[k] +
+                beta_tipo_ex_p * tipo_ex[k] +
+                beta_region_p * region[k])
 
-      mu_mix[k] <- n[k] * theta[k] * b[k]
-      tau_mix[k] <- b[k] * tau[estrato[k]] / n[k] + (1 - b[k]) * 10000
-      nu_mix[k] <- b[k] * nu[estrato[k]] + (1 - b[k]) * 100
-    
-      x[k] ~ dt(mu_mix[k], tau_mix[k] , nu_mix[k]) T(0, 750)
+            mu_mix[k] <- n[k] * theta[k] * b[k]
+            tau_mix[k] <- b[k] * tau[estrato[k]] / n[k] + (1 - b[k]) * 10000
+            nu_mix[k] <- b[k] * nu[estrato[k]] + (1 - b[k]) * 100
 
-      theta[k] <- ilogit(beta_0 + beta_rural * rural[k] +
-        beta_rural_tamano_md * rural[k] * tamano_md[k] +
-        beta_estrato_raw[estrato[k]] + beta_tamano_md * tamano_md[k] +
-        beta_tamano_gd * tamano_gd[k] + beta_tipo_ex * tipo_ex[k] +
-        beta_region * region[k])
+            x[k] ~ dt(mu_mix[k], tau_mix[k] , nu_mix[k]) T(0, 750)
+            theta[k] <- ilogit(beta_0 + beta_rural * rural[k] +
+                beta_rural_tamano_md * rural[k] * tamano_md[k] +
+                beta_estrato_raw[estrato[k]] +
+                beta_tamano_md * tamano_md[k] +
+                beta_tamano_gd * tamano_gd[k] + beta_tipo_ex * tipo_ex[k] +
+                beta_region * region[k])
+            }
+        beta_0_p ~ dnorm(0, 0.25)
+        beta_rural_p ~ dnorm(0, 0.25)
+        beta_region_p ~ dnorm(0, 0.25)
+        beta_tamano_md_p  ~ dnorm(0, 0.25)
+        beta_rural_tamano_md_p ~ dnorm(0, 0.25)
+        beta_tamano_gd_p  ~ dnorm(0, 0.25)
+        beta_tipo_ex_p ~ dnorm(0, 0.25)
+
+        beta_0 ~ dnorm(0, 0.25)
+        beta_rural ~ dnorm(0, 0.25)
+        beta_region ~ dnorm(0, 0.25)
+        beta_tamano_md  ~ dnorm(0, 0.25)
+        beta_tamano_gd  ~ dnorm(0, 0.25)
+        beta_tipo_ex  ~ dnorm(0, 0.25)
+        beta_rural_tamano_md  ~ dnorm(0, 0.25)
+
+        beta_0_adj <- beta_0 + mean(beta_estrato_raw[])
+        beta_0_p_adj <- beta_0_p + mean(beta_estrato_raw_p[])
+
+        for(j in 1:n_strata){
+            beta_estrato[j] <- beta_estrato_raw[j] - mean(beta_estrato_raw[])
+            beta_estrato_raw[j] ~ dnorm(mu_estrato, tau_estrato)
+            beta_estrato_p[j] <- beta_estrato_raw_p[j] -
+                mean(beta_estrato_raw_p[])
+            beta_estrato_raw_p[j] ~ dnorm(mu_estrato_p, tau_estrato_p)
+            tau[j] <- pow(sigma[j], -2)
+            sigma[j] ~ dunif(0, 10)
+            nu[j] ~ dgamma(2, 0.1)
+        }
+
+        mu_estrato ~ dnorm(0, 0.25)
+        sigma_estrato ~ dunif(0, 5)
+        tau_estrato <- pow(sigma_estrato, -2)
+
+        mu_estrato_p ~ dnorm(0, 0.25)
+        sigma_estrato_p ~ dunif(0, 5)
+        tau_estrato_p <- pow(sigma_estrato, -2)
     }
-
     beta_0_p ~ dnorm(0, 0.25)
     beta_rural_p ~ dnorm(0, 0.25)
     beta_region_p ~ dnorm(0, 0.25)
@@ -149,7 +188,6 @@ model_bern_t <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
     tau_estrato_p <- pow(sigma_estrato, -2)
   }
   "
-
     temp_file <- tempfile(pattern = "model_string", fileext = ".txt")
     cat(model_string, file = temp_file)
 
@@ -181,61 +219,53 @@ model_bern_t <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
 
 
 model_t <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
-  model_string <-
-    "
-  model{
-  for(k in 1:N){
-    x[k] ~ dt(n[k] * theta[k], tau[estrato[k]] / n[k], nu[estrato[k]]) T(-0.01, 750)
-    theta[k] <- ilogit(beta_0 + beta_rural * rural[k] +
-    beta_rural_tamano_md * rural[k] * tamano_md[k] +
-    beta_estrato_raw[estrato[k]] + beta_tamano_md * tamano_md[k] +
-    beta_tamano_gd * tamano_gd[k] + beta_tipo_ex * tipo_ex[k] +
-    beta_region * region[k])
-  }
-  
-  beta_0 ~ dnorm(0, 0.25)
-  beta_rural ~ dnorm(0, 0.25)
-  beta_region ~ dnorm(0, 0.25)
-  beta_tamano_md  ~ dnorm(0, 0.25)
-  beta_tamano_gd  ~ dnorm(0, 0.25)
-  beta_tipo_ex  ~ dnorm(0, 0.25)
-  beta_rural_tamano_md  ~ dnorm(0, 0.25)
-  
-  beta_0_adj <- beta_0 + mean(beta_estrato_raw[])
+    model_string <- "
+        model{
+        for(k in 1:N){
+            x[k] ~ dt(n[k] * theta[k], tau[estrato[k]] / n[k], nu[estrato[k]]) T(-0.01, 750)
+            theta[k] <- ilogit(beta_0 + beta_rural * rural[k] +
+            beta_rural_tamano_md * rural[k] * tamano_md[k] +
+            beta_estrato_raw[estrato[k]] + beta_tamano_md * tamano_md[k] +
+            beta_tamano_gd * tamano_gd[k] + beta_tipo_ex * tipo_ex[k] +
+            beta_region * region[k])
+        }
+        beta_0 ~ dnorm(0, 0.25)
+        beta_rural ~ dnorm(0, 0.25)
+        beta_region ~ dnorm(0, 0.25)
+        beta_tamano_md  ~ dnorm(0, 0.25)
+        beta_tamano_gd  ~ dnorm(0, 0.25)
+        beta_tipo_ex  ~ dnorm(0, 0.25)
+        beta_rural_tamano_md  ~ dnorm(0, 0.25)
 
-  for(j in 1:n_strata){
-    beta_estrato[j] <-  beta_estrato_raw[j] - mean(beta_estrato_raw[])
-    beta_estrato_raw[j] ~ dnorm(mu_estrato, tau_estrato)
-    tau[j] <- pow(sigma[j], -2)
-    sigma[j] ~ dunif(0, 10)
-    nu[j] ~ dgamma(2, 0.1)
-  }
+        beta_0_adj <- beta_0 + mean(beta_estrato_raw[])
 
-  mu_estrato ~ dnorm(0, 0.25)
-  sigma_estrato ~ dunif(0, 5)
-  tau_estrato <- pow(sigma_estrato, -2)
-  }
-  "
-  
-  temp_file <- tempfile(pattern = "model_string", fileext = ".txt")
-  cat(model_string, file = temp_file)
-  
-  data_jags[["n_regiones"]] <- NULL
-  data_jags[["region_mod"]] <- NULL
-  fit_jags <- R2jags::jags(
-    # inits = jags_inits,
-    data = data_jags,
-    parameters.to.save = c("x", "beta_0", "beta_0_adj", "beta_rural",
-                           "beta_tamano_md", "beta_tamano_gd", "beta_tipo_ex",
-                           "beta_estrato", "beta_estrato_raw",
-                           "sigma", "sigma_estrato", "beta_rural_tamano_md",
-                           "beta_region",  "nu"),
-    model.file = temp_file,
-    n.chains = n_chains,
-    n.iter = n_iter,
-    n.burnin = n_burnin,
-    jags.seed = seed_jags
-  )
-  n_votes <- apply(fit_jags$BUGSoutput$sims.list$x, 1, sum)
-  return(list(fit = fit_jags, n_votes = n_votes))
+        for(j in 1:n_strata){
+            beta_estrato[j] <-  beta_estrato_raw[j] - mean(beta_estrato_raw[])
+            beta_estrato_raw[j] ~ dnorm(mu_estrato, tau_estrato)
+            tau[j] <- pow(sigma[j], -2)
+            sigma[j] ~ dunif(0, 10)
+            nu[j] ~ dgamma(2, 0.1)
+        }
+        mu_estrato ~ dnorm(0, 0.25)
+        sigma_estrato ~ dunif(0, 5)
+        tau_estrato <- pow(sigma_estrato, -2)
+        }
+        "
+    temp_file <- tempfile(pattern = "model_string", fileext = ".txt")
+    cat(model_string, file = temp_file)
+    data_jags[["n_regiones"]] <- NULL
+    data_jags[["region_mod"]] <- NULL
+    fit_jags <- R2jags::jags(
+        data = data_jags,
+        parameters.to.save = c("x", "beta_0", "beta_0_adj", "beta_rural",
+            "beta_tamano_md", "beta_tamano_gd", "beta_tipo_ex", "beta_estrato",
+            "beta_estrato_raw", "sigma", "sigma_estrato",
+            "beta_rural_tamano_md", "beta_region", "nu"),
+        model.file = temp_file,
+        n.chains = n_chains,
+        n.iter = n_iter,
+        n.burnin = n_burnin,
+        jags.seed = seed_jags)
+    n_votes <- apply(fit_jags$BUGSoutput$sims.list$x, 1, sum)
+    return(list(fit = fit_jags, n_votes = n_votes))
 }
