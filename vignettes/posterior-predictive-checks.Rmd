@@ -1,0 +1,73 @@
+---
+title: "Posterior predictive checks for voting model"
+output: html_notebook
+---
+
+
+```{r, message = FALSE, warning = FALSE}
+library(quickcountmx)
+library(tidyverse)
+data("gto_2012")
+```
+
+We first run a single model for one party
+
+```{r}
+model_fit <- mrp_party_estimation(gto_2012, party = pri_pvem, 
+  stratum = distrito_loc_17, frac = 0.04, 
+  seed = 211871, n_chains = 2, n_burnin = 300, n_iter = 500, 
+  model_string = "model_bern_t_pp")
+```
+
+Now we check posterior distributions and compare with observed data at
+the stratum level.
+
+
+
+```{r}
+pp_data <- pp_check_party(model_fit)
+ggplot(pp_data, aes(x = n_votes_post/1000)) + 
+  geom_histogram(alpha = 0.9, binwidth = 0.01) +
+  facet_wrap(~ stratum, scales = "fixed") +
+  geom_vline(aes(xintercept = observed/1000), colour = 'salmon', alpha = 0.9) +
+  xlab("Thousands of votes")
+```
+
+
+```{r, message=FALSE}
+mrp_gto <- mrp_estimation(gto_2012, pri_pvem:otros, frac = 0.075, 
+    stratum = distrito_loc_17, n_iter = 2000, n_burnin = 1000, 
+    n_chains = 2, seed = 19291, parallel = TRUE, model_string = "model_bern_t_pp")
+```
+
+
+
+```{r}
+pp_data <- pp_check(mrp_gto)
+ggplot(pp_data, aes(x = prop_post)) + 
+  geom_histogram(alpha = 0.9, binwidth = 0.001) +
+  facet_grid(stratum ~ party, scales = 'free_x') +
+  geom_vline(aes(xintercept = prop_obs), colour = 'salmon', alpha = 0.9) 
+```
+
+
+```{r}
+ggplot(filter(pp_data, party=="pan_na"), aes(x = prop_post)) + 
+  geom_histogram(alpha = 0.9, binwidth = 0.01) +
+  facet_wrap(~stratum) +
+  geom_vline(aes(xintercept = prop_obs), colour = 'salmon', alpha = 0.9) 
+```
+
+```{r}
+ggplot(filter(pp_data, party=="prd"), aes(x = prop_post)) + 
+  geom_histogram(alpha = 0.9, binwidth = 0.01) +
+  facet_wrap(~stratum) +
+  geom_vline(aes(xintercept = prop_obs), colour = 'salmon', alpha = 0.9) 
+```
+
+```{r}
+ggplot(filter(pp_data, party=="mc"), aes(x = prop_post)) + 
+  geom_histogram(alpha = 0.9, binwidth = 0.01) +
+  facet_wrap(~stratum) +
+  geom_vline(aes(xintercept = prop_obs), colour = 'salmon', alpha = 0.9) 
+```
