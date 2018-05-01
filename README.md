@@ -3,8 +3,8 @@ Functions to estimate Mexican election results based on final counts of polling 
 are implemented (ratio estimation, multilevel regresion with postestratification). Includes data
 from 2012 national election and governor election for Guanajuato and Morelos.
 
-The vignette has examples of the functions, we recomend building the vignettes when installing.
+Installing:
 
 ```
-devtools::install_github("tereom/quickcountmx", build_vignettes=TRUE)
+devtools::install_github("tereom/quickcountmx")
 ```
