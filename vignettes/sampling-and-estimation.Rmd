@@ -128,5 +128,20 @@ It also includes a summary table with posterior estimations:
 mrp_gto$post_summary
 ```
 
+We can also fit the count model for a single party:
 
+```{r}
+counts_fit <- mrp_party_estimation(gto_2012, party = prd, 
+  stratum = distrito_loc_17, frac = 0.06, 
+  seed = 212187, n_chains = 2, n_burnin = 1000, n_iter = 2000, model_string = "model_bern_t")
+qplot(counts_fit$n_votes, binwidth = 1000) + 
+  geom_vline(xintercept = sum(gto_2012$prd), colour ='red')
+```
+
+And examine the fit:
+
+```{r}
+class(counts_fit$fit)
+plot(counts_fit$fit)
+```
 
