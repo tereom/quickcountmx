@@ -113,7 +113,7 @@ model_bern_t <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
                 beta_region * region[k])
         }
 
-        beta_0_p ~ dnorm(0, 0.1)
+        beta_0_p ~ dnorm(3, 0.1)
         beta_rural_p ~ dnorm(0, 0.1)
         beta_region_p ~ dnorm(0, 0.1)
         beta_tamano_md_p  ~ dnorm(0, 0.1)
@@ -265,7 +265,7 @@ model_bern_t_pp <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
   beta_region * region[k])
   }
   
-  beta_0_p ~ dnorm(0, 0.1)
+  beta_0_p ~ dnorm(3, 0.1)
   beta_rural_p ~ dnorm(0, 0.1)
   beta_region_p ~ dnorm(0, 0.1)
   beta_tamano_md_p  ~ dnorm(0, 0.1)
