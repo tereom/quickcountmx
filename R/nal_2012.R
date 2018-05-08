@@ -47,49 +47,50 @@
 #' @source \url{https://cartografia.ife.org.mx}
 "nal_2012"
 
-library(tidyverse)
-nal_estratos <- readr::read_delim(fs::path_join(c("~/Documents/GitHub/",
-    "ine_cotecora/datos_procesados/Presidente2012_20180430/",
-    "Presidente2012_completo.csv")), ",", escape_double = FALSE, trim_ws = TRUE,
-    locale = readr::locale(encoding = "ISO-8859-1"))
-nal_2012 <- nal_estratos %>%
-    dplyr::mutate(
-        casilla_id = 1:n(),
-        distrito_fed_17 = DISTRITO_FEDERAL_2017,
-        distrito_fed_12 = DISTRITO_FEDERAL_2012,
-        distrito_loc_17 = Distrito_Local_2017,
-        are = stringr::str_c(iD_ESTADO, distrito_fed_12,
-            ID_AREA_RESPONSABILIDAD_2E__2012, sep = "-"),
-        seccion = SECCION,
-        casilla = dplyr::case_when(
-            stringr::str_detect(TIPO_CASILLA, "[B-C]") ~ "B-C",
-            stringr::str_detect(TIPO_CASILLA, "E") ~ "E",
-            stringr::str_detect(TIPO_CASILLA, "S") ~ "S",
-            TRUE ~ "M"
-        ),
-        tipo_seccion = TIPO_SECCION_21ago_2017,
-        rural = (CASILLA == 2) * 1,
-        region = iD_ESTADO,
-        pri_pvem = CPRI,
-        pan = CPAN,
-        panal = CPANAL,
-        prd_pt_mc = CPRD,
-        otros = NUM_VOTOS_NULOS + NUM_VOTOS_CAN_NREG,
-        total = pri_pvem + pan + panal + prd_pt_mc + otros,
-        ln = LISTA_NOMINAL
-    ) %>%
-    dplyr::group_by(seccion) %>%
-    dplyr::mutate(ln_seccion = sum(ln)) %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(
-        tamano = dplyr::case_when(
-            ln_seccion < 1000 ~ 1,
-            ln_seccion < 5000 ~ 2,
-            TRUE ~ 3
-        ),
-        tamano_md = (tamano == 2) * 1,
-        tamano_gd = (tamano == 3) * 1,
-        casilla_ex = (casilla == "E") * 1,
-        ln_total = ifelse(ln == 0, total, ln)
-    )  %>%
-    dplyr::select(casilla_id:ln, tamano_md:ln_total, estrato)
+# library(tidyverse)
+# nal_estratos <- readr::read_delim(fs::path_join(c("~/Documents/GitHub/",
+#     "ine_cotecora/datos_procesados/Presidente2012_20180430/",
+#     "Presidente2012_completo.csv")), ",", escape_double = FALSE, trim_ws = TRUE,
+#     locale = readr::locale(encoding = "ISO-8859-1"))
+# nal_2012 <- nal_estratos %>%
+#     dplyr::mutate(
+#         casilla_id = 1:n(),
+#         edo_id = iD_ESTADO,
+#         distrito_fed_17 = DISTRITO_FEDERAL_2017,
+#         distrito_fed_12 = DISTRITO_FEDERAL_2012,
+#         distrito_loc_17 = Distrito_Local_2017,
+#         are = stringr::str_c(iD_ESTADO, distrito_fed_12,
+#             ID_AREA_RESPONSABILIDAD_2E__2012, sep = "-"),
+#         seccion = SECCION,
+#         casilla = dplyr::case_when(
+#             stringr::str_detect(TIPO_CASILLA, "[B-C]") ~ "B-C",
+#             stringr::str_detect(TIPO_CASILLA, "E") ~ "E",
+#             stringr::str_detect(TIPO_CASILLA, "S") ~ "S",
+#             TRUE ~ "M"
+#         ),
+#         tipo_seccion = TIPO_SECCION_21ago_2017,
+#         rural = (CASILLA == 2) * 1,
+#         region = iD_ESTADO,
+#         pri_pvem = CPRI,
+#         pan = CPAN,
+#         panal = CPANAL,
+#         prd_pt_mc = CPRD,
+#         otros = NUM_VOTOS_NULOS + NUM_VOTOS_CAN_NREG,
+#         total = pri_pvem + pan + panal + prd_pt_mc + otros,
+#         ln = LISTA_NOMINAL
+#     ) %>%
+#     dplyr::group_by(seccion) %>%
+#     dplyr::mutate(ln_seccion = sum(ln)) %>%
+#     dplyr::ungroup() %>%
+#     dplyr::mutate(
+#         tamano = dplyr::case_when(
+#             ln_seccion < 1000 ~ 1,
+#             ln_seccion < 5000 ~ 2,
+#             TRUE ~ 3
+#         ),
+#         tamano_md = (tamano == 2) * 1,
+#         tamano_gd = (tamano == 3) * 1,
+#         casilla_ex = (casilla == "E") * 1,
+#         ln_total = ifelse(ln == 0, total, ln)
+#     )  %>%
+#     dplyr::select(casilla_id:ln, tamano_md:ln_total, estrato)
