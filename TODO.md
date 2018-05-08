@@ -8,6 +8,7 @@
 
 - Clean data and define strata
 - Run tests and calibration
+- How to deal with special polling stations with ln_total > 750
 
 #### Total turnover
 
