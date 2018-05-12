@@ -1,6 +1,6 @@
 #' Select simple and stratified random samples from a sampling frame.
 #'
-#' Select random samples of a sampling frame (a data.frame).
+#' Select Simple Randmom Samples and Stratified Random Samples,
 #' \code{select_sample_prop} can be used when sampling with equal probability
 #'   across strata or when selecting a simple random sample.
 #' \code{select_sample_str} selects samples when sample size varies across
@@ -27,11 +27,12 @@
 #'   size in the stratum of each selected observation.
 #' @examples
 #' # stratified random sampling
+#' library(dplyr)
 #' sampling_frame <- data.frame(id = 1:100,
 #'   str = sample(1:5, 100, replace = TRUE),
 #'   val = rnorm(100))
 #' # allocation given by column n in allo data.frame
-#' allo <- sampling_frame %>%
+#' allo <- dplyr::sampling_frame %>%
 #'     group_by(str) %>%
 #'     summarise(n = 0.4 * n())
 #' select_sample_str(sampling_frame, allo, n, str)

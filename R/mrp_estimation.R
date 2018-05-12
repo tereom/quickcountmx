@@ -7,16 +7,22 @@
 #'   the column names with the votes for each candidate.
 #' @inheritParams mrp_party_estimation
 #' @param parallel Logical value indicating whether to parallelize the models,
-#'   if TRUE package parallel must be installed.
-#' @param clust If parallelizing an object of class
-#'   \code{c("SOCKcluster", "cluster")}
-#' as returned by \code{\link[parallel]{makeCluster}}.
+#'   if TRUE package parallel must be installed (uses mclapply and can not be
+#'   used in Windows).
+#' @param set_strata_na Option to exclude strata when fitting the model, used
+#'   for model evaluation and calibration.
+#' @param mc_cores If parallelizing, the number of cores to use, parameter is
+#'   used in \code{\link[parallel]{mclapply}}
+#' @examples
+#' data("gto_2012")
+#' mrp_estimation(gto_2012, party = pri_pvem, stratum = distrito_loc_17,
+#'   frac = 1, seed = 2212)
 #' @importFrom magrittr %>%
 #' @importFrom rlang !! !!! :=
 #' @export
-mrp_estimation <- function(data, ..., stratum, frac = 1,
-    n_iter = 2000, n_burnin = 500, n_chains = 3, seed = NA,
-    cl_clust = 1, mc_cores = 6, parallel = FALSE, model_string = NULL,
+mrp_estimation <- function(data, ..., stratum, frac = 1, n_iter = 2000,
+    n_burnin = 500, n_chains = 3, seed = NA,
+    parallel = FALSE, mc_cores = 6, model_string = NULL,
     set_strata_na = integer(0)){
     if (is.na(seed)) seed <- sample(1:1000, 1)
     parties <- dplyr::quos(...)
@@ -29,14 +35,16 @@ mrp_estimation <- function(data, ..., stratum, frac = 1,
         quickcountmx::mrp_party_estimation(x, party = n_votes,
             stratum = !!stratum_enquo, frac = frac,
             n_chains = n_chains, n_iter = n_iter, n_burnin = n_burnin,
-            seed = seed, model_string = model_string, set_strata_na = set_strata_na)}, 
-        mc.cores = mc_cores)
+            seed = seed, model_string = model_string,
+            set_strata_na = set_strata_na)},
+            mc.cores = mc_cores)
     } else {
         parties_models <- parties_split %>%
             purrr::map(~mrp_party_estimation(., party = n_votes,
             stratum = !!stratum_enquo, frac = frac,
             n_chains = n_chains, n_iter = n_iter, n_burnin = n_burnin,
-            seed = seed, model_string = model_string, set_strata_na = set_strata_na))
+            seed = seed, model_string = model_string,
+            set_strata_na = set_strata_na))
     }
     jags_fits <- purrr::map(parties_models, ~.$fit)
     votes_all <- purrr::map_df(parties_models, ~.$n_votes) %>%
@@ -47,7 +55,11 @@ mrp_estimation <- function(data, ..., stratum, frac = 1,
             total = sum(votes),
             prop = votes / total
             )
+    participation <- dplyr::data_frame(party = "participacion",
+        total = votes_all %>% ungroup() %>% pull(total),
+        prop = total / sum(data$ln))
     post_summary <- votes_all %>%
+        dplyr::bind_rows(participation) %>%
         dplyr::group_by(party) %>%
         dplyr::summarise(
             mean_post = 100 * mean(prop),
