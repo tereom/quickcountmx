@@ -1,6 +1,7 @@
 # chiapas_2012 <- read_delim("~/Dropbox/COTECORA 2017-2018/Resultados electorales estatales/_07_Chiapas_2012.txt",
 #     "|", escape_double = FALSE, trim_ws = TRUE)
-#
+# marco_nal_2012 <- read_csv("~/Documents/GitHub/ine_cotecora/datos_procesados/Presidente2012_20180430/Presidente2012_completo.csv")
+
 # chis_2012 <- chiapas_2012 %>%
 #     mutate(
 #         casilla_id = 1:n(),
@@ -46,3 +47,13 @@
 #     )  %>%
 #     dplyr::select(casilla_id:ln, tamano_md:ln_total)
 
+# chiapas_marco_nal_2012 <- marco_nal_2012 %>%
+#     filter(iD_ESTADO == 5) %>%
+#     select(distrito_fed_17 = DISTRITO_FEDERAL_2017,
+#         distrito_fed_12 = DISTRITO_FEDERAL_2012,
+#         distrito_loc_17 = Distrito_Local_2017,
+#         seccion = SECCION, estrato = paraestrato) %>%
+#     distinct
+# chis_2012 %>% left_join() %>% View()
+#
+# chiapas_2012 %>% left_join(chiapas_marco_nal_2012) %>% View()
