@@ -4,16 +4,16 @@
 \alias{mrp_party_estimation}
 \title{Postratified estimation for the number of votes for a given candidate.}
 \usage{
-mrp_party_estimation(data, party, stratum, frac = 1, n_chains = 2,
-  n_iter = 1000, n_burnin = 500, seed = NA, seed_jags = NA,
-  model_string = NULL)
+mrp_party_estimation(data, party, stratum, frac = 1, n_iter = 1000,
+  n_burnin = 500, n_chains = 2, seed = NA, seed_jags = NA,
+  model_string = NULL, set_strata_na = integer(0))
 }
 \arguments{
 \item{data}{A \code{data.frame} with variables: ln_total, region,
 distrito_loc_17, tamano_md, tamano_gd, casilla_ex and the column with
 number of votes for the party.}
 
-\item{party}{unquoted variable indicating the column from the data.frame to
+\item{party}{Unquoted variable indicating the column from the data.frame to
 be modeled.}
 
 \item{stratum}{If sampling the data, unquoted variable indicating the column
@@ -24,7 +24,7 @@ the hierarchical structure of the model.}
 of the data to sample, the sample is selected using stratified sampling
 with probability proportional to size.}
 
-\item{n_iter, n_chains, n_burnin}{Number of iterations, chains and burnin size
+\item{n_iter, n_burnin, n_chains}{Number of iterations, burnin size and chains.
 to be used in \code{\link[R2jags]{jags}}.}
 
 \item{seed}{Integer value used to set the state of the random number
@@ -32,12 +32,9 @@ generator.}
 
 \item{seed_jags}{Seed for the call \code{\link[R2jags]{jags}}.}
 
-\item{model_string}{String with JAGS model, or string indicating the model
-to be used, defaults to \code{"model_hier"}, also available
-\code{"model_2hier"}, this last one has two nested hierarchies: strata
-within regions, and regions modeled form a common distribution.}
-
-\item{modelo_jags}{optional string specifying variations of the jags model.}
+\item{model_string}{String indicating the model to be used, defaults to
+\code{"model_bern_t"}, also available
+\code{"model_t"}.}
 }
 \value{
 A \code{list} with the object fitted using R2jags::jags and the vector
@@ -46,7 +43,8 @@ A \code{list} with the object fitted using R2jags::jags and the vector
 \description{
 The function fits a model using the \code{\link[R2jags]{jags}} function and
 predicts number of votes for a given candidate in unobserved polling
-stations.
+stations. Optionally the model can be fit with a stratified random sample
+of the data, and predict for the population.
 }
 \details{
 The default model is:
@@ -60,7 +58,7 @@ The default model is:
    \deqn{\beta_{strata}\sim N(\beta_{region(k)}^{region}, \sigma_{dl}^2)}
 }
 \examples{
-data("gto_2012")
-mrp_party_estimation(gto_2012, party = pan_na, stratum = distrito_loc_17,
-  frac = 1, seed = 2212)
+mrp_gto <- mrp_estimation(gto_2012, pri_pvem:otros, frac = 0.06,
+    stratum = distrito_loc_17, n_iter = 200, n_burnin = 100,
+    n_chains = 2, seed = 19291, parallel = TRUE, mc_cores = 8)
 }
