@@ -23,6 +23,11 @@
 #'  \code{"neg_binomial"}.
 #' @return A list containing fit object and vector
 #'   the simulated counts for the candidate.
+#' @examples
+#' mrp_party <- mrp_estimation_party_stan(nal_2012, pri_pvem, frac = 0.02,
+#'     stratum = estrato, n_iter = 300, warmup = 150,
+#'     n_chains = 2, seed = 19291)
+#' quantile(mrp_party$y)
 #' @import methods
 #' @import Rcpp
 #' @import rstantools
