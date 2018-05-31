@@ -1,7 +1,16 @@
+#' Governor electoral results for the State of Chiapas 2012.
+#'
+#' A dataset containing the election results for governor of Chiapas in 2012,
+#' each row corresponds to a polling station and the variables include the
+#' total counts per party.
+#'
+#' @format A data frame with 5474 rows and 22 variables:
+#' @inheritParams gto_2012
+#'
 # chiapas_2012 <- read_delim("~/Dropbox/COTECORA 2017-2018/Resultados electorales estatales/_07_Chiapas_2012.txt",
 #     "|", escape_double = FALSE, trim_ws = TRUE)
 # marco_nal_2012 <- read_csv("~/Documents/GitHub/ine_cotecora/datos_procesados/Presidente2012_20180430/Presidente2012_completo.csv")
-
+#
 # chis_2012 <- chiapas_2012 %>%
 #     mutate(
 #         casilla_id = 1:n(),
@@ -38,7 +47,7 @@
 #         tamano_md = (tamano == 2) * 1,
 #         tamano_gd = (tamano == 3) * 1,
 #         region = dplyr::case_when(
-#             distrito_loc_17 %in% c(1:6) ~ 1,
+#             distrito_loc_17 %in% c(4, 6, 7, 8, 9, 10, 17, 19, 20, 21, 22, 24) ~ 1,
 #             TRUE ~ 2
 #         ),
 #         casilla_ex = (casilla == "E") * 1,
@@ -46,14 +55,12 @@
 #         ln_total = ifelse(ln == 0, total, ln)
 #     )  %>%
 #     dplyr::select(casilla_id:ln, tamano_md:ln_total)
-
-# chiapas_marco_nal_2012 <- marco_nal_2012 %>%
-#     filter(iD_ESTADO == 5) %>%
-#     select(distrito_fed_17 = DISTRITO_FEDERAL_2017,
-#         distrito_fed_12 = DISTRITO_FEDERAL_2012,
-#         distrito_loc_17 = Distrito_Local_2017,
-#         seccion = SECCION, estrato = paraestrato) %>%
-#     distinct
-# chis_2012 %>% left_join() %>% View()
 #
-# chiapas_2012 %>% left_join(chiapas_marco_nal_2012) %>% View()
+# chiapas_marco_nal_2012 <- marco_nal_2012 %>%
+#     filter(iD_ESTADO == 7) %>%
+#     select(seccion = SECCION,
+#         estrato = paraestrato) %>%
+#     distinct
+#
+# chis_2012 <- chis_2012 %>% left_join(chiapas_marco_nal_2012) %>%
+#     filter(!is.na(estrato))
