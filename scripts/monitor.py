@@ -29,7 +29,7 @@ def procesar_nombre(filename):
 
 def main(argv):
   data_path = argv[0]
-  path_out = arg[1]
+  path_out = argv[1]
   wait_sec = argv[2]
   last = 0
   if(len(argv)==4):
