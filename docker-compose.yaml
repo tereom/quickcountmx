@@ -1,11 +1,11 @@
 version: '3'
 services:
   watchscript:
-    image: "quickcountmx-docker"
+    image: "felipexgonzalez/quickcountmx-docker"
     volumes:
      - ./:/home/rstudio/quickcountmx
   rstudio:
-    image: "quickcountmx-rstudio"
+    image: "felipexgonzalez/quickcountmx-rstudio"
     ports:
      - "8787:8787" 
     volumes:
