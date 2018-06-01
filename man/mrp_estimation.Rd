@@ -5,8 +5,8 @@
 \title{Compute all postratified estimates}
 \usage{
 mrp_estimation(data, ..., stratum, frac = 1, n_iter = 2000,
-  n_burnin = 500, n_chains = 3, seed = NA, cl_clust = 1, mc_cores = 6,
-  parallel = FALSE, model_string = NULL)
+  n_burnin = 500, n_chains = 3, seed = NA, parallel = FALSE,
+  mc_cores = 6, model_string = NULL, set_strata_na = integer(0))
 }
 \arguments{
 \item{data}{A \code{data.frame} with variables: ln_total, region,
@@ -24,32 +24,39 @@ the hierarchical structure of the model.}
 of the data to sample, the sample is selected using stratified sampling
 with probability proportional to size.}
 
-\item{n_iter}{Number of iterations, chains and burnin size
+\item{n_iter}{Number of iterations, burnin size and chains.
 to be used in \code{\link[R2jags]{jags}}.}
 
-\item{n_burnin}{Number of iterations, chains and burnin size
+\item{n_burnin}{Number of iterations, burnin size and chains.
 to be used in \code{\link[R2jags]{jags}}.}
 
-\item{n_chains}{Number of iterations, chains and burnin size
+\item{n_chains}{Number of iterations, burnin size and chains.
 to be used in \code{\link[R2jags]{jags}}.}
 
 \item{seed}{Integer value used to set the state of the random number
 generator.}
 
 \item{parallel}{Logical value indicating whether to parallelize the models,
-if TRUE package parallel must be installed.}
+if TRUE package parallel must be installed (uses mclapply and can not be
+used in Windows).}
 
-\item{model_string}{String with JAGS model, or string indicating the model
-to be used, defaults to \code{"model_hier"}, also available
-\code{"model_2hier"}, this last one has two nested hierarchies: strata
-within regions, and regions modeled form a common distribution.}
+\item{mc_cores}{If parallelizing, the number of cores to use, parameter is
+used in \code{\link[parallel]{mclapply}}}
 
-\item{clust}{If parallelizing an object of class
-  \code{c("SOCKcluster", "cluster")}
-as returned by \code{\link[parallel]{makeCluster}}.}
+\item{model_string}{String indicating the model to be used, defaults to
+\code{"model_bern_t"}, also available
+\code{"model_t"}.}
+
+\item{set_strata_na}{Option to exclude strata when fitting the model, used
+for model evaluation and calibration.}
 }
 \description{
 This function calls \code{\link{mrp_party_estimation}} using all the parties
 specified in `...`, once there is an estimation of the number of votes for
 each party/candidate it computes the proportion of votes for each one.
+}
+\examples{
+data("gto_2012")
+mrp_estimation(gto_2012, party = pri_pvem, stratum = distrito_loc_17,
+  frac = 1, seed = 2212)
 }

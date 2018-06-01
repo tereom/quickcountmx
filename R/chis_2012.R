@@ -1,11 +1,7 @@
-# morelos_2012 <- read_delim("DataMorelos/CVE17_Morelos_2012.tsv",
+# chiapas_2012 <- read_delim("~/Dropbox/COTECORA 2017-2018/Resultados electorales estatales/_07_Chiapas_2012.txt",
 #     "|", escape_double = FALSE, trim_ws = TRUE)
 #
-# glimpse(morelos_2012)
-#
-# plot_missing(morelos_2012)
-#
-# mor_2012 <- morelos_2012 %>%
+# chis_2012 <- chiapas_2012 %>%
 #     mutate(
 #         casilla_id = 1:n(),
 #         distrito_fed_17 = DISTRITO_FEDERAL_2017,
@@ -16,18 +12,18 @@
 #             ID_AREA_RESPONSABILIDAD_2E_2012, sep = "-"),
 #         seccion = SECCION,
 #         casilla = dplyr::case_when(
-#             stringr::str_detect(TIPO_DE_CASILLA, "[B-C]") ~ "B-C",
-#             stringr::str_detect(TIPO_DE_CASILLA, "G") ~ "G",
-#             stringr::str_detect(TIPO_DE_CASILLA, "S") ~ "S"
+#             stringr::str_detect(CASILLA, "(BAS)|(CONT)") ~ "B-C",
+#             stringr::str_detect(CASILLA, "(EX)") ~ "E",
+#             stringr::str_detect(CASILLA, "(ESP)") ~ "S"
 #         ),
 #         tipo_seccion = TIPO_SECCION_21ago_2017,
-#         pri_pvem_pna = PRI + PVEM + PNA + VCC_PRI_PVEM_PNA,
+#         pri_pvem_pna = PRI + Verde + Nva_Alianza,
 #         pan = PAN,
-#         prd_pt_mc = PRD + PT + MC + VCC_PRD_PT_MC,
-#         psd = PSD,
-#         otros = CANDIDATOS_NO_REGISTRADOS + VOTOS_NULOS,
-#         total = pri_pvem_pna + pan + prd_pt_mc + psd + otros,
-#         ln = LISTA_NOMINAL
+#         prd_pt_mc = PRD_PT_MovCiud,
+#         poc = Por_Chiapas,
+#         otros = NO_REG + NULOS,
+#         total = pri_pvem_pna + pan + prd_pt_mc + poc + otros,
+#         ln = LN,
 #     ) %>%
 #     dplyr::group_by(seccion) %>%
 #     dplyr::mutate(ln_seccion = sum(ln)) %>%
@@ -44,7 +40,7 @@
 #             distrito_loc_17 %in% c(1:6) ~ 1,
 #             TRUE ~ 2
 #         ),
-#         casilla_ex = (casilla == "G") * 1,
+#         casilla_ex = (casilla == "E") * 1,
 #         rural = dplyr::case_when(tipo_seccion == "R" ~ 1, TRUE ~ 0),
 #         ln_total = ifelse(ln == 0, total, ln)
 #     )  %>%
