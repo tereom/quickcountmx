@@ -55,7 +55,7 @@ def main(argv):
         print(descriptores)
         if(descriptores["tipo"] == "REMESAS"):
           full_path = data_path + "/" + filename
-          subprocess.call(["r", "-e", "quickcountmx:::process_batch('" +full_path+"','"+descriptores['nombre']+"','"+path_out"')"])
+          subprocess.call(["r", "-e", "quickcountmx:::process_batch('" +full_path+"','"+descriptores['nombre']+"','"+path_out+"')"])
     else:
       print('.', end = '', flush = True)
     files_before = files_now
