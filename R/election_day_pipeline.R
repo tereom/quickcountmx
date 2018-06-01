@@ -16,18 +16,21 @@ process_batch <- function(path_name, file_name, path_out){
   all_data_filename = paste0(path_out, "remesas.rds")
   new_name <- paste0(path_out, "procesado_", file_name, ".rds")
   data_in <- readr::read_csv(path_name)
+  print(paste0("datos: ", path_name)
+  print(paste0("salidas: ", path_out)
   # do processing ########
   tipo <- stringr::str_sub(file_name, 8, 9)
   estado_str <- stringr::str_sub(file_name, 10, 11)
   table_frame_in <- dplyr::filter(table_frame, estado == estado_str)
   marco_name <- table_frame_in %>% dplyr::pull(marco)
-  candidatos <- table_frame_in$candidatos[[1]]
+  candidatos <- c(table_frame_in$candidatos[[1]], "OTROS")
   marco <- get(data(list = marco_name, package = "quickcountmx"))
   # get id
   #print(head(data_in))
   data_out <- data_in %>% dplyr::mutate(id =
     stringr::str_c(ID_ESTADO, SECCION, ID_CASILLA, TIPO_CASILLA, 
                  EXT_CONTIGUA, sep = "-")) %>% 
+    dplyr::mutate(OTROS = NULOS + CNR) %>%
     dplyr::select(id, dplyr::one_of(candidatos)) %>% 
     dplyr::right_join(marco)
   
