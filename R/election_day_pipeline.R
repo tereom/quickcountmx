@@ -16,8 +16,8 @@ process_batch <- function(path_name, file_name, path_out){
   all_data_filename = paste0(path_out, "remesas.rds")
   new_name <- paste0(path_out, "procesado_", file_name, ".rds")
   data_in <- readr::read_csv(path_name)
-  print(paste0("datos: ", path_name)
-  print(paste0("salidas: ", path_out)
+  print(paste0("datos: ", path_name))
+  print(paste0("salidas: ", path_out))
   # do processing ########
   tipo <- stringr::str_sub(file_name, 8, 9)
   estado_str <- stringr::str_sub(file_name, 10, 11)
