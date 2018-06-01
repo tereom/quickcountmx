@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/bin/python3
 # First argument is path to data files
 # Second argument is time in seconds between checks of new files
 # (Optional) if third argument is 1, then start by running last REMESAS file
@@ -29,10 +29,13 @@ def procesar_nombre(filename):
 
 def main(argv):
   data_path = argv[0]
-  wait_sec = argv[1]
+  path_out = arg[1]
+  wait_sec = argv[2]
   last = 0
-  if(len(argv)==3):
+  if(len(argv)==4):
     last = 1  
+  if not os.path.exists(path_out):
+    os.makedirs(path_out)
   print("Observando " + data_path + " cada "+ wait_sec + " segundos.")
   files_before = [f for f in os.listdir(data_path) if f[:7] == "REMESAS"]
   files_before.sort()
@@ -52,7 +55,7 @@ def main(argv):
         print(descriptores)
         if(descriptores["tipo"] == "REMESAS"):
           full_path = data_path + "/" + filename
-          subprocess.call(["r", "-e", "quickcountmx:::process_batch('" +full_path+"','"+descriptores['nombre']+"')"])
+          subprocess.call(["r", "-e", "quickcountmx:::process_batch('" +full_path+"','"+descriptores['nombre']+"','"+path_out"')"])
     else:
       print('.', end = '', flush = True)
     files_before = files_now

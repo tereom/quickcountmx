@@ -12,9 +12,9 @@ table_frame <- dplyr::data_frame(estado = c("00","07", "11", "17"),
                  c("VMCS", "JAMO", "MRGC", "NLMLC", "CBB", "JAVJ", "MRA", "FDH")))
  
 #' @export
-process_batch <- function(path_name, file_name){
-  all_data_filename = "./procesados/remesas.rds"
-  new_name <- paste0("./procesados/procesado_", file_name, ".rds")
+process_batch <- function(path_name, file_name, path_out){
+  all_data_filename = paste0(path_out, "remesas.rds")
+  new_name <- paste0(path_out, "procesado_", file_name, ".rds")
   data_in <- readr::read_csv(path_name)
   # do processing ########
   tipo <- stringr::str_sub(file_name, 8, 9)
@@ -81,11 +81,11 @@ process_batch <- function(path_name, file_name){
      ggplot2::geom_line(colour = "salmon") +
      ggplot2::facet_wrap(~partido, ncol=1, scales = "free_y")+
      ggplot2::theme_bw() + ggplot2::labs(title = "Simulaciones MCMC de devianza")
-   ggplot2::ggsave(paste0("./procesados/deviance-", file_name, ".png"))
+   ggplot2::ggsave(paste0(path_out,"deviance-", file_name, ".png"))
    gr_cts <- ggplot2::ggplot(df_cts_long, ggplot2::aes(x=no_sim, y = conteo_sim, group=partido,
                                      colour=partido)) +
      ggplot2::geom_line(colour = "salmon") +
      ggplot2::theme_bw() + ggplot2::labs(title = "Simulaciones MCMC de conteos totales") +
      ggplot2::scale_y_log10()
-   ggplot2::ggsave(paste0("./procesados/counts-", file_name, ".png"))
+   ggplot2::ggsave(paste0(path_out,"counts-", file_name, ".png"))
 }
