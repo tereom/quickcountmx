@@ -46,7 +46,7 @@
 #' }
 #' @source \url{https://cartografia.ife.org.mx}
 "nal_2012"
-
+#
 # library(tidyverse)
 # nal_estratos <- readr::read_delim(fs::path_join(c("~/Documents/GitHub/",
 #     "ine_cotecora/datos_procesados/Presidente2012_20180430/",
@@ -84,9 +84,9 @@
 #     dplyr::ungroup() %>%
 #     dplyr::mutate(
 #         tamano = dplyr::case_when(
-#             ln_seccion < 1000 ~ 1,
-#             ln_seccion < 5000 ~ 2,
-#             TRUE ~ 3
+#             ln_seccion < 5000 ~ 1,
+#             ln_seccion < 20000 ~ 2,
+#             ln_seccion >= 20000 ~ 3
 #         ),
 #         tamano_md = (tamano == 2) * 1,
 #         tamano_gd = (tamano == 3) * 1,
