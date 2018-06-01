@@ -79,14 +79,14 @@
 #         total = pri_pvem + pan + panal + prd_pt_mc + otros,
 #         ln = LISTA_NOMINAL
 #     ) %>%
-#     dplyr::group_by(seccion) %>%
+#     dplyr::group_by(region, seccion) %>%
 #     dplyr::mutate(ln_seccion = sum(ln)) %>%
 #     dplyr::ungroup() %>%
 #     dplyr::mutate(
 #         tamano = dplyr::case_when(
-#             ln_seccion < 5000 ~ 1,
-#             ln_seccion < 20000 ~ 2,
-#             ln_seccion >= 20000 ~ 3
+#             ln_seccion < 1000 ~ 1,
+#             ln_seccion < 5000 ~ 2,
+#             TRUE ~ 3
 #         ),
 #         tamano_md = (tamano == 2) * 1,
 #         tamano_gd = (tamano == 3) * 1,
