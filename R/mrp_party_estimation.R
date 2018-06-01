@@ -20,26 +20,16 @@
 #' @param seed Integer value used to set the state of the random number
 #'   generator.
 #' @param seed_jags Seed for the call \code{\link[R2jags]{jags}}.
-#' @param model_string String indicating the model to be used, defaults to
-#'  \code{"model_bern_t"}, also available
-#'  \code{"model_t"}.
+#' @param model_string String indicating the model to be used, if NULL defaults
+#'  to \code{"model_bern_t"}, also available \code{"model_t"}.
 #' @return A \code{list} with the object fitted using R2jags::jags and the vector
 #'   of simulated counts per candidate.
-#' @details The default model is:
-#'   \deqn{X_k \sim N(n_k \theta_k, n_{k}\sigma^2)}
-#'   \deqn{
-#'   \theta_k=\beta^0 + \beta^{rural}\cdot rural_k + \beta^{tipoSp}\cdot
-#'    tipoSp_k + \\ \beta^{tipoEx}\cdot tipoEx_k + \beta^{tamanoMd}\cdot
-#'    tamanoMd_k + \beta^{tamanoGd}\cdot tamanoGd_k +
-#'    \beta^{strata}_{strata(k)}
-#'    }
-#'    \deqn{\beta_{strata}\sim N(\beta_{region(k)}^{region}, \sigma_{dl}^2)}
-#'
 #' @examples
+#' # predict number of votes for pan_na using 6% of the sample
 #' mrp_gto_pan <- mrp_party_estimation(gto_2012, pan_na,
 #'     stratum = distrito_loc_17, frac = 0.06, n_iter = 200, n_burnin = 100,
 #'     n_chains = 2, seed = 19291)
-#'
+#' mrp_gto_pan$fit
 #' @importFrom magrittr %>%
 #' @importFrom rlang !! !!! :=
 #' @export

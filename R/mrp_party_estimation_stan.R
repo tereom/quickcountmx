@@ -15,16 +15,19 @@
 #' @param frac If sampling the data, numeric value indicating the fraction
 #'   of the data to sample, the sample is selected using stratified sampling
 #'   with probability proportional to size.
-#' @param n_iter,warmup Number of iterations, number of warmup iterations.
+#' @param n_iter,warmup,n_chains Number of iterations, number of warmup
+#'   iterations and number of chains.
 #'  to be used in \code{\link[rstan]{sampling}}.
 #' @param seed Integer value used to set the state of the random number
 #'   generator.
 #' @param model_string String indicating the model to be used, defaults to
-#'  \code{"neg_binomial"}.
+#'   \code{"neg_binomial"}.
+#' @param set_strata_na Option to exclude strata when fitting the model, used
+#'   for model evaluation and calibration.
 #' @return A list containing fit object and vector
 #'   the simulated counts for the candidate.
 #' @examples
-#' mrp_party <- mrp_party_estimation_stan(nal_2012, pri_pvem, frac = 0.02,
+#' mrp_party_pri <- mrp_party_estimation_stan(nal_2012, pri_pvem, frac = 0.02,
 #'     stratum = estrato, n_iter = 300, warmup = 150,
 #'     n_chains = 2, seed = 19291)
 #' quantile(mrp_party$y)

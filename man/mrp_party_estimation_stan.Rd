@@ -24,7 +24,8 @@ the hierarchical structure of the model.}
 of the data to sample, the sample is selected using stratified sampling
 with probability proportional to size.}
 
-\item{n_iter, warmup}{Number of iterations, number of warmup iterations.
+\item{n_iter, warmup, n_chains}{Number of iterations, number of warmup
+ iterations and number of chains.
 to be used in \code{\link[rstan]{sampling}}.}
 
 \item{seed}{Integer value used to set the state of the random number
@@ -32,6 +33,9 @@ generator.}
 
 \item{model_string}{String indicating the model to be used, defaults to
 \code{"neg_binomial"}.}
+
+\item{set_strata_na}{Option to exclude strata when fitting the model, used
+for model evaluation and calibration.}
 }
 \value{
 A list containing fit object and vector
@@ -44,7 +48,7 @@ stations. Optionally the model can be fit with a stratified random sample
 of the data, and predict for the population.
 }
 \examples{
-mrp_party <- mrp_party_estimation_stan(nal_2012, pri_pvem, frac = 0.02,
+mrp_party_pri <- mrp_party_estimation_stan(nal_2012, pri_pvem, frac = 0.02,
     stratum = estrato, n_iter = 300, warmup = 150,
     n_chains = 2, seed = 19291)
 quantile(mrp_party$y)

@@ -13,10 +13,13 @@
 #'   for model evaluation and calibration.
 #' @param mc_cores If parallelizing, the number of cores to use, parameter is
 #'   used in \code{\link[parallel]{mclapply}}
+#' @return A \code{list} with the object fitted using R2jags::jags and a
+#'   data.frame with the estimation summary (posterior means, medians, standard
+#'   deviations and probability intervals per party).
 #' @examples
 #' data("gto_2012")
-#' mrp_estimation(gto_2012, party = pri_pvem, stratum = distrito_loc_17,
-#'   frac = 1, seed = 2212)
+#' mrp_estimation(gto_2012, party = pri_pvem:otros, stratum = distrito_loc_17,
+#'   frac = 0.01, seed = 2212)
 #' @importFrom magrittr %>%
 #' @importFrom rlang !! !!! :=
 #' @export
