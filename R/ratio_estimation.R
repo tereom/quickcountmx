@@ -41,7 +41,7 @@ ratio_estimation <- function(data, stratum, n_stratum, std_errors = TRUE,
     # calculate estimates
     ratios <- data %>%
         dplyr::group_by(!!stratum) %>%
-        dplyr::mutate(n_h = n())%>% 
+        dplyr::mutate(n_h = n()) %>%
         dplyr::ungroup() %>%
         tidyr::gather(party, n_votes, !!!parties) %>%
         dplyr::mutate(
