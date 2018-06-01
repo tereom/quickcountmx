@@ -43,7 +43,10 @@ def main(argv):
     added = [f for f in files_now if not f in files_before]
     if added:
       print(".")
+      added.sort()
       print("Se agregaron: ", ",".join(added))
+      # use last one
+      added = added[-1:]
       for filename in added:
         descriptores = procesar_nombre(filename)
         print(descriptores)
