@@ -38,13 +38,13 @@ A list containing fit object and vector
   the simulated counts for the candidate.
 }
 \description{
-The function fits a model using the \code{\link[R2jags]{jags}} function and
+The function fits a model using the \code{rstan} package and
 predicts number of votes for a given candidate in unobserved polling
 stations. Optionally the model can be fit with a stratified random sample
 of the data, and predict for the population.
 }
 \examples{
-mrp_party <- mrp_estimation_party_stan(nal_2012, pri_pvem, frac = 0.02,
+mrp_party <- mrp_party_estimation_stan(nal_2012, pri_pvem, frac = 0.02,
     stratum = estrato, n_iter = 300, warmup = 150,
     n_chains = 2, seed = 19291)
 quantile(mrp_party$y)
