@@ -32,7 +32,10 @@ def main(argv):
   path_out = argv[1]
   wait_sec = argv[2]
   last = 0
-  if(len(argv)==4):
+  team = "default"
+  if(len(argv)>3):
+    team = argv[3]
+  if(len(argv)==5):
     last = 1  
   if not os.path.exists(path_out):
     os.makedirs(path_out)
@@ -55,7 +58,7 @@ def main(argv):
         print(descriptores)
         if(descriptores["tipo"] == "REMESAS"):
           full_path = data_path + "/" + filename
-          subprocess.call(["r", "-e", "quickcountmx:::process_batch('" +full_path+"','"+descriptores['nombre']+"','"+path_out+"')"])
+          subprocess.call(["r", "-e", "quickcountmx:::process_batch('" +full_path+"','"+descriptores['nombre']+"','"+path_out+"','"+team+"')"])
     else:
       print('.', end = '', flush = True)
     files_before = files_now
