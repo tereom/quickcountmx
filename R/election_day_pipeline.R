@@ -48,7 +48,7 @@ process_batch <- function(path_name, file_name, path_out){
     )
   }
   print(fit_time)
-  print(fit$post_summary)
+  # print(fit$post_summary)
   #saveRDS(fit$jags_fit, file = paste0("./procesados/fit_", file_name, ".rds"))
   df_new <- dplyr::data_frame(archivo = file_name, hora = Sys.time(),
               datos = list(data_out), originales = list(data_in),
