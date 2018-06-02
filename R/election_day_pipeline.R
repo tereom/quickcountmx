@@ -13,21 +13,24 @@ table_frame <- dplyr::data_frame(estado = c("00","07", "11", "17"),
  
 #' @export
 process_batch <- function(path_name, file_name, path_out){
-  all_data_filename = paste0(path_out, "remesas.rds")
-  new_name <- paste0(path_out, "procesado_", file_name, ".rds")
+  all_data_filename = paste0(path_out, "/remesas.rds")
+  new_name <- paste0(path_out, "/procesado_", file_name, ".rds")
   data_in <- readr::read_csv(path_name)
+  print(paste0("datos: ", path_name))
+  print(paste0("salidas: ", path_out))
   # do processing ########
   tipo <- stringr::str_sub(file_name, 8, 9)
   estado_str <- stringr::str_sub(file_name, 10, 11)
   table_frame_in <- dplyr::filter(table_frame, estado == estado_str)
   marco_name <- table_frame_in %>% dplyr::pull(marco)
-  candidatos <- table_frame_in$candidatos[[1]]
+  candidatos <- c(table_frame_in$candidatos[[1]], "OTROS")
   marco <- get(data(list = marco_name, package = "quickcountmx"))
   # get id
   #print(head(data_in))
   data_out <- data_in %>% dplyr::mutate(id =
     stringr::str_c(ID_ESTADO, SECCION, ID_CASILLA, TIPO_CASILLA, 
                  EXT_CONTIGUA, sep = "-")) %>% 
+    dplyr::mutate(OTROS = NULOS + CNR) %>%
     dplyr::select(id, dplyr::one_of(candidatos)) %>% 
     dplyr::right_join(marco)
   
@@ -81,11 +84,11 @@ process_batch <- function(path_name, file_name, path_out){
      ggplot2::geom_line(colour = "salmon") +
      ggplot2::facet_wrap(~partido, ncol=1, scales = "free_y")+
      ggplot2::theme_bw() + ggplot2::labs(title = "Simulaciones MCMC de devianza")
-   ggplot2::ggsave(paste0(path_out,"deviance-", file_name, ".png"))
+   ggplot2::ggsave(paste0(path_out,"/deviance-", file_name, ".png"))
    gr_cts <- ggplot2::ggplot(df_cts_long, ggplot2::aes(x=no_sim, y = conteo_sim, group=partido,
                                      colour=partido)) +
      ggplot2::geom_line(colour = "salmon") +
      ggplot2::theme_bw() + ggplot2::labs(title = "Simulaciones MCMC de conteos totales") +
      ggplot2::scale_y_log10()
-   ggplot2::ggsave(paste0(path_out,"counts-", file_name, ".png"))
+   ggplot2::ggsave(paste0(path_out,"/counts-", file_name, ".png"))
 }
