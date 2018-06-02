@@ -20,32 +20,23 @@
 #' @param seed Integer value used to set the state of the random number
 #'   generator.
 #' @param seed_jags Seed for the call \code{\link[R2jags]{jags}}.
-#' @param model_string String indicating the model to be used, defaults to
-#'  \code{"model_bern_t"}, also available
-#'  \code{"model_t"}.
+#' @param model_string String indicating the model to be used, if NULL defaults
+#'  to \code{"model_bern_t"}, also available \code{"model_t"}.
 #' @return A \code{list} with the object fitted using R2jags::jags and the vector
 #'   of simulated counts per candidate.
-#' @details The default model is:
-#'   \deqn{X_k \sim N(n_k \theta_k, n_{k}\sigma^2)}
-#'   \deqn{
-#'   \theta_k=\beta^0 + \beta^{rural}\cdot rural_k + \beta^{tipoSp}\cdot
-#'    tipoSp_k + \\ \beta^{tipoEx}\cdot tipoEx_k + \beta^{tamanoMd}\cdot
-#'    tamanoMd_k + \beta^{tamanoGd}\cdot tamanoGd_k +
-#'    \beta^{strata}_{strata(k)}
-#'    }
-#'    \deqn{\beta_{strata}\sim N(\beta_{region(k)}^{region}, \sigma_{dl}^2)}
-#'
 #' @examples
-#' mrp_gto <- mrp_estimation(gto_2012, pri_pvem:otros, frac = 0.06,
-#'     stratum = distrito_loc_17, n_iter = 200, n_burnin = 100,
-#'     n_chains = 2, seed = 19291, parallel = TRUE, mc_cores = 8)
+#' # predict number of votes for pan_na using 6% of the sample
+#' mrp_gto_pan <- mrp_party_estimation(gto_2012, pan_na,
+#'     stratum = distrito_loc_17, frac = 0.06, n_iter = 200, n_burnin = 100,
+#'     n_chains = 2, seed = 19291)
+#' mrp_gto_pan$fit
 #' @importFrom magrittr %>%
 #' @importFrom rlang !! !!! :=
 #' @export
 mrp_party_estimation <- function(data, party, stratum, frac = 1,
     n_iter = 1000, n_burnin = 500, n_chains = 2, seed = NA, seed_jags = NA,
     model_string = NULL, set_strata_na = integer(0)){
-    if(is.null(model_string)){
+    if (is.null(model_string)) {
       model_string <- "model_bern_t"
     }
     stratum_enquo <- dplyr::enquo(stratum)
@@ -67,7 +58,7 @@ mrp_party_estimation <- function(data, party, stratum, frac = 1,
         dplyr::arrange(!!stratum_enquo)
     x <- dplyr::pull(data_model, !!party_enquo)
     stratum_vec <- dplyr::pull(data_model, !!stratum_enquo)
-    if(length(set_strata_na) > 0) {
+    if (length(set_strata_na) > 0) {
       x[stratum_vec %in% set_strata_na] <- NA
     }
     data_jags <- list(N = nrow(data_model), n = data_model$ln_total,
@@ -425,4 +416,3 @@ model_bern_t_nb <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
     n_votes <- apply(fit_jags$BUGSoutput$sims.list$x, 1, sum)
     return(list(fit = fit_jags, n_votes = n_votes))
 }
-

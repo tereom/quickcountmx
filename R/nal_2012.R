@@ -46,7 +46,7 @@
 #' }
 #' @source \url{https://cartografia.ife.org.mx}
 "nal_2012"
-
+#
 # library(tidyverse)
 # nal_estratos <- readr::read_delim(fs::path_join(c("~/Documents/GitHub/",
 #     "ine_cotecora/datos_procesados/Presidente2012_20180430/",
@@ -79,7 +79,7 @@
 #         total = pri_pvem + pan + panal + prd_pt_mc + otros,
 #         ln = LISTA_NOMINAL
 #     ) %>%
-#     dplyr::group_by(seccion) %>%
+#     dplyr::group_by(region, seccion) %>%
 #     dplyr::mutate(ln_seccion = sum(ln)) %>%
 #     dplyr::ungroup() %>%
 #     dplyr::mutate(

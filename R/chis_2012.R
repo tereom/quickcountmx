@@ -1,3 +1,12 @@
+#' Governor electoral results for the State of Chiapas 2012.
+#'
+#' A dataset containing the election results for governor of Chiapas in 2012,
+#' each row corresponds to a polling station and the variables include the
+#' total counts per party.
+#'
+#' @format A data frame with 5474 rows and 22 variables:
+#' @inheritParams gto_2012
+#'
 # chiapas_2012 <- read_delim("~/Dropbox/COTECORA 2017-2018/Resultados electorales estatales/_07_Chiapas_2012.txt",
 #     "|", escape_double = FALSE, trim_ws = TRUE)
 #
@@ -17,6 +26,10 @@
 #             stringr::str_detect(CASILLA, "(ESP)") ~ "S"
 #         ),
 #         tipo_seccion = TIPO_SECCION_21ago_2017,
+#         estrato = distrito_fed_17,
+#         estrato = ifelse(estrato == 10,
+#             paste(distrito_fed_17, distrito_loc_17, sep = "-"), estrato),
+#         estrato = as.numeric(as.factor(estrato)),
 #         pri_pvem_pna = PRI + Verde + Nva_Alianza,
 #         pan = PAN,
 #         prd_pt_mc = PRD_PT_MovCiud,
@@ -37,7 +50,8 @@
 #         tamano_md = (tamano == 2) * 1,
 #         tamano_gd = (tamano == 3) * 1,
 #         region = dplyr::case_when(
-#             distrito_loc_17 %in% c(1:6) ~ 1,
+#             distrito_loc_17 %in% c(4, 6, 7, 8, 9, 10, 17, 19, 20, 21, 22, 24)
+#             ~ 1,
 #             TRUE ~ 2
 #         ),
 #         casilla_ex = (casilla == "E") * 1,
@@ -45,4 +59,3 @@
 #         ln_total = ifelse(ln == 0, total, ln)
 #     )  %>%
 #     dplyr::select(casilla_id:ln, tamano_md:ln_total)
-

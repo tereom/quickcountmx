@@ -4,7 +4,7 @@
 #' each row corresponds to a polling station and the variables include the
 #' total counts per party.
 #'
-#' @format A data frame with 6746 rows and 21 variables:
+#' @format A data frame with 6746 rows and 23 variables:
 #' \describe{
 #'   \item{casilla_id}{Numeric identifier of the polling station.}
 #'   \item{distrito_fed_17, distrito_fed_12}{Federal district, the districts

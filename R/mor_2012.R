@@ -1,3 +1,12 @@
+#' Governor electoral results for the State of Morelos 2012.
+#'
+#' A dataset containing the election results for governor of Morelos in 2012,
+#' each row corresponds to a polling station and the variables include the
+#' total counts per party.
+#'
+#' @format A data frame with 2240 rows and 22 variables:
+#' @inheritParams gto_2012
+#'
 # morelos_2012 <- read_delim("DataMorelos/CVE17_Morelos_2012.tsv",
 #     "|", escape_double = FALSE, trim_ws = TRUE)
 #

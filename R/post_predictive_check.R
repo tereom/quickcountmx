@@ -19,39 +19,41 @@ NULL
 #' @rdname pp_check
 #' @export
 pp_check_party <- function(model_fit_party){
-  data <- model_fit_party$fit$model$data()
-  stratum <- data$estrato
-  x_pred <- model_fit_party$fit$BUGSoutput$sims.list$x_pred %>% t
-  x_obs <- data$x
-  x_pred_df <- dplyr::as_data_frame(x_pred) %>% 
-    dplyr::mutate(stratum = stratum, observed = x_obs) %>%
-    tidyr::gather(n_sim, value, -stratum, -observed) %>%
-    filter(!is.na(observed)) %>%
-    dplyr::group_by(stratum, n_sim) %>%
-    summarise(n_votes_post = sum(value), observed = sum(observed))
-  return(x_pred_df)
+    data <- model_fit_party$fit$model$data()
+    stratum <- data$estrato
+    x_pred <- model_fit_party$fit$BUGSoutput$sims.list$x_pred %>% t
+    x_obs <- data$x
+    x_pred_df <- dplyr::as_data_frame(x_pred) %>%
+        dplyr::mutate(stratum = stratum, observed = x_obs) %>%
+        tidyr::gather(n_sim, value, -stratum, -observed) %>%
+        filter(!is.na(observed)) %>%
+        dplyr::group_by(stratum, n_sim) %>%
+        summarise(n_votes_post = sum(value), observed = sum(observed))
+    return(x_pred_df)
 }
 
 #' @rdname pp_check
 #' @export
 pp_check <- function(model_fit){
-  df_models <- purrr::map(model_fit$jags_fit, function(m_fit){
-    data <- m_fit$model$data()
-    stratum <- data$estrato
-    x_pred <- m_fit$BUGSoutput$sims.list$x_pred %>% t
-    x_obs <- data$x
-    x_pred_df <- dplyr::as_data_frame(x_pred) %>% 
-      dplyr::mutate(stratum = stratum, observed = x_obs) %>%
-      tidyr::gather(n_sim, value, -stratum, -observed) %>%
-      filter(!is.na(observed)) %>%
-      dplyr::group_by(stratum, n_sim) %>%
-      dplyr::summarise(n_votes_post = sum(value), observed = sum(observed))
-    x_pred_df
-  }) 
-  names(df_models) <- names(model_fit$jags_fit)
-  df_all <- dplyr::bind_rows(df_models, .id = "meta_information") %>%
-    rename(party = meta_information) %>%
-    group_by(stratum, n_sim) %>%
-    mutate(prop_post = n_votes_post/sum(n_votes_post), prop_obs = observed / sum(observed))
-  df_all
+    df_models <- purrr::map(model_fit$jags_fit, function(m_fit){
+        data <- m_fit$model$data()
+        stratum <- data$estrato
+        x_pred <- m_fit$BUGSoutput$sims.list$x_pred %>% t
+        x_obs <- data$x
+        x_pred_df <- dplyr::as_data_frame(x_pred) %>%
+            dplyr::mutate(stratum = stratum, observed = x_obs) %>%
+            tidyr::gather(n_sim, value, -stratum, -observed) %>%
+            filter(!is.na(observed)) %>%
+            dplyr::group_by(stratum, n_sim) %>%
+            dplyr::summarise(n_votes_post = sum(value),
+                observed = sum(observed))
+        x_pred_df
+    })
+    names(df_models) <- names(model_fit$jags_fit)
+    df_all <- dplyr::bind_rows(df_models, .id = "meta_information") %>%
+        rename(party = meta_information) %>%
+        group_by(stratum, n_sim) %>%
+        mutate(prop_post = n_votes_post / sum(n_votes_post),
+            prop_obs = observed / sum(observed))
+    df_all
 }
