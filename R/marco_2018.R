@@ -1,7 +1,7 @@
 # # library(tidyverse)
 # # marco erwin incluye 2 anteriores?
-# marco_erwin <- read_csv(fs::path_join(c("~/Documents/GitHub/ine_cotecora/datos",
-#     "/LISTAD0_CASILLAS_2018.csv")))
+# marco_erwin <- read_csv(fs::path_join(c("~/Documents/GitHub/ine_cotecora/",
+#     "datos/LISTAD0_CASILLAS_2018.csv")))
 #
 # marco_nal_2018_aux <- marco_erwin
 #
