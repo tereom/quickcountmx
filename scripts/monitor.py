@@ -33,7 +33,7 @@ def main(argv):
   wait_sec = argv[2]
   last = 0
   team = "default"
-  if(len(argv)>3):
+  if(len(argv) > 3):
     team = argv[3]
   if(len(argv)==5):
     last = 1  
