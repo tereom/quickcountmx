@@ -79,9 +79,9 @@ write_results <- function(post_summary, file_name, team, table_frame_in,
     readr::write_csv(tab_candidatos, path = paste0(path_out, "/", 
         team, EN, R, "_v2.csv"))
 }
-
 #' @export
-process_batch <- function(path_name, file_name, path_out, team = "default"){
+process_batch <- function(path_name, file_name, path_out, team = "default", 
+    parallel = TRUE){
     print(team)
     all_data_filename = paste0(path_out, "/remesas.rds")
     new_name <- paste0(path_out, "/procesado_", file_name, ".rds")
@@ -108,14 +108,23 @@ process_batch <- function(path_name, file_name, path_out, team = "default"){
     #######################
     saveRDS(data_out, file = new_name)
     
-    # run model ###################
-    if(estado_str != "00") {
-        fit_time <- system.time(
-            fit <- mrp_estimation(data_out, !!!rlang::syms(candidatos),
-                stratum = estrato, n_iter = 1500,
-                n_burnin = 500, n_chains = 1,
-                mc_cores = length(candidatos), parallel = TRUE)
-        )
+    if (parallel) {
+        if(estado_str != "00") {
+            fit_time <- system.time(
+                fit <- mrp_estimation(data_out, !!!rlang::syms(candidatos),
+                    stratum = estrato, n_iter = 1500,
+                    n_burnin = 500, n_chains = 1,
+                    mc_cores = length(candidatos), parallel = TRUE)
+            )
+        }  
+    } else {
+        if(estado_str != "00") {
+            fit_time <- system.time(
+                fit <- mrp_estimation(data_out, !!!rlang::syms(candidatos),
+                    stratum = estrato, n_iter = 1500,
+                    n_burnin = 500, n_chains = 1, parallel = FALSE)
+            )
+        }         
     }
     print(fit_time)
     print(fit$post_summary)
