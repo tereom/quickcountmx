@@ -11,8 +11,8 @@ table_frame <- dplyr::data_frame(estado = c("00","07", "11", "17"),
             c("DSRV", "GSG", "FACG", "FRSP", "MBSL"),
             c("VMCS", "JAMO", "MRGC", "NLMLC", "CBB", "JAVJ", "MRA", "FDH")), 
     partidos = 
-        list(c("PAN_PRD_MC", "PRI_PVEM_PANAL", "PT_MORENA_PES", "JHRC"),
-            c("PAN_PRD_MC", "PRI_PNA", "PT_MORENA_PES", "PVEM_PCU_PMC", 
+        list(c("PAN_PRD_MC", "PRI_PVEM_PANAL", "MORENA_PT_PES", "JHRC"),
+            c("PAN_PRD_MC", "PRI_PNA", "MORENA_PT_PES", "PVEM_PCU_PMC", 
                 "JAOR"),
             c("PAN_PRD_MC", "PRI", "PVEM", "PT_MORENA_PES", "PANAL"),
             c("PAN_MC", "PRI", "PRD_PSD", "PVEM", "PT_MORENA_PES", "PANAL", 
@@ -86,7 +86,7 @@ process_batch <- function(path_name, file_name, path_out, team = "default"){
     all_data_filename = paste0(path_out, "/remesas.rds")
     new_name <- paste0(path_out, "/procesado_", file_name, ".rds")
     data_in <- readr::read_delim(path_name, "|", escape_double = FALSE,
-        trim_ws = TRUE)
+        trim_ws = TRUE, skip = 1)
     print(paste0("datos: ", path_name))
     print(paste0("salidas: ", path_out))
     # do processing ########
@@ -99,7 +99,7 @@ process_batch <- function(path_name, file_name, path_out, team = "default"){
     # get id
     #print(head(data_in))
     data_out <- data_in %>% dplyr::mutate(id =
-            stringr::str_c(ID_ESTADO, SECCION, ID_CASILLA, TIPO_CASILLA,
+            stringr::str_c(iD_ESTADO, SECCION, ID_CASILLA, TIPO_CASILLA,
                 EXT_CONTIGUA, sep = "-")) %>%
         dplyr::mutate(OTROS = NULOS + CNR) %>%
         dplyr::select(id, dplyr::one_of(candidatos)) %>%
