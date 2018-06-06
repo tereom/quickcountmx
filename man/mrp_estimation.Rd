@@ -6,7 +6,7 @@
 \usage{
 mrp_estimation(data, ..., stratum, frac = 1, n_iter = 2000,
   n_burnin = 500, n_chains = 3, seed = NA, parallel = FALSE,
-  mc_cores = 6, model_string = NULL, set_strata_na = integer(0))
+  n_cores = 6, model_string = NULL, set_strata_na = integer(0))
 }
 \arguments{
 \item{data}{A \code{data.frame} with variables: ln_total, region,
@@ -40,8 +40,8 @@ generator.}
 if TRUE package parallel must be installed (uses mclapply and can not be
 used in Windows).}
 
-\item{mc_cores}{If parallelizing, the number of cores to use, parameter is
-used in \code{\link[parallel]{mclapply}}}
+\item{n_cores}{If parallelizing, the number of cores to use, parameter is
+used in \code{\link[parallel]{mclapply}}, \code{\link[parallel]{mclapply}}}
 
 \item{model_string}{String indicating the model to be used, if NULL defaults
 to \code{"model_bern_t"}, also available \code{"model_t"}.}
