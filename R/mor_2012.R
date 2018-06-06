@@ -6,7 +6,8 @@
 #'
 #' @format A data frame with 2240 rows and 22 variables:
 #' @inheritParams gto_2012
-#'
+#' @source \url{https://cartografia.ife.org.mx}
+"mor_2012"
 # morelos_2012 <- read_delim("DataMorelos/CVE17_Morelos_2012.tsv",
 #     "|", escape_double = FALSE, trim_ws = TRUE)
 #

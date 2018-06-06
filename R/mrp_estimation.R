@@ -18,8 +18,9 @@
 #'   deviations and probability intervals per party).
 #' @examples
 #' data("gto_2012")
-#' mrp_estimation(gto_2012, party = pri_pvem:otros, stratum = distrito_loc_17,
+#' est_gto <- mrp_estimation(gto_2012, party = pri_pvem:otros, stratum = distrito_loc_17,
 #'   frac = 0.01, seed = 2212)
+#' est_gto$post_summary
 #' @importFrom magrittr %>%
 #' @importFrom rlang !! !!! :=
 #' @export
@@ -34,7 +35,7 @@ mrp_estimation <- function(data, ..., stratum, frac = 1, n_iter = 2000,
     parties_split <- data_long %>%
         split(.$party)
     if (parallel){
-        if (.Platform$OS.type == "linux") {
+        if (.Platform$OS.type == "unix") {
             parties_models <- parallel::mclapply(parties_split, function(x){
                 quickcountmx::mrp_party_estimation(x, party = n_votes,
                     stratum = !!stratum_enquo, frac = frac,
