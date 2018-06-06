@@ -24,6 +24,7 @@ To install the package use [devtools](https://github.com/r-lib/devtools)
 # devtools::install_github("tereom/quickcountmx")
 library(quickcountmx)
 library(tidyverse)
+library(R2jags)
 ```
 
 The package includes the results of the 2012 Guanajuato Governor election, which
@@ -59,7 +60,9 @@ in this case we want to sample 3 polling stations in each stratum:
 allo_df <- data.frame(distrito_fed_17 = 1:20, n = rep(3, 20))
 allo_df
 ```
+
 We use the function `select_sample_str`:
+
 ```{r}
 gto_equal <- select_sample_str(gto_2012, allo_df, n, distrito_fed_17)
 table(gto_equal$distrito_fed_17)
@@ -72,6 +75,7 @@ stratified sample with 2% of the polling stations:
 gto_str <- select_sample_prop(gto_2012, distrito_fed_17, 0.02, seed = 281982)
 table(gto_str$distrito_fed_17)
 ```
+
 Note that there is a parameter `seed` so we can replicate a sample.
 
 ### Estimation
@@ -100,6 +104,7 @@ We then call the function `ratio_estimation()`
 ratio_estimation(gto_sample, stratum = distrito_loc_17, n_stratum = n_stratum, 
     ... = pri_pvem:otros)
 ```
+
 For Mr. P, we fit a model per candidate and then compute the proportions using
 the simulated counts for each polling station-candidate. The following 
 function selects a sample of 6% percent of the data, fits the model using the 
@@ -110,9 +115,11 @@ and NA whenever the polling station was not in the sample.
 
 ```{r, message=FALSE}
 mrp_gto <- mrp_estimation(gto_2012, pri_pvem:otros, frac = 0.06, 
-    stratum = distrito_loc_17, n_iter = 200, n_burnin = 100, 
+    stratum = distrito_loc_17, n_iter = 2000, n_burnin = 1500, 
     n_chains = 2, seed = 19291, parallel = TRUE, mc_cores = 8)
 ```
+
+It is worth noting that parallelization is not available in Windows.
 
 `mrp_estimation` returns a list with the fitted models, so we can evaluate
 examine the model and evaluate convergence:

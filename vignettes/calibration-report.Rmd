@@ -10,7 +10,7 @@ output: html_notebook
 #devtools::install_github("tereom/quickcountmx", force = TRUE)
 library(quickcountmx)
 library(tidyverse)
-a <- eval(parse(text=deparse(quickcountmx:::model_bern_t)[3] ))
+model_string <- eval(parse(text=deparse(quickcountmx:::model_bern_t)[3]))
 model_string %>% cat
 ```
 

@@ -60,7 +60,7 @@ mrp_estimation <- function(data, ..., stratum, frac = 1, n_iter = 2000,
             prop = votes / total
         )
     participation <- dplyr::data_frame(party = "participacion",
-        total = votes_all %>% ungroup() %>% pull(total),
+        total = votes_all %>% dplyr::ungroup() %>% dplyr::pull(total),
         prop = total / sum(data$ln))
     post_summary <- votes_all %>%
         dplyr::bind_rows(participation) %>%
