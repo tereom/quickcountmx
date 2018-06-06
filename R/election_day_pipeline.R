@@ -114,8 +114,8 @@ process_batch <- function(path_name, file_name, path_out, team = "default",
         if(estado_str != "00") {
             fit_time <- system.time(
                 fit <- mrp_estimation(data_out, !!!rlang::syms(candidatos),
-                    stratum = estrato, n_iter = 1500,
-                    n_burnin = 500, n_chains = 1,
+                    stratum = estrato, n_iter = n_iter,
+                    n_burnin = n_burnin, n_chains = n_chains,
                     mc_cores = length(candidatos), parallel = TRUE)
             )
         }  
@@ -123,8 +123,8 @@ process_batch <- function(path_name, file_name, path_out, team = "default",
         if(estado_str != "00") {
             fit_time <- system.time(
                 fit <- mrp_estimation(data_out, !!!rlang::syms(candidatos),
-                    stratum = estrato, n_iter = 1500,
-                    n_burnin = 500, n_chains = 1, parallel = FALSE)
+                    stratum = estrato, n_iter = n_iter,
+                    n_burnin = n_burnin, n_chains = n_chains, parallel = FALSE)
             )
         }         
     }
