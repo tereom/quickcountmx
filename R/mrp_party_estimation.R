@@ -47,6 +47,8 @@ mrp_party_estimation <- function(data, party, stratum, frac = 1,
     if (frac >= 1){
         data_model <- data
     } else {
+        data <- data %>% 
+            dplyr::mutate(casilla_id = 1:n())
         data_sample <- select_sample_prop(data, stratum = !!stratum_enquo,
             frac = frac, seed = seed)
         data_model <- data %>%
