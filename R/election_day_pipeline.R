@@ -3,24 +3,24 @@
 #' @import ggplot2
 #'
 table_frame <- dplyr::data_frame(estado = c("00","07", "11", "17"),
-                                 marco = c("marco_nal_2018", "marco_chis_2018",
-                                           "marco_gto_2018", "marco_mor_2018"),
-                                 candidatos =
-                                     list(c("RAC", "JAMK", "AMLO", "JHRC"),
-                                          c("JAAB", "RAAG", "RCEC", "LFCC", "JAOR"),
-                                          c("DSRV", "GSG", "FACG", "FRSP", "MBSL"),
-                                          c("VMCS", "JAMO", "MRGC", "NLMLC", "CBB", "JAVJ", "MRA", "FDH")), 
-                                 partidos = 
-                                     list(c("PAN_PRD_MC", "PRI_PVEM_PANAL", "PT_MORENA_PES", "JHRC"),
-                                          c("PAN_PRD_MC", "PRI_PNA", "PT_MORENA_PES", "PVEM_PCU_PMC", 
-                                            "JAOR"),
-                                          c("PAN_PRD_MC", "PRI", "PVEM", "PT_MORENA_PES", "PANAL"),
-                                          c("PAN_MC", "PRI", "PRD_PSD", "PVEM", "PT_MORENA_PES", "PANAL", 
-                                            "PH", "FDH"))
+    marco = c("marco_nal_2018", "marco_chis_2018",
+        "marco_gto_2018", "marco_mor_2018"),
+    candidatos =
+        list(c("RAC", "JAMK", "AMLO", "JHRC"),
+            c("JAAB", "RAAG", "RCEC", "LFCC", "JAOR"),
+            c("DSRV", "GSG", "FACG", "FRSP", "MBSL"),
+            c("VMCS", "JAMO", "MRGC", "NLMLC", "CBB", "JAVJ", "MRA", "FDH")), 
+    partidos = 
+        list(c("PAN_PRD_MC", "PRI_PVEM_PANAL", "PT_MORENA_PES", "JHRC"),
+            c("PAN_PRD_MC", "PRI_PNA", "PT_MORENA_PES", "PVEM_PCU_PMC", 
+                "JAOR"),
+            c("PAN_PRD_MC", "PRI", "PVEM", "PT_MORENA_PES", "PANAL"),
+            c("PAN_MC", "PRI", "PRD_PSD", "PVEM", "PT_MORENA_PES", "PANAL", 
+                "PH", "FDH"))
 )
 
 write_results <- function(post_summary, file_name, team, table_frame_in, 
-                          path_out){
+    path_out){
     EN <- stringr::str_sub(file_name, 10, 11)
     R <- stringr::str_sub(file_name, 12, 17)
     cod_party_candidatos <- table_frame_in %>% 
@@ -81,12 +81,13 @@ write_results <- function(post_summary, file_name, team, table_frame_in,
 }
 
 #' @export
-process_batch <- function(path_name, file_name, path_out, team = "default"){
+process_batch <- function(path_name, file_name, path_out, team = "default", 
+    n_iter = 1500, n_burnin = 500, n_chains = 1, parallel = TRUE){
     print(team)
     all_data_filename = paste0(path_out, "/remesas.rds")
     new_name <- paste0(path_out, "/procesado_", file_name, ".rds")
     data_in <- readr::read_delim(path_name, "|", escape_double = FALSE,
-                                 trim_ws = TRUE, skip = 1)
+        trim_ws = TRUE, skip = 1)
     print(paste0("datos: ", path_name))
     print(paste0("salidas: ", path_out))
     # do processing ########
@@ -99,8 +100,8 @@ process_batch <- function(path_name, file_name, path_out, team = "default"){
     # get id
     #print(head(data_in))
     data_out <- data_in %>% dplyr::mutate(id =
-                                              stringr::str_c(iD_ESTADO, SECCION, ID_CASILLA, TIPO_CASILLA,
-                                                             EXT_CONTIGUA, sep = "-")) %>%
+            stringr::str_c(iD_ESTADO, SECCION, ID_CASILLA, TIPO_CASILLA,
+                EXT_CONTIGUA, sep = "-")) %>%
         dplyr::mutate(OTROS = NULOS + CNR) %>%
         dplyr::select(id, dplyr::one_of(candidatos)) %>%
         dplyr::right_join(marco)
@@ -109,20 +110,30 @@ process_batch <- function(path_name, file_name, path_out, team = "default"){
     saveRDS(data_out, file = new_name)
     
     # run model ###################
-    if(estado_str != "00") {
-        fit_time <- system.time(
-            fit <- mrp_estimation(data_out, !!!rlang::syms(candidatos),
-                                  stratum = estrato, n_iter = 1500,
-                                  n_burnin = 500, n_chains = 1,
-                                  mc_cores = length(candidatos), parallel = TRUE)
-        )
+    if (parallel) {
+        if(estado_str != "00") {
+            fit_time <- system.time(
+                fit <- mrp_estimation(data_out, !!!rlang::syms(candidatos),
+                    stratum = estrato, n_iter = n_iter,
+                    n_burnin = n_burnin, n_chains = n_chains,
+                    mc_cores = length(candidatos), parallel = TRUE)
+            )
+        }  
+    } else {
+        if(estado_str != "00") {
+            fit_time <- system.time(
+                fit <- mrp_estimation(data_out, !!!rlang::syms(candidatos),
+                    stratum = estrato, n_iter = n_iter,
+                    n_burnin = n_burnin, n_chains = n_chains, parallel = FALSE)
+            )
+        }         
     }
     print(fit_time)
     print(fit$post_summary)
     #saveRDS(fit$jags_fit, file = paste0("./procesados/fit_", file_name, ".rds"))
     df_new <- dplyr::data_frame(archivo = file_name, hora = Sys.time(),
-                                datos = list(data_out), originales = list(data_in),
-                                post_summary = list(fit$post_summary))
+        datos = list(data_out), originales = list(data_in),
+        post_summary = list(fit$post_summary))
     if(file.exists(all_data_filename)){
         df_prev <- readRDS(all_data_filename)
         df_agg <- dplyr::bind_rows(df_prev, df_new)
@@ -159,21 +170,21 @@ process_batch <- function(path_name, file_name, path_out, team = "default"){
         ggplot2::labs(title = "Simulaciones MCMC de devianza")
     ggplot2::ggsave(paste0(path_out,"/deviance-", file_name, ".png"))
     gr_cts <- ggplot2::ggplot(df_cts_long, ggplot2::aes(x=no_sim, 
-                                                        y = conteo_sim, group=partido,
-                                                        colour=partido)) +
+        y = conteo_sim, group=partido,
+        colour=partido)) +
         ggplot2::geom_line(colour = "salmon") +
         ggplot2::theme_bw() + ggplot2::labs(title = "Simulaciones MCMC de conteos totales") +
         ggplot2::scale_y_log10()
     ggplot2::ggsave(paste0(path_out,"/counts-", file_name, ".png"))
     write_results(post_summary = fit$post_summary, file_name = file_name, 
-                  team = team, table_frame_in = table_frame_in, path_out = path_out)
+        team = team, table_frame_in = table_frame_in, path_out = path_out)
 }
 #' @export
 process_batch_stan <- function(path_name, file_name, path_out, team = "default"){
     all_data_filename = paste0(path_out, "/remesas.rds")
     new_name <- paste0(path_out, "/procesado_", file_name, ".rds")
     data_in <- readr::read_delim(path_name, "|", escape_double = FALSE,
-                                 trim_ws = TRUE, skip = 1)
+        trim_ws = TRUE, skip = 1)
     print(paste0("datos: ", path_name))
     print(paste0("salidas: ", path_out))
     # do processing ########
@@ -186,8 +197,8 @@ process_batch_stan <- function(path_name, file_name, path_out, team = "default")
     # get id
     #print(head(data_in))
     data_out <- data_in %>% dplyr::mutate(id =
-                                              stringr::str_c(iD_ESTADO, SECCION, ID_CASILLA, TIPO_CASILLA,
-                                                             EXT_CONTIGUA, sep = "-")) 
+            stringr::str_c(iD_ESTADO, SECCION, ID_CASILLA, TIPO_CASILLA,
+                EXT_CONTIGUA, sep = "-")) 
     #%>%
     #dplyr::mutate(OTROS = NULOS + CNR) %>%
     #dplyr::select(id, dplyr::one_of(candidatos)) %>%
@@ -200,16 +211,16 @@ process_batch_stan <- function(path_name, file_name, path_out, team = "default")
     if(estado_str == "00") {
         fit_time <- system.time(
             fit <- mrp_estimation_stan(data_out, 
-                                       stratum = estrato, n_iter = 500,
-                                       n_warmup = 250, n_chains = 1, model_string="neg_binomial_edo")
+                stratum = estrato, n_iter = 500,
+                n_warmup = 250, n_chains = 1, model_string="neg_binomial_edo")
         )
     }
     print(fit_time)
     # print(fit$post_summary)
     #saveRDS(fit$jags_fit, file = paste0("./procesados/fit_", file_name, ".rds"))
     df_new <- dplyr::data_frame(archivo = file_name, hora = Sys.time(),
-                                datos = list(data_out), originales = list(data_in),
-                                post_summary = list(fit$post_summary))
+        datos = list(data_out), originales = list(data_in),
+        post_summary = list(fit$post_summary))
     if(file.exists(all_data_filename)){
         df_prev <- readRDS(all_data_filename)
         df_agg <- dplyr::bind_rows(df_prev, df_new)
@@ -249,11 +260,11 @@ process_batch_stan <- function(path_name, file_name, path_out, team = "default")
     #   ggplot2::theme_bw() + ggplot2::labs(title = "Simulaciones MCMC de devianza")
     # ggplot2::ggsave(paste0(path_out,"/deviance-", file_name, ".png"))
     gr_cts <- ggplot2::ggplot(chains, ggplot2::aes(x=no_sim, y = y, group=areas,
-                                                   colour=factor(areas))) +
+        colour=factor(areas))) +
         ggplot2::geom_line() +
         ggplot2::theme_bw() + ggplot2::labs(title = "Simulaciones MCMC de conteos totales") +
         ggplot2::facet_wrap(~partidos)
     ggplot2::ggsave(paste0(path_out,"/counts-", file_name, ".png"))
     write_results(post_summary = fit$post_summary, file_name = file_name, 
-                  team = team, table_frame_in = table_frame_in, path_out = path_out)
+        team = team, table_frame_in = table_frame_in, path_out = path_out)
 }

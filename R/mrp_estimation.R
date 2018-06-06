@@ -11,8 +11,8 @@
 #'   used in Windows).
 #' @param set_strata_na Option to exclude strata when fitting the model, used
 #'   for model evaluation and calibration.
-#' @param mc_cores If parallelizing, the number of cores to use, parameter is
-#'   used in \code{\link[parallel]{mclapply}}
+#' @param n_cores If parallelizing, the number of cores to use, parameter is
+#'   used in \code{\link[parallel]{mclapply}}, \code{\link[parallel]{mclapply}}
 #' @return A \code{list} with the object fitted using R2jags::jags and a
 #'   data.frame with the estimation summary (posterior means, medians, standard
 #'   deviations and probability intervals per party).
@@ -25,7 +25,7 @@
 #' @export
 mrp_estimation <- function(data, ..., stratum, frac = 1, n_iter = 2000,
     n_burnin = 500, n_chains = 3, seed = NA,
-    parallel = FALSE, mc_cores = 6, model_string = NULL,
+    parallel = FALSE, n_cores = 6, model_string = NULL,
     set_strata_na = integer(0)){
     if (is.na(seed)) seed <- sample(1:1000, 1)
     parties <- dplyr::quos(...)
@@ -34,14 +34,27 @@ mrp_estimation <- function(data, ..., stratum, frac = 1, n_iter = 2000,
     parties_split <- data_long %>%
         split(.$party)
     if (parallel){
-        parties_models <- parallel::mclapply(parties_split, function(x){
-            quickcountmx::mrp_party_estimation(x, party = n_votes,
-                stratum = !!stratum_enquo, frac = frac,
-                n_chains = n_chains, n_iter = n_iter, n_burnin = n_burnin,
-                seed = seed, model_string = model_string,
-                set_strata_na = set_strata_na)
-        },
-            mc.cores = mc_cores)
+        if (.Platform$OS.type == "linux") {
+            parties_models <- parallel::mclapply(parties_split, function(x){
+                quickcountmx::mrp_party_estimation(x, party = n_votes,
+                    stratum = !!stratum_enquo, frac = frac,
+                    n_chains = n_chains, n_iter = n_iter, n_burnin = n_burnin,
+                    seed = seed, model_string = model_string,
+                    set_strata_na = set_strata_na)}, mc_cores = n_cores)
+        } else {
+            clust <-  parallel::makeCluster(getOption("cl.cores", n_cores))
+            parties_split_vars <- purrr::map(parties_split, ~list(data = .,
+                party = .$party[1], stratum = rlang::quo_text(stratum_enquo),
+                frac = frac, n_chains = n_chains, n_iter = n_iter,
+                n_burnin = n_burnin, n_chains = n_chains, seed = seed))
+            parties_models <- parallel::parLapply(cl = clust, 
+                X = parties_split_vars, fun = function(x){		
+                    quickcountmx::mrp_party_estimation(x$data, party = n_votes,		
+                        stratum = !!rlang::sym(x$stratum), frac = x$frac,		
+                        n_chains = x$n_chains, n_iter = x$n_iter, 
+                        n_burnin = x$n_burnin, seed = x$seed)})
+            parallel::stopCluster(clust)
+        }
     } else {
         parties_models <- parties_split %>%
             purrr::map(~mrp_party_estimation(., party = n_votes,
