@@ -11,7 +11,7 @@
 #' @importFrom rstan sampling
 #' @export
 mrp_estimation_stan <- function(data, stratum, 
-                                n_iter = 350, n_warmup = 150, 
+                                n_iter = 500, n_warmup = 250, 
                                 n_chains = 1, seed = NA, model_string = NULL,
                                 set_strata_na = integer(0)){
     if (is.null(model_string)) {
@@ -34,6 +34,9 @@ mrp_estimation_stan <- function(data, stratum,
         dplyr::left_join(regiones, by = c("iD_ESTADO" = "region"))
     data_split$OTROS <- data_split$CNR + data_split$NULOS
     marco_nal_2018 <- get(data(list = "marco_nal_2018", package = "quickcountmx"))
+    ### CORREGIR #############
+    marco_nal_2018 <- dplyr::filter(marco_nal_2018, !is.na(rural))
+    #########################
     marco_split <- marco_nal_2018 %>% 
         dplyr::left_join(regiones, by ="region")
     
@@ -108,8 +111,9 @@ mrp_estimation_stan <- function(data, stratum,
         stan_fit <- rstan::sampling(quickcountmx:::stanmodels[[model_string]], iter = n_iter,
                                     warmup = n_warmup, chains = n_chains, 
                                     data = c(data_sample, data_full),
-                                    init = "0", cores = n_chains, control = list(max_treedepth = 12))
-        data_frame(y = rstan::extract(stan_fit, 'y_out')[[1]], index = index)
+                                    init = "0", cores = n_chains, 
+                                    control = list(max_treedepth = 12, adapt_delta = 0.85))
+        dplyr::data_frame(y = rstan::extract(stan_fit, 'y_out')[[1]], index = index)
     })
     
     parallel::clusterEvalQ(clust, {
