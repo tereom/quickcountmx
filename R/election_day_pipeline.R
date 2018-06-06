@@ -200,8 +200,8 @@ process_batch_stan <- function(path_name, file_name, path_out, team = "default")
     if(estado_str == "00") {
         fit_time <- system.time(
             fit <- mrp_estimation_stan(data_out, 
-                                       stratum = estrato, n_iter = 350,
-                                       n_warmup = 150, n_chains = 1, model_string="neg_binomial_edo")
+                                       stratum = estrato, n_iter = 500,
+                                       n_warmup = 250, n_chains = 1, model_string="neg_binomial_edo")
         )
     }
     print(fit_time)
