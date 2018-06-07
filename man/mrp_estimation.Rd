@@ -61,6 +61,7 @@ each party/candidate it computes the proportion of votes for each one.
 }
 \examples{
 data("gto_2012")
-mrp_estimation(gto_2012, party = pri_pvem:otros, stratum = distrito_loc_17,
+est_gto <- mrp_estimation(gto_2012, party = pri_pvem:otros, stratum = distrito_loc_17,
   frac = 0.01, seed = 2212)
+est_gto$post_summary
 }
