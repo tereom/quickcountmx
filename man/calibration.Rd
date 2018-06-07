@@ -6,7 +6,7 @@
 \alias{calibration_prop}
 \alias{summary_calibration_party}
 \alias{summary_calibration}
-\title{Title}
+\title{Calibration}
 \usage{
 calibration_party(data, party, stratum, frac = 1, n_iter = 2000,
   n_burnin = 500, n_chains = 3, seed = NA, cl_cores = 14, n_rep = 5,
@@ -55,9 +55,14 @@ to be used in \code{\link[R2jags]{jags}}.}
 
 \item{model_string}{String indicating the model to fit.}
 }
-\value{
-
-}
 \description{
-Title
+The functions perform simulation from past election results, fits a model 
+for each simulation and reports calibration summaries: coverage of intervals 
+and mean precisions. \code{calibration_party} is useful to calibrate 
+individual models of total votes for a given party and 
+\code{calibration_prop} is useful to calibrate the model that reports 
+estimates for proportion of votes per party.
+}
+\seealso{
+\code{\link{mrp_estimation}}, \code{\link{mrp_party_estimation}},
 }
