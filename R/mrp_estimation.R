@@ -66,7 +66,6 @@ mrp_estimation <- function(data, ..., stratum, frac = 1, n_iter = 2000,
                 seed = seed, model_string = model_string,
                 set_strata_na = set_strata_na))
     }
-    print(parties_models)
     jags_fits <- purrr::map(parties_models, ~.$fit)
     votes_all <- purrr::map_df(parties_models, ~.$n_votes) %>%
         dplyr::mutate(n_sim = 1:n()) %>%
