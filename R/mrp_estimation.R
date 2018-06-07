@@ -42,7 +42,8 @@ mrp_estimation <- function(data, ..., stratum, frac = 1, n_iter = 2000,
                     stratum = !!stratum_enquo, frac = frac,
                     n_chains = n_chains, n_iter = n_iter, n_burnin = n_burnin,
                     seed = seed, model_string = model_string,
-                    set_strata_na = set_strata_na)}, mc_cores = n_cores)
+                    set_strata_na = set_strata_na)},
+                mc.cores = n_cores)
         } else {
             clust <-  parallel::makeCluster(getOption("cl.cores", n_cores))
             parties_split_vars <- purrr::map(parties_split, ~list(data = .,
@@ -65,6 +66,7 @@ mrp_estimation <- function(data, ..., stratum, frac = 1, n_iter = 2000,
                 seed = seed, model_string = model_string,
                 set_strata_na = set_strata_na))
     }
+    print(parties_models)
     jags_fits <- purrr::map(parties_models, ~.$fit)
     votes_all <- purrr::map_df(parties_models, ~.$n_votes) %>%
         dplyr::mutate(n_sim = 1:n()) %>%
