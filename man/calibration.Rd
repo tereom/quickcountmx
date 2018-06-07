@@ -54,15 +54,29 @@ to be used in \code{\link[R2jags]{jags}}.}
 \item{n_rep}{Number of repetitions of sample selection and model fitting.}
 
 \item{model_string}{String indicating the model to fit.}
+
+\item{alpha_r}{Calibration examines coverage of (1-alpha_r)*100 intervals.}
+}
+\value{
+\code{data.frame} with posterior simulation of total votes (if using
+  \code{calibration_party}) or proportions (if using \code{calibration_prop})
+  for each repetiton of sample selection and model fitting.
 }
 \description{
-The functions perform simulation from past election results, fits a model 
-for each simulation and reports calibration summaries: coverage of intervals 
-and mean precisions. \code{calibration_party} is useful to calibrate 
-individual models of total votes for a given party and 
-\code{calibration_prop} is useful to calibrate the model that reports 
+The functions \code{calibration_party} and \code{calibration_prop} perform 
+simulation from past election results, fit a model calling
+(\code{\link{mrp_party_estimation}} or \code{\link{mrp_estimation}}) for each 
+simulation and return posterior simulations along actual outcomes, these can 
+later be used to compute calibration summaries with the corresponding 
+function: \code{summary_calibration_party} or \code{summary_calibration}. 
+\code{calibration_party} is useful to calibrate individual models of total 
+votes for a given party and \code{calibration_prop} is useful to analyse 
 estimates for proportion of votes per party.
 }
+\details{
+The functions are computationally demanding, they were designed
+to run on computers with more than 16 cores.
+}
 \seealso{
-\code{\link{mrp_estimation}}, \code{\link{mrp_party_estimation}},
+\code{\link{mrp_estimation}}, \code{\link{mrp_party_estimation}}
 }
