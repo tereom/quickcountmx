@@ -16,6 +16,7 @@
 #' @return A \code{list} with the object fitted using R2jags::jags and a
 #'   data.frame with the estimation summary (posterior means, medians, standard
 #'   deviations and probability intervals per party).
+#' @seealso  \code{\link{mrp_party_estimation}}
 #' @examples
 #' data("gto_2012")
 #' est_gto <- mrp_estimation(gto_2012, party = pri_pvem:otros, stratum = distrito_loc_17,

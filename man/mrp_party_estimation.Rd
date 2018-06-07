@@ -52,3 +52,6 @@ mrp_gto_pan <- mrp_party_estimation(gto_2012, pan_na,
     n_chains = 2, seed = 19291)
 mrp_gto_pan$fit
 }
+\seealso{
+\code{\link{mrp_estimation}}
+}

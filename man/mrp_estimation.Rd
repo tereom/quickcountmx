@@ -65,3 +65,6 @@ est_gto <- mrp_estimation(gto_2012, party = pri_pvem:otros, stratum = distrito_l
   frac = 0.01, seed = 2212)
 est_gto$post_summary
 }
+\seealso{
+\code{\link{mrp_party_estimation}}
+}

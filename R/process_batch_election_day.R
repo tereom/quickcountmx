@@ -5,6 +5,8 @@
 #' Guanajuato and Morelos. The functions can be used within an R session but 
 #' were created to be called autamtically. The output was creted to feed INE's 
 #' system.
+#' @seealso \code{\link{mrp_estimation}}, \code{\link{mrp_party_estimation}}, 
+#'   \code{\link{marco_2018}}
 #' @name process_batch_election_day
 NULL
 write_results <- function(post_summary, file_name, team, table_frame_in, 

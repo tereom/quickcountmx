@@ -21,9 +21,10 @@
 #'   generator.
 #' @param seed_jags Seed for the call \code{\link[R2jags]{jags}}.
 #' @param model_string String indicating the model to be used, if NULL defaults
-#'  to \code{"model_bern_t"}, also available \code{"model_t"}.
+#'   to \code{"model_bern_t"}, also available \code{"model_t"}.
 #' @return A \code{list} with the object fitted using R2jags::jags and the vector
 #'   of simulated counts per candidate.
+#' @seealso \code{\link{mrp_estimation}}
 #' @examples
 #' # predict number of votes for pan_na using 6% of the sample
 #' mrp_gto_pan <- mrp_party_estimation(gto_2012, pan_na,
