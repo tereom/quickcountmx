@@ -84,7 +84,7 @@ write_results <- function(post_summary, file_name, team, table_frame_in,
 #'
 #' @rdname process_batch_election_day
 process_batch <- function(path_name, file_name, path_out, path_results, 
-    team = "default", n_iter = 1500, n_burnin = 500, n_chains = 1,
+    team = "default", n_iter = 2500, n_burnin = 1000, n_chains = 1,
     parallel = TRUE){
     print(team)
     table_frame <- get(data(list = "table_frame_2018", 
@@ -188,7 +188,7 @@ process_batch <- function(path_name, file_name, path_out, path_results,
 }
 #' @rdname process_batch_election_day
 process_batch_stan <- function(path_name, file_name, path_out, path_results,
-    team = "default", n_iter = 1500, n_warmup = 250, n_chains = 1){
+    team = "default", n_iter = 500, n_warmup = 200, n_chains = 1){
     table_frame <- get(data(list = "table_frame_2018", 
                             package = "quickcountmx"))
     all_data_filename = paste0(path_out, "/remesas.rds")
