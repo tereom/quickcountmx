@@ -1,10 +1,23 @@
-# # library(tidyverse)
-# # marco erwin incluye 2 anteriores?
-# marco_erwin <- read_csv(fs::path_join(c("~/Documents/GitHub/ine_cotecora/",
+#' Sampling frame for elections 2018.
+#'
+#' Datasets containing the 2018 sampling frame for Mexican national election, 
+#' and sampling frames for Governor elections in Chiapas, Guanajuato, and 
+#' Morelos. Each row corresponds to a polling station and the variables include 
+#' strata, nominal list, and other descriptorss of the polling station.
+#'
+#' @format A data frames:
+#' @source \url{https://cartografia.ife.org.mx}
+"marco_nal_2018"
+"marco_chis_2018"
+"marco_gto_2018"
+"marco_mor_2018"
+# library(tidyverse)
+# marco erwin incluye 2 anteriores?
+# marco_erwin <- readr::read_csv(fs::path_join(c("~/Documents/GitHub/ine_cotecora/",
 #     "datos/LISTAD0_CASILLAS_2018.csv")))
-#
+# 
 # marco_nal_2018_aux <- marco_erwin
-#
+# 
 # marco_nal_2018 <- marco_nal_2018_aux %>%
 #     mutate(
 #         id = stringr::str_c(ID_ESTADO, SECCION, ID_CASILLA, TIPO_CASILLA,
@@ -42,8 +55,9 @@
 #         ln_total = ifelse(ln == 0, 750, ln)
 #     ) %>%
 #     dplyr::select(id, casilla_id, id_estado, distrito_loc, distrito_fed,
-#         seccion:ln_total)
-#
+#         seccion:ln_total) %>% 
+#     dplyr::filter(!is.na(rural))
+# 
 # marco_gto_2018 <- marco_nal_2018 %>%
 #     filter(id_estado == 11) %>%
 #     mutate(
@@ -54,7 +68,7 @@
 #             )
 #         ) %>%
 #     select(-estrato_l)
-#
+# 
 # marco_mor_2018 <- marco_nal_2018 %>%
 #     filter(id_estado == 17)%>%
 #     mutate(
@@ -65,7 +79,7 @@
 #         )
 #     ) %>%
 #     select(-estrato_l)
-#
+# 
 # marco_chis_2018 <- marco_nal_2018 %>%
 #     filter(id_estado == 7) %>%
 #     mutate(

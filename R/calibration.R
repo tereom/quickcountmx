@@ -1,5 +1,15 @@
-#' Title
-#'
+#' Calibration
+#' 
+#' The functions \code{calibration_party} and \code{calibration_prop} perform 
+#' simulation from past election results, fit a model calling
+#' (\code{\link{mrp_party_estimation}} or \code{\link{mrp_estimation}}) for each 
+#' simulation and return posterior simulations along actual outcomes, these can 
+#' later be used to compute calibration summaries with the corresponding 
+#' function: \code{summary_calibration_party} or \code{summary_calibration}. 
+#' \code{calibration_party} is useful to calibrate individual models of total 
+#' votes for a given party and \code{calibration_prop} is useful to analyse 
+#' estimates for proportion of votes per party.
+#' 
 #' @inheritParams mrp_party_estimation
 #' @param seed An integer vector of length 7 to be send to
 #'     \code{\link[parallel]{clusterSetRNGStream}}.
@@ -7,8 +17,14 @@
 #'     \code{\link[parallel]{makeCluster}}.
 #' @param n_rep Number of repetitions of sample selection and model fitting.
 #' @param model_string String indicating the model to fit.
-#' @return
-#'
+#' @param alpha_r Calibration examines coverage of (1-alpha_r)*100 intervals.
+#' @details The functions are computationally demanding, they were designed
+#' to run on computers with more than 16 cores.
+#' @seealso \code{\link{mrp_estimation}}, \code{\link{mrp_party_estimation}}
+#' @examples 
+#' @return \code{data.frame} with posterior simulation of total votes (if using
+#'   \code{calibration_party}) or proportions (if using \code{calibration_prop})
+#'   for each repetiton of sample selection and model fitting.
 #' @importFrom magrittr %>%
 #' @importFrom rlang !! !!! :=
 #' @name calibration
@@ -91,20 +107,24 @@ calibration_prop <- function(data, ..., stratum, frac = 1, n_iter = 2000,
 #' @rdname calibration
 #' @export
 summary_calibration_party <- function(calib_run_party, alpha_r = 0.05) {
-    cal_summary <- calib_run_party %>% group_by(n_sim) %>%
-        summarise(mean_post = mean(n_votes),
+    cal_summary <- calib_run_party %>% 
+        dplyr::group_by(n_sim) %>%
+        dplyr::summarise(mean_post = mean(n_votes),
             inf = mean(n_votes) - 2 * sd(n_votes),
             sup = mean(n_votes) + 2 * sd(n_votes),
             actual_votes = actual_votes[1])
     # plot
-    plot_calib <- ggplot(cal_summary, aes(x = factor(n_sim),
-        y = mean_post, ymin = inf, ymax = sup)) +
-        geom_hline(aes(yintercept = actual_votes[1]), colour = "red") +
-        geom_hline(aes(yintercept = mean(cal_summary$mean_post))) +
-        geom_point() + geom_linerange()
+    plot_calib <- ggplot2::ggplot(cal_summary, 
+        ggplot2::aes(x = factor(n_sim), y = mean_post, ymin = inf, 
+            ymax = sup)) +
+        ggplot2::geom_hline(ggplot2::aes(yintercept = actual_votes[1]), 
+            colour = "red") +
+        ggplot2::geom_hline(ggplot2::aes(yintercept = 
+                mean(cal_summary$mean_post))) +
+        ggplot2::geom_point() + ggplot2::geom_linerange()
     # coverage report
     coverage_report <- cal_summary %>%
-        summarise(coverage = mean(inf < actual_votes & sup > actual_votes))
+        dplyr::summarise(coverage = mean(inf < actual_votes & sup > actual_votes))
 
     list(plot = plot_calib, coverage = coverage_report)
 }

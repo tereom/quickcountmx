@@ -3,6 +3,9 @@
 #' The function fits a model using the \code{rstan} package and
 #' predicts proportional of votes for all candidates candidate in unobserved polling
 #' stations. Optionally the model can be fit with a stratified random sample
+#'
+#' @inheritParams mrp_estimation
+#' @param n_warmup burnin size
 #' @import methods
 #' @import Rcpp
 #' @import rstantools

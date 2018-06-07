@@ -3,6 +3,7 @@
 export(calibration_party)
 export(calibration_prop)
 export(mrp_estimation)
+export(mrp_estimation_stan)
 export(mrp_party_estimation)
 export(mrp_party_estimation_stan)
 export(pp_check)
