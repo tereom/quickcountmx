@@ -1,26 +1,14 @@
-#' @importFrom magrittr %>%
-#' @importFrom rlang !! !!! :=
-#' @import ggplot2
+#' Functions for estimating on election day July 1st, 2018
 #'
-table_frame <- dplyr::data_frame(estado = c("00","07", "11", "17"),
-    marco = c("marco_nal_2018", "marco_chis_2018",
-        "marco_gto_2018", "marco_mor_2018"),
-    candidatos =
-        list(c("RAC", "JAMK", "AMLO", "JHRC"),
-            c("JAAB", "RAAG", "RCEC", "LFCC", "JAOR"),
-            c("DSRV", "GSG", "FACG", "FRSP", "MBSL"),
-            c("VMCS", "JAMO", "MRGC", "NLMLC", "CBB", "JAVJ", "MRA", "FDH")), 
-    partidos = 
-        list(c("PAN_PRD_MC", "PRI_PVEM_PANAL", "PT_MORENA_PES", "JHRC"),
-            c("PAN_PRD_MC", "PRI_PNA", "PT_MORENA_PES", "PVEM_PCU_PMC", 
-                "JAOR"),
-            c("PAN_PRD_MC", "PRI", "PVEM", "PT_MORENA_PES", "PANAL"),
-            c("PAN_MC", "PRI", "PRD_PSD", "PVEM", "PT_MORENA_PES", "PANAL", 
-                "PH", "FDH"))
-)
-
+#' These functions are to be used on election day, for estimating national 
+#' election results and Governor election results in the States of Chiapas, 
+#' Guanajuato and Morelos. The functions can be used within an R session but 
+#' were created to be called autamtically. The output was creted to feed INE's 
+#' system.
+#' @name process_batch_election_day
+NULL
 write_results <- function(post_summary, file_name, team, table_frame_in, 
-    path_out){
+    path_out, path_results){
     EN <- stringr::str_sub(file_name, 10, 11)
     R <- stringr::str_sub(file_name, 12, 17)
     cod_party_candidatos <- table_frame_in %>% 
@@ -76,14 +64,29 @@ write_results <- function(post_summary, file_name, team, table_frame_in,
     
     readr::write_csv(tab_partidos, path = paste0(path_out, "/", team, 
                                                  EN, R, ".csv"))
-    readr::write_csv(tab_candidatos, path = paste0(path_out, "/", 
-                                                   team, EN, R, "_v2.csv"))
+    readr::write_csv(tab_partidos, path = paste0(path_results, "/", team, 
+        EN, R, ".csv"))
+    # readr::write_csv(tab_candidatos, path = paste0(path_out, "/", 
+    #                                                team, EN, R, "_v2.csv"))
 }
-
-#' @export
-process_batch <- function(path_name, file_name, path_out, team = "default", 
-    n_iter = 1500, n_burnin = 500, n_chains = 1, parallel = TRUE){
+#' @param path_name Path to a file that will be used for estimation. On election
+#' day it will be a file with a subset of the sample.
+#' @param file_name Name of the file with the data.
+#' @param path_results Path to the directory where partial results will be 
+#' saved.
+#' @param path_out Path to directory where diagnostics, partial results, and 
+#' data will be saved. Data is included in case there is need of additional 
+#' checks.
+#' @param team Name of team running the model, to be used in INE reports.
+#' @inheritParams mrp_estimation
+#'
+#' @rdname process_batch_election_day
+process_batch <- function(path_name, file_name, path_out, path_results, 
+    team = "default", n_iter = 1500, n_burnin = 500, n_chains = 1,
+    parallel = TRUE){
     print(team)
+    table_frame <- get(data(list = "table_frame_2018", 
+        package = "quickcountmx"))
     all_data_filename = paste0(path_out, "/remesas.rds")
     new_name <- paste0(path_out, "/procesado_", file_name, ".rds")
     data_in <- readr::read_delim(path_name, "|", escape_double = FALSE,
@@ -173,14 +176,17 @@ process_batch <- function(path_name, file_name, path_out, team = "default",
         y = conteo_sim, group=partido,
         colour=partido)) +
         ggplot2::geom_line(colour = "salmon") +
-        ggplot2::theme_bw() + ggplot2::labs(title = "Simulaciones MCMC de conteos totales") +
+        ggplot2::theme_bw() + 
+        ggplot2::labs(title = "Simulaciones MCMC de conteos totales") +
         ggplot2::scale_y_log10()
     ggplot2::ggsave(paste0(path_out,"/counts-", file_name, ".png"))
     write_results(post_summary = fit$post_summary, file_name = file_name, 
-        team = team, table_frame_in = table_frame_in, path_out = path_out)
+        team = team, table_frame_in = table_frame_in, path_out = path_out, 
+        path_results = path_results)
 }
-#' @export
-process_batch_stan <- function(path_name, file_name, path_out, team = "default"){
+#' @rdname process_batch_election_day
+process_batch_stan <- function(path_name, file_name, path_out, path_results,
+    team = "default", n_iter = 1500, n_warmup = 250, n_chains = 1){
     all_data_filename = paste0(path_out, "/remesas.rds")
     new_name <- paste0(path_out, "/procesado_", file_name, ".rds")
     data_in <- readr::read_delim(path_name, "|", escape_double = FALSE,
@@ -211,8 +217,8 @@ process_batch_stan <- function(path_name, file_name, path_out, team = "default")
     if(estado_str == "00") {
         fit_time <- system.time(
             fit <- mrp_estimation_stan(data_out, 
-                stratum = estrato, n_iter = 500,
-                n_warmup = 250, n_chains = 1, model_string="neg_binomial_edo")
+                stratum = estrato, n_iter = n_iter, n_warmup = n_warmup, 
+                n_chains = n_chains, model_string = "neg_binomial_edo")
         )
     }
     print(fit_time)
@@ -234,37 +240,14 @@ process_batch_stan <- function(path_name, file_name, path_out, team = "default")
         dplyr::group_by(index) %>% 
         dplyr::mutate(no_sim = 1:n()) %>% 
         dplyr::left_join(fit$orden)
-    #readr::write_csv()
-    # extract deviance and counts simulations
-    # log_like_sims <- lapply(1:length(fit$jags_fit), function(i){
-    #   fit$jags_fit[[i]]$BUGSoutput$sims.list$deviance
-    # })
-    # names(log_like_sims) <- names(fit$jags_fit)
-    # df_ll <- as.data.frame(log_like_sims)
-    # df_ll$no_sim <- 1:nrow(df_ll)
-    # df_ll_long <- df_ll %>% tidyr::gather(partido, loglike, -no_sim)
-    # vote counts
-    # counts_sims <- lapply(1:length(fit$jags_fit), function(i){
-    #   sims_1 <- apply(fit$jags_fit[[i]]$BUGSoutput$sims.list$x, 1, sum)
-    #   sims_1
-    # })
-    # names(counts_sims) <- names(fit$jags_fit)
-    # df_cts <- as.data.frame(counts_sims)
-    # df_cts$no_sim <- 1:nrow(df_cts)
-    # df_cts_long <- df_cts %>% tidyr::gather(partido, conteo_sim, -no_sim)
-    
-    # # graphs
-    # ggplot2::ggplot(df_ll_long, ggplot2::aes(x=no_sim, y = loglike)) +
-    #   ggplot2::geom_line(colour = "salmon") +
-    #   ggplot2::facet_wrap(~partido, ncol=1, scales = "free_y")+
-    #   ggplot2::theme_bw() + ggplot2::labs(title = "Simulaciones MCMC de devianza")
-    # ggplot2::ggsave(paste0(path_out,"/deviance-", file_name, ".png"))
     gr_cts <- ggplot2::ggplot(chains, ggplot2::aes(x=no_sim, y = y, group=areas,
         colour=factor(areas))) +
         ggplot2::geom_line() +
-        ggplot2::theme_bw() + ggplot2::labs(title = "Simulaciones MCMC de conteos totales") +
+        ggplot2::theme_bw() + 
+        ggplot2::labs(title = "Simulaciones MCMC de conteos totales") +
         ggplot2::facet_wrap(~partidos)
     ggplot2::ggsave(paste0(path_out,"/counts-", file_name, ".png"))
     write_results(post_summary = fit$post_summary, file_name = file_name, 
-        team = team, table_frame_in = table_frame_in, path_out = path_out)
+        team = team, table_frame_in = table_frame_in, path_out = path_out, 
+        path_results = path_results)
 }
