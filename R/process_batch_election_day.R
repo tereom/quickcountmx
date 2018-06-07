@@ -189,6 +189,8 @@ process_batch <- function(path_name, file_name, path_out, path_results,
 #' @rdname process_batch_election_day
 process_batch_stan <- function(path_name, file_name, path_out, path_results,
     team = "default", n_iter = 1500, n_warmup = 250, n_chains = 1){
+    table_frame <- get(data(list = "table_frame_2018", 
+                            package = "quickcountmx"))
     all_data_filename = paste0(path_out, "/remesas.rds")
     new_name <- paste0(path_out, "/procesado_", file_name, ".rds")
     data_in <- readr::read_delim(path_name, "|", escape_double = FALSE,
@@ -207,10 +209,6 @@ process_batch_stan <- function(path_name, file_name, path_out, path_results,
     data_out <- data_in %>% dplyr::mutate(id =
             stringr::str_c(iD_ESTADO, SECCION, ID_CASILLA, TIPO_CASILLA,
                 EXT_CONTIGUA, sep = "-")) 
-    #%>%
-    #dplyr::mutate(OTROS = NULOS + CNR) %>%
-    #dplyr::select(id, dplyr::one_of(candidatos)) %>%
-    #dplyr::right_join(marco)
     
     #######################
     saveRDS(data_out, file = new_name)
