@@ -30,12 +30,13 @@ def procesar_nombre(filename):
 def main(argv):
   data_path = argv[0]
   path_out = argv[1]
-  wait_sec = argv[2]
+  path_results = argv[2]
+  wait_sec = argv[3]
   last = 0
   team = "default"
-  if(len(argv)>3):
-    team = argv[3]
-  if(len(argv)==5):
+  if(len(argv) > 4):
+    team = argv[4]
+  if(len(argv) == 6):
     last = 1  
   if not os.path.exists(path_out):
     os.makedirs(path_out)
@@ -58,7 +59,7 @@ def main(argv):
         print(descriptores)
         if(descriptores["tipo"] == "REMESAS"):
           full_path = data_path + "/" + filename
-          subprocess.call(["r", "-e", "quickcountmx:::process_batch_stan('" +full_path+"','"+descriptores['nombre']+"','"+path_out+"','"+team+"')"])
+          subprocess.call(["r", "-e", "quickcountmx:::process_batch_stan('" +full_path+"','"+descriptores['nombre']+"','"+path_out+"','"+path_results+"','"+team+"')"])
     else:
       print('.', end = '', flush = True)
     files_before = files_now
