@@ -1,10 +1,10 @@
-#' Functions for estimating on election day July 1st, 2018
+#' Functions for estimating on election day
 #'
-#' These functions are to be used on election day, for estimating national 
-#' election results and Governor election results in the States of Chiapas, 
-#' Guanajuato and Morelos. The functions can be used within an R session but 
-#' were created to be called autamtically. The output was creted to feed INE's 
-#' system.
+#' These functions are to be used on election day (July 1st, 2018), for 
+#' estimating national election results and Governor election results in the 
+#' States of Chiapas, Guanajuato and Morelos. The functions can be used within 
+#' an R session but were created to be called autamtically by a Python script. 
+#' The output was creted to feed INE's system.
 #' @seealso \code{\link{mrp_estimation}}, \code{\link{mrp_party_estimation}}, 
 #'   \code{\link{marco_2018}}
 #' @name process_batch_election_day
