@@ -7,7 +7,7 @@
 \title{Functions for estimating on election day}
 \usage{
 process_batch(path_name, file_name, path_out, path_results, team = "default",
-  n_iter = 2500, n_burnin = 1000, n_chains = 1, parallel = TRUE)
+  n_iter = 3500, n_burnin = 2500, n_chains = 1, parallel = TRUE)
 
 process_batch_stan(path_name, file_name, path_out, path_results,
   team = "default", n_iter = 500, n_warmup = 200, n_chains = 1)
