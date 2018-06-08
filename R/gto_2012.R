@@ -46,7 +46,6 @@
 #' }
 #' @source \url{https://cartografia.ife.org.mx}
 "gto_2012"
-
 # gto <- readr::read_delim("~/Documents/GitHub/ine_cotecora/datos/Resultados electorales estatales/_11_Guanajuato_2012.txt",
 #     "|", escape_double = FALSE, trim_ws = TRUE, locale = readr::locale(encoding = "ISO-8859-1"))
 # gto_2012 <- gto %>%

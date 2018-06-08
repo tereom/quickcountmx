@@ -23,18 +23,10 @@ mrp_estimation_stan <- function(data, stratum,
     # get variables
     stratum_enquo <- dplyr::enquo(stratum)
     #parties <- dplyr::quos(...)
-    
     # choose stratum grouping and order of run
-    nal_2012 <- get(data(list = "nal_2012", package = "quickcountmx"))
-    orden_estados <- nal_2012 %>% dplyr::group_by(region) %>%
-        dplyr::summarise(prd = sum(prd_pt_mc)/sum(total)) %>%
-        dplyr::arrange(prd)
-    estados_1 <- orden_estados$region
-    regiones <- dplyr::data_frame(
-        area = c(rep(1, 7), rep(2,6), rep(3,6), rep(4,4), rep(5,5), rep(6, 4)),
-        region = estados_1)
+    regiones <- get(data(list = "regiones", package = "quickcountmx"))
     data_split <- data %>% 
-        dplyr::left_join(regiones, by = c("iD_ESTADO" = "region"))
+        dplyr::left_join(regiones, by = c("iD_ESTADO" = "id_estado"))
     data_split$OTROS <- data_split$CNR + data_split$NULOS
     marco_nal_2018 <- get(data(list = "marco_nal_2018", package = "quickcountmx"))
     ### CORREGIR #############
