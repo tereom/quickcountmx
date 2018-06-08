@@ -85,7 +85,7 @@ write_results <- function(post_summary, file_name, team, table_frame_in,
 #' @rdname process_batch_election_day
 #' @export
 process_batch <- function(path_name, file_name, path_out, path_results, 
-    team = "default", n_iter = 2500, n_burnin = 1000, n_chains = 1,
+    team = "default", n_iter = 3000, n_burnin = 2000, n_chains = 1,
     parallel = TRUE){
     print(team)
     table_frame <- get(data(list = "table_frame_2018", 
