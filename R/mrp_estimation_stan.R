@@ -33,7 +33,7 @@ mrp_estimation_stan <- function(data, stratum,
     marco_nal_2018 <- dplyr::filter(marco_nal_2018, !is.na(rural))
     #########################
     marco_split <- marco_nal_2018 %>% 
-        dplyr::left_join(regiones, by ="region")
+        dplyr::left_join(regiones, by ="id_estado")
     
     partidos <- c("RAC", "JAMK", "AMLO", "JHRC", "OTROS")
     orden <- expand.grid(partidos = partidos, areas = unique(regiones$area),
