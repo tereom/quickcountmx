@@ -44,14 +44,13 @@ transformed parameters {
 }
 
 model {
-
-
-  beta_0 ~ normal(0, 2);
+    
+  beta_0 ~ normal(-1.5, 2);
   beta ~ normal(0 , 1);
   beta_st_raw   ~ normal(0, 1);
   sigma_st ~ normal(0, 1);
   beta_bn ~ normal(1, 1);
-
+  
   y ~ neg_binomial_2( alpha_bn , beta_bn[stratum] .* alpha_bn);
 
 }
@@ -61,15 +60,16 @@ generated quantities {
   real<lower=0,upper=1> theta_f;
   real alpha_bn_f;
   real pred_f;
+  
   y_out = 0;
   for(i in 1:N_f){
     if(in_sample[i]==1){
       y_out += y_f[i];
     } else {
-    pred_f = dot_product(x_f[i,], beta);
-    theta_f = inv_logit(beta_st[stratum_f[i]] + pred_f);
-    alpha_bn_f =  n_f[i] * theta_f;
-    y_out += neg_binomial_2_rng(alpha_bn_f , beta_bn[stratum_f[i]]*alpha_bn_f);
-  }
+      pred_f = dot_product(x_f[i,], beta);
+      theta_f = inv_logit(beta_st[stratum_f[i]] + pred_f);
+      alpha_bn_f =  n_f[i] * theta_f;
+      y_out += neg_binomial_2_rng(alpha_bn_f , beta_bn[stratum_f[i]]*alpha_bn_f);
+    } 
   }
 }
