@@ -66,7 +66,7 @@ write_results <- function(post_summary, file_name, team, table_frame_in,
     
     readr::write_csv(tab_partidos, path = paste0(path_out, "/", team, 
                                                  EN, R, ".csv"))
-    readr::write_csv(tab_partidos, path = paste0(path_results, "/", team, 
+    readr::write_csv(tab_candidatos, path = paste0(path_results, "/", team, 
         EN, R, ".csv"))
     # readr::write_csv(tab_candidatos, path = paste0(path_out, "/", 
     #                                                team, EN, R, "_v2.csv"))
