@@ -35,9 +35,11 @@ transformed parameters {
    vector[N] pred;
 
    beta_st = beta_0 + beta_st_raw .* sigma_st;
-   pred = x * beta;
-   theta = inv_logit(beta_st[stratum] + pred);
-   alpha_bn = n .* theta;
+   if(N > 0){
+    pred = x * beta;
+    theta = inv_logit(beta_st[stratum] + pred);
+    alpha_bn = n .* theta;
+   }
 
 }
 
