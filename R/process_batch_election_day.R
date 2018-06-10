@@ -110,7 +110,7 @@ process_batch <- function(path_name, file_name, path_out, path_results,
     tam_muestra <- table_frame_in$tam_muestra[1]
     if(nrow(data_in) > tam_muestra){
         print(paste0("Muestreando fracción ", tam_muestra/nrow(data_in)))
-        data_in <- quickcountmx::select_sample_prop(data_in, estrato, 
+        data_in <- quickcountmx::select_sample_prop(data_in, 
             frac = tam_muestra/nrow(data_in), seed = 187)
     }
     
