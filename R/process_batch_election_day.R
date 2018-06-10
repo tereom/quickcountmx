@@ -105,21 +105,22 @@ process_batch <- function(path_name, file_name, path_out, path_results,
     marco <- get(data(list = marco_name, package = "quickcountmx"))
     # get id
     #print(head(data_in))
+    #######################
+    # CODE FOR DRILL
+    tam_muestra <- table_frame_in$tam_muestra[1]
+    if(nrow(data_in) > tam_muestra){
+        print(paste0("Muestreando fracción ", tam_muestra/nrow(data_in)))
+        data_in <- quickcountmx::select_sample_prop(data_in, estrato, 
+            frac = tam_muestra/nrow(data_in), seed = 187)
+    }
+    
     data_out <- data_in %>% dplyr::mutate(id =
             stringr::str_c(iD_ESTADO, SECCION, ID_CASILLA, TIPO_CASILLA,
                 EXT_CONTIGUA, sep = "-")) %>%
         dplyr::mutate(OTROS = NULOS + CNR) %>%
         dplyr::select(id, dplyr::one_of(candidatos)) %>%
         dplyr::right_join(marco)
-    
-    #######################
-    # CODE FOR DRILL
-    tam_muestra <- table_frame_in$tam_muestra[1]
-    if(nrow(data_out) > tam_muestra){
-        print(paste0("Muestreando fracción ", tam_muestra/nrow(data_out)))
-        data_out <- quickcountmx::select_sample_prop(data_out, estrato, 
-                        frac = tam_muestra/nrow(data_out), seed = 187)
-    }
+
     
     #######################
     saveRDS(data_out, file = new_name)
