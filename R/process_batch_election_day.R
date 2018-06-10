@@ -116,7 +116,7 @@ process_batch <- function(path_name, file_name, path_out, path_results,
             id = stringr::str_c(iD_ESTADO, SECCION, ID_CASILLA, TIPO_CASILLA,
                     EXT_CONTIGUA, sep = "-")) %>% 
             dplyr::left_join(marco_aux, by = "id") %>% 
-            quickcountmx::select_sample_prop(data_in, stratum = estrato,
+            quickcountmx::select_sample_prop(stratum = estrato,
                 frac = tam_muestra/nrow(data_in), seed = 187) %>% 
             dplyr::select(-estrato)
     }
