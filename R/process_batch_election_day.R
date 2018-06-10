@@ -118,10 +118,14 @@ process_batch <- function(path_name, file_name, path_out, path_results,
             dplyr::left_join(marco_aux, by = "id") %>% 
             quickcountmx::select_sample_prop(stratum = estrato,
                 frac = tam_muestra/nrow(data_in), seed = 187) %>% 
-            dplyr::select(-estrato)
+            dplyr::ungroup() %>% 
+            dplyr::select(-estrato, -id)
     }
     
-    data_out <- data_in %>%
+    data_out <- data_in %>% 
+        dplyr::mutate( 
+            id = stringr::str_c(iD_ESTADO, SECCION, ID_CASILLA, TIPO_CASILLA,
+                EXT_CONTIGUA, sep = "-")) %>%
         dplyr::mutate(OTROS = NULOS + CNR) %>%
         dplyr::select(id, dplyr::one_of(candidatos)) %>%
         dplyr::right_join(marco)
