@@ -14,5 +14,5 @@
 #             c("PAN_PRD_MC", "PRI", "PVEM", "PT_MORENA_PES", "PANAL"),
 #             c("PAN_MC", "PRI", "PRD_PSD", "PVEM", "PT_MORENA_PES", "PANAL",
 #                 "PH", "FDH")),
-#     tam_muestra = c(7500, 300, 500, 300)
+#     tam_muestra = c(7500, 500, 500, 200)
 # )
