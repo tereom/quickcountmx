@@ -9,7 +9,7 @@
 #             c("VMCS", "JAMO", "MRGC", "NLMLC", "CBB", "JAVJ", "MRA", "FDH")),
 #     partidos =
 #         list(c("PAN_PRD_MC", "PRI_PVEM_PANAL", "PT_MORENA_PES", "JHRC"),
-#             c("PAN_PRD_MC", "PRI_PNA", "PT_MORENA_PES", "PVEM_PCU_PMC",
+#             c("PAN_PRD_MC", "PRI_PANAL", "PT_MORENA_PES", "PVEM_PCU_PMC",
 #                 "JAOR"),
 #             c("PAN_PRD_MC", "PRI", "PVEM", "PT_MORENA_PES", "PANAL"),
 #             c("PAN_MC", "PRI", "PRD_PSD", "PVEM", "PT_MORENA_PES", "PANAL",
