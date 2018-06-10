@@ -221,6 +221,15 @@ process_batch_stan <- function(path_name, file_name, path_out, path_results,
                 EXT_CONTIGUA, sep = "-")) 
     
     #######################
+    # CODE FOR DRILL
+    tam_muestra <- table_frame_in$tam_muestra[1]
+    if(nrow(data_out) > tam_muestra){
+        data_out <- quickcountmx::select_sample_prop(data_out, estrato, 
+            frac = tam_muestra/nrow(data_out), seed = 187)
+    }
+    
+    #######################
+    #######################
     saveRDS(data_out, file = new_name)
     
     # run model ###################
