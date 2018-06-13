@@ -141,7 +141,7 @@ mrp_estimation_stan <- function(data, stratum,
             std_dev_post = 100 * sd(prop)) %>%
         dplyr::ungroup() %>%
         dplyr::mutate(
-            int_l = pmin(100, pmax(0, mean_post - 2* std_dev_post)),
+            int_l = pmin(100, pmax(0, mean_post - 2 * std_dev_post)),
             int_r = pmin(100, mean_post + 2 * std_dev_post)) %>%
         dplyr::arrange(desc(mean_post))
     list(fit = models_party, post_summary = resumen, orden = orden)
