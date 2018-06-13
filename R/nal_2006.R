@@ -9,9 +9,9 @@
 #' @source \url{https://cartografia.ife.org.mx}
 "nal_2006"
 # library(tidyverse)
-# nal_2006_raw <- read_delim(fs::path_join(c("~/Documents/GitHub/ine_cotecora/", 
-#     "datos/Computos2006-Presidente__con_EDMS_2017-1.txt")), "|", 
-#     escape_double = FALSE, trim_ws = TRUE) %>% 
+# nal_2006_raw <- read_delim(fs::path_join(c("~/Documents/GitHub/ine_cotecora/",
+#     "datos/Computos2006-Presidente__con_EDMS_2017-1.txt")), "|",
+#     escape_double = FALSE, trim_ws = TRUE) %>%
 #     rename(PANAL = X19)
 # nal_2006 <- nal_2006_raw %>%
 #     dplyr::mutate(
@@ -35,7 +35,7 @@
 #         prd_pt_conv = PBT,
 #         psd = ASDC,
 #         otros = NO_VOTOS_NULOS + NO_VOTOS_CAN_NREG,
-#         total = pri_pvem + pan + panal + prd_pt_conv + otros,
+#         total = pri_pvem + pan + panal + prd_pt_conv + psd + otros,
 #         ln = LISTA_NOMINAL
 #     ) %>%
 #     dplyr::group_by(region, seccion) %>%
@@ -53,4 +53,5 @@
 #         ln_total = ifelse(ln == 0, total, ln),
 #         estrato = as.numeric(factor(str_c(ID_ESTADO, DISTRITO, sep = "-")))
 #     )  %>%
-#     dplyr::select(casilla_id:ln, tamano_md:ln_total, estrato)
+#     dplyr::select(casilla_id:ln, tamano_md:ln_total, estrato) %>% 
+#     filter(!is.na(pan))
