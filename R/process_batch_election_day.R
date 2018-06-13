@@ -27,7 +27,8 @@ write_results <- function(post_summary, file_name, team, table_frame_in,
         dplyr::rename(candidatos = party) %>% 
         dplyr::select(-mean_post, -std_dev_post)
     
-    tab_partidos <- tab_base %>% dplyr::select(-candidatos) %>% 
+    tab_partidos <- tab_base %>% 
+        dplyr::select(-candidatos) %>% 
         tidyr::gather(LMU, value, -partidos) %>% 
         dplyr::mutate(
             EQ = team, 
@@ -227,8 +228,9 @@ process_batch_stan <- function(path_name, file_name, path_out, path_results,
     marco <- get(data(list = marco_name, package = "quickcountmx"))
     # get id
     #print(head(data_in))
-    data_out <- data_in %>% dplyr::mutate(id =
-            stringr::str_c(iD_ESTADO, SECCION, ID_CASILLA, TIPO_CASILLA,
+    data_out <- data_in %>% 
+        dplyr::mutate(
+            id =stringr::str_c(iD_ESTADO, SECCION, ID_CASILLA, TIPO_CASILLA,
                 EXT_CONTIGUA, sep = "-")) %>%
         dplyr::left_join(marco %>% dplyr::select(id, estrato))
     
