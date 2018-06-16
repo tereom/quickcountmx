@@ -40,6 +40,8 @@ def main(argv):
     last = 1  
   if not os.path.exists(path_out):
     os.makedirs(path_out)
+  if not os.path.exists(path_results):
+    os.makedirs(path_results)
   print("Observando " + data_path + " cada "+ wait_sec + " segundos.")
   files_before = [f for f in os.listdir(data_path) if f[:7] == "REMESAS"]
   files_before.sort()
