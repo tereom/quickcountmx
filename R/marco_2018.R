@@ -12,20 +12,20 @@
 "marco_gto_2018"
 "marco_mor_2018"
 # library(tidyverse)
-# marco erwin incluye 2 anteriores?
-# marco_erwin <- readr::read_csv(fs::path_join(c("~/Documents/GitHub/ine_cotecora/",
-#     "datos/LISTAD0_CASILLAS_2018.csv")))
+# # marco al 20 de junio
+# marco_erwin <- readr::read_csv(fs::path_join(c("~/Documents/GitHub/",
+#     "ine_cotecora/datos/LISTADO_CASILLAS_20_JUNIO_DEOE.csv")))
 # 
 # marco_nal_2018_aux <- marco_erwin
 # 
 # marco_nal_2018 <- marco_nal_2018_aux %>%
 #     mutate(
-#         id = stringr::str_c(ID_ESTADO, SECCION, ID_CASILLA, TIPO_CASILLA,
+#         id = stringr::str_c(iD_ESTADO, SECCION, ID_CASILLA, TIPO_CASILLA,
 #             EXT_CONTIGUA, sep = "-"),
-#         distrito_loc = ID_DIST_L, distrito_fed = ID_DISTRITO) %>%
+#         distrito_loc = ID_DIST_LOC, distrito_fed = ID_DISTRITO_FEDERAL) %>%
 #     dplyr::mutate(
 #         casilla_id = 1:n(),
-#         id_estado = ID_ESTADO,
+#         id_estado = iD_ESTADO,
 #         seccion = SECCION,
 #         tipo_seccion = TIPO_SECCION,
 #         estrato = ID_ESTRATO_F,
@@ -51,11 +51,11 @@
 #         tamano_gd = (tamano == 3) * 1,
 #         region = id_estado,
 #         casilla_ex = (casilla == "E") * 1,
-#         rural = (tipo_seccion == 4) * 1,
+#         rural = (tipo_seccion == 3) * 1,
 #         ln_total = ifelse(ln == 0, 750, ln)
 #     ) %>%
 #     dplyr::select(id, casilla_id, id_estado, distrito_loc, distrito_fed,
-#         seccion:ln_total) %>% 
+#         seccion:ln_total) %>%
 #     dplyr::filter(!is.na(rural))
 # 
 # marco_gto_2018 <- marco_nal_2018 %>%
