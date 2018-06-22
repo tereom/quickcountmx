@@ -97,7 +97,7 @@ model_bern_t <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
             tau_mix[k] <- b[k] * tau[estrato[k]] / n[k] + (1 - b[k]) * 10000
             nu_mix[k] <- b[k] * nu[estrato[k]] + (1 - b[k]) * 100
 
-            x[k] ~ dt(mu_mix[k], tau_mix[k] , nu_mix[k]) T(0, 750)
+            x[k] ~ dt(mu_mix[k], tau_mix[k] , nu_mix[k]) T(0, 780)
             theta[k] <- ilogit(beta_0 + beta_rural * rural[k] +
                 beta_rural_tamano_md * rural[k] * tamano_md[k] +
                 beta_estrato_raw[estrato[k]] +
