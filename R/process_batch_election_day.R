@@ -207,6 +207,11 @@ process_batch <- function(path_name, file_name, path_out, path_results,
         team = team, table_frame_in = table_frame_in, path_out = path_out, 
         path_results = path_results)
 }
+process_batch_long <- function(path_name, file_name, path_out, path_results, 
+    team = "default", parallel = TRUE){
+    process_batch(path_name = path_name, file_name = file_name, 
+        path_results = path_results, team = team)
+}
 #' @rdname process_batch_election_day
 #' @export
 process_batch_stan <- function(path_name, file_name, path_out, path_results,
