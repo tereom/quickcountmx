@@ -48,9 +48,9 @@
 #' @source \url{https://cartografia.ife.org.mx}
 "chis_2012"
 #'
-# chiapas_2012 <- read_delim("~/Dropbox/COTECORA 2017-2018/Resultados electorales estatales/_07_Chiapas_2012.txt",
+# chiapas_2012 <- read_delim("~/Dropbox/COTECORA 2017-2018/Resultados electorales/Resultados electorales estatales/_07_Chiapas_2012.txt",
 #     "|", escape_double = FALSE, trim_ws = TRUE)
-#
+# 
 # chis_2012 <- chiapas_2012 %>%
 #     mutate(
 #         casilla_id = 1:n(),
@@ -97,6 +97,8 @@
 #         ),
 #         casilla_ex = (casilla == "E") * 1,
 #         rural = dplyr::case_when(tipo_seccion == "R" ~ 1, TRUE ~ 0),
-#         ln_total = ifelse(ln == 0, total, ln)
+#         ln_total = ifelse(ln == 0, 750, ln)
 #     )  %>%
-#     dplyr::select(casilla_id:ln, tamano_md:ln_total)
+#     dplyr::select(casilla_id:ln, tamano_md:ln_total) %>%
+#     filter(!is.na(estrato))
+
