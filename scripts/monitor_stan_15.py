@@ -58,7 +58,7 @@ def main(argv):
       for filename in added:
         descriptores = procesar_nombre(filename)
         print(descriptores)
-        if(descriptores["tipo"] == "REMESAS" and (descriptores["fecha"][-2,] in min_seleccionados)):
+        if(descriptores["tipo"] == "REMESAS" and (descriptores["fecha"][4:6] in min_seleccionados)):
           full_path = data_path + "/" + filename
           subprocess.call(["r", "-e", "quickcountmx:::process_batch_stan('" +full_path+"','"+descriptores['nombre']+"','"+path_out+"','"+path_results+"','"+team+"')"])
     else:
