@@ -4,7 +4,7 @@
 #' each row corresponds to a polling station and the variables include the
 #' total counts per party.
 #'
-#' @format A data frame with 5474 rows and 22 variables:
+#' @format A data frame with 5448 rows and 23 variables:
 #' #' \describe{
 #'   \item{casilla_id}{Numeric identifier of the polling station.}
 #'   \item{distrito_fed_17, distrito_fed_12}{Federal district, the districts
@@ -48,9 +48,12 @@
 #' @source \url{https://cartografia.ife.org.mx}
 "chis_2012"
 #'
+# # datos INE
 # chiapas_2012 <- read_delim("~/Dropbox/COTECORA 2017-2018/Resultados electorales/Resultados electorales estatales/_07_Chiapas_2012.txt",
 #     "|", escape_double = FALSE, trim_ws = TRUE)
 # 
+# # datos Gian Carlo
+# chiapas_2012 <- read.csv("~/Documents/GitHub/ine_cotecora/datos/Chiapas2012.csv")
 # chis_2012 <- chiapas_2012 %>%
 #     mutate(
 #         casilla_id = 1:n(),
@@ -97,8 +100,10 @@
 #         ),
 #         casilla_ex = (casilla == "E") * 1,
 #         rural = dplyr::case_when(tipo_seccion == "R" ~ 1, TRUE ~ 0),
-#         ln_total = ifelse(ln == 0, 750, ln)
+#         ln_total = ifelse(ln == 0, 750, ln),
+#         ln_total = ifelse(is.na(ln), 750, ln_total)
 #     )  %>%
 #     dplyr::select(casilla_id:ln, tamano_md:ln_total) %>%
-#     filter(!is.na(estrato))
+#     filter(!is.na(estrato), !is.na(tipo_seccion))
+
 
