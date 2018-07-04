@@ -27,12 +27,18 @@ mrp_estimation_stan <- function(data, stratum,
     #parties <- dplyr::quos(...)
     # choose stratum grouping and order of run
     regiones <- get(data(list = "regiones", package = "quickcountmx"))
+    if("edo_id" %in% names(data)){
+        data$iD_ESTADO <- data$edo_id
+    }
     data_split <- data %>% 
         dplyr::left_join(regiones, by = c("iD_ESTADO" = "id_estado"))
     data_split$OTROS <- data_split$CNR + data_split$NULOS
-    marco_nal_2018 <- get(data(list = frame_name, package = "quickcountmx"))
+    marco_nal <- get(data(list = frame_name, package = "quickcountmx"))
+    if("edo_id" %in% names(marco_nal){
+        marco_nal$iD_ESTADO <- marco_nal$edo_id   
+     }
     #########################
-    marco_split <- marco_nal_2018 %>% 
+    marco_split <- marco_nal %>% 
         dplyr::left_join(regiones, by ="id_estado")
     
     orden <- expand.grid(partidos = partidos, areas = unique(regiones$area),
