@@ -6,7 +6,8 @@
 \usage{
 mrp_estimation_stan(data, stratum, n_iter = 500, n_warmup = 250,
   n_chains = 1, seed = NA, model_string = NULL,
-  set_strata_na = integer(0))
+  set_strata_na = integer(0), partidos = c("RAC", "JAMK", "AMLO", "JHRC",
+  "OTROS"), frame_name = "marco_nal_2018")
 }
 \arguments{
 \item{data}{A \code{data.frame} with variables: ln_total, region,
