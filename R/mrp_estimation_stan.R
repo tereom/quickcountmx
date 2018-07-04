@@ -32,7 +32,10 @@ mrp_estimation_stan <- function(data, stratum,
     }
     data_split <- data %>% 
         dplyr::left_join(regiones, by = c("iD_ESTADO" = "id_estado"))
-    data_split$OTROS <- data_split$CNR + data_split$NULOS
+    otros_name <- partidos[length(partidos)]
+    if("CNR" %in% names(data_split)){
+        data_split[[otros_name]] <- data_split$CNR + data_split$NULOS
+    }
     marco_nal <- get(data(list = frame_name, package = "quickcountmx"))
     if("edo_id" %in% names(marco_nal)){
         marco_nal$iD_ESTADO <- marco_nal$edo_id   
