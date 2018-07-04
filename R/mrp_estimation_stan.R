@@ -16,7 +16,9 @@
 mrp_estimation_stan <- function(data, stratum, 
     n_iter = 500, n_warmup = 250, 
     n_chains = 1, seed = NA, model_string = NULL,
-    set_strata_na = integer(0)){
+    set_strata_na = integer(0), 
+    partidos = c("RAC", "JAMK", "AMLO", "JHRC", "OTROS"),
+    frame_name = "marco_nal_2018"){
     if (is.null(model_string)) {
         model_string <- "neg_binomial_edo"
     }
@@ -25,15 +27,23 @@ mrp_estimation_stan <- function(data, stratum,
     #parties <- dplyr::quos(...)
     # choose stratum grouping and order of run
     regiones <- get(data(list = "regiones", package = "quickcountmx"))
+    if("edo_id" %in% names(data)){
+        data$iD_ESTADO <- data$edo_id
+    }
     data_split <- data %>% 
         dplyr::left_join(regiones, by = c("iD_ESTADO" = "id_estado"))
-    data_split$OTROS <- data_split$CNR + data_split$NULOS
-    marco_nal_2018 <- get(data(list = "marco_nal_2018", package = "quickcountmx"))
+    otros_name <- partidos[length(partidos)]
+    if("CNR" %in% names(data_split)){
+        data_split[[otros_name]] <- data_split$CNR + data_split$NULOS
+    }
+    marco_nal <- get(data(list = frame_name, package = "quickcountmx"))
+    if("edo_id" %in% names(marco_nal)){
+        marco_nal$id_estado <- marco_nal$edo_id   
+     }
     #########################
-    marco_split <- marco_nal_2018 %>% 
+    marco_split <- marco_nal %>% 
         dplyr::left_join(regiones, by ="id_estado")
     
-    partidos <- c("RAC", "JAMK", "AMLO", "JHRC", "OTROS")
     orden <- expand.grid(partidos = partidos, areas = unique(regiones$area),
         stringsAsFactors = FALSE)
     orden <- orden %>% dplyr::as_tibble() %>% dplyr::mutate(index = 1:n())
@@ -70,6 +80,10 @@ mrp_estimation_stan <- function(data, stratum,
             dplyr::mutate(estrato_run = as.numeric(factor(estrato)))
         marco_run <- marco_run %>% 
             dplyr::left_join(data_split)
+        if(!("id" %in% names(marco_run))){
+            marco_run$id <- marco_run$casilla_id
+            data_run$id <- data_run$casilla_id
+            }
         data_run <- marco_run %>% 
             dplyr::filter(id %in% data_run$id) 
         
@@ -130,7 +144,7 @@ mrp_estimation_stan <- function(data, stratum,
     part_1 <- df_2 %>% dplyr::group_by(num) %>% 
         dplyr::summarise(votes = sum(votes)) %>%
         dplyr::mutate(party = "participacion") %>%
-        dplyr::mutate(total = sum(marco_nal_2018$ln)) %>%
+        dplyr::mutate(total = sum(marco_nal$ln)) %>%
         dplyr::mutate(prop =  votes/total)
     
     resumen <- df_2 %>% 
