@@ -17,7 +17,8 @@ mrp_estimation_stan <- function(data, stratum,
     n_iter = 500, n_warmup = 250, 
     n_chains = 1, seed = NA, model_string = NULL,
     set_strata_na = integer(0), 
-    partidos = c("RAC", "JAMK", "AMLO", "JHRC", "OTROS")){
+    partidos = c("RAC", "JAMK", "AMLO", "JHRC", "OTROS"),
+    frame_name = "marco_nal_2018"){
     if (is.null(model_string)) {
         model_string <- "neg_binomial_edo"
     }
@@ -29,7 +30,7 @@ mrp_estimation_stan <- function(data, stratum,
     data_split <- data %>% 
         dplyr::left_join(regiones, by = c("iD_ESTADO" = "id_estado"))
     data_split$OTROS <- data_split$CNR + data_split$NULOS
-    marco_nal_2018 <- get(data(list = "marco_nal_2018", package = "quickcountmx"))
+    marco_nal_2018 <- get(data(list = frame_name, package = "quickcountmx"))
     #########################
     marco_split <- marco_nal_2018 %>% 
         dplyr::left_join(regiones, by ="id_estado")
