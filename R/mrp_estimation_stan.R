@@ -16,7 +16,8 @@
 mrp_estimation_stan <- function(data, stratum, 
     n_iter = 500, n_warmup = 250, 
     n_chains = 1, seed = NA, model_string = NULL,
-    set_strata_na = integer(0)){
+    set_strata_na = integer(0), 
+    partidos = c("RAC", "JAMK", "AMLO", "JHRC", "OTROS")){
     if (is.null(model_string)) {
         model_string <- "neg_binomial_edo"
     }
@@ -33,7 +34,6 @@ mrp_estimation_stan <- function(data, stratum,
     marco_split <- marco_nal_2018 %>% 
         dplyr::left_join(regiones, by ="id_estado")
     
-    partidos <- c("RAC", "JAMK", "AMLO", "JHRC", "OTROS")
     orden <- expand.grid(partidos = partidos, areas = unique(regiones$area),
         stringsAsFactors = FALSE)
     orden <- orden %>% dplyr::as_tibble() %>% dplyr::mutate(index = 1:n())
