@@ -80,6 +80,10 @@ mrp_estimation_stan <- function(data, stratum,
             dplyr::mutate(estrato_run = as.numeric(factor(estrato)))
         marco_run <- marco_run %>% 
             dplyr::left_join(data_split)
+        if(!("id" %in% names(marco_run)){
+            marco_run$id <- marco_run$casilla_id
+            data_run$id <- data_run$casilla_id
+            }
         data_run <- marco_run %>% 
             dplyr::filter(id %in% data_run$id) 
         
