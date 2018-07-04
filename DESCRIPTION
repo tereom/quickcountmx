@@ -2,9 +2,7 @@ Package: quickcountmx
 Type: Package
 Title: Estimate Election Results Mexico
 Version: 0.1.0
-Description: Functions to simulate and estimate Mexican election results based 
-on a simple or stratified random sample, the functions were used, among other
-methodologies, to anticipate the final results of the 2018 Mexican elections.
+Description: Functions to simulate and estimate Mexican election results based on a simple or stratified random sample, the functions were used, among other methodologies, to anticipate the final results of the 2018 Mexican elections.
 Author@R: c(person("Teresa", "Ortiz", email = "teresa.ortiz.mancera@gmail.com", role = c("aut", "cre")), person("Felipe", "Gonzalez", email = "felipexgonzalez@gmail.com", role = c("aut", "cre")))
 URL: https://github.com/tereom/quickcountmx
 License: MIT + file LICENSE

@@ -4,7 +4,7 @@
 \name{chis_2012}
 \alias{chis_2012}
 \title{Governor electoral results for the State of Chiapas 2012.}
-\format{A data frame with 5474 rows and 22 variables:
+\format{A data frame with 5448 rows and 23 variables:
 #' \describe{
   \item{casilla_id}{Numeric identifier of the polling station.}
   \item{distrito_fed_17, distrito_fed_12}{Federal district, the districts

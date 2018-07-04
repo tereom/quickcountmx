@@ -21,7 +21,6 @@
 #' @details The functions are computationally demanding, they were designed
 #' to run on computers with more than 16 cores.
 #' @seealso \code{\link{mrp_estimation}}, \code{\link{mrp_party_estimation}}
-#' @examples 
 #' @return \code{data.frame} with posterior simulation of total votes (if using
 #'   \code{calibration_party}) or proportions (if using \code{calibration_prop})
 #'   for each repetiton of sample selection and model fitting.
