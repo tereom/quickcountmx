@@ -38,7 +38,7 @@ mrp_estimation_stan <- function(data, stratum,
     }
     marco_nal <- get(data(list = frame_name, package = "quickcountmx"))
     if("edo_id" %in% names(marco_nal)){
-        marco_nal$iD_ESTADO <- marco_nal$edo_id   
+        marco_nal$id_estado <- marco_nal$edo_id   
      }
     #########################
     marco_split <- marco_nal %>% 
