@@ -144,7 +144,7 @@ mrp_estimation_stan <- function(data, stratum,
     part_1 <- df_2 %>% dplyr::group_by(num) %>% 
         dplyr::summarise(votes = sum(votes)) %>%
         dplyr::mutate(party = "participacion") %>%
-        dplyr::mutate(total = sum(marco_nal_2018$ln)) %>%
+        dplyr::mutate(total = sum(marco_nal$ln)) %>%
         dplyr::mutate(prop =  votes/total)
     
     resumen <- df_2 %>% 
