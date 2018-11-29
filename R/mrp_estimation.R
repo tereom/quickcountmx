@@ -68,7 +68,7 @@ mrp_estimation <- function(data, ..., stratum, frac = 1, n_iter = 2000,
     }
     jags_fits <- purrr::map(parties_models, ~.$fit)
     votes_all <- purrr::map_df(parties_models, ~.$n_votes) %>%
-        dplyr::mutate(n_sim = 1:n()) %>%
+        dplyr::mutate(n_sim = 1:(dplyr::n())) %>%
         tidyr::gather(party, votes, -n_sim) %>%
         dplyr::group_by(n_sim) %>%
         dplyr::mutate(
@@ -76,7 +76,7 @@ mrp_estimation <- function(data, ..., stratum, frac = 1, n_iter = 2000,
             prop = votes / total
         )
     participation <- dplyr::data_frame(party = "participacion",
-        total = votes_all %>% dplyr::ungroup() %>% dplyr::pull(total),
+        total = votes_all %>% dplyr::ungroup() %>% dplyr::pull(total), 
         prop = total / sum(data$ln))
     post_summary <- votes_all %>%
         dplyr::bind_rows(participation) %>%
