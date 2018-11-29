@@ -91,7 +91,8 @@ select_sample_prop <- function(sampling_frame, stratum = stratum, frac,
         stratum <- dplyr::enquo(stratum)
         sample <- sampling_frame %>%
             dplyr::group_by(!!stratum) %>%
-            dplyr::sample_frac(size = frac, replace = replace)
+            dplyr::sample_frac(size = frac, replace = replace) %>% 
+            dplyr::ungroup()
     }
     return(sample)
 }

@@ -424,6 +424,7 @@ model_norm <- function(data_jags, n_chains, n_iter, n_burnin, seed_jags){
     model_string <-
         "
     model{
+<<<<<<< HEAD
         for(k in 1:N){
             x[k] ~ dnorm(n[k] * theta[k], tau / n[k]) T(0, 750)
             theta[k] <- ilogit(beta_0 + beta_rural * rural[k] +
