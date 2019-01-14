@@ -1,5 +1,3 @@
-
-
 data {
   int N; // number of stations
   int n_strata; 
