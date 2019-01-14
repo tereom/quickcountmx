@@ -4,29 +4,36 @@
 \alias{ratio_estimation}
 \title{Ratio estimator to compute proportion of votes allocated to each party}
 \usage{
-ratio_estimation(data, stratum, n_stratum, std_errors = TRUE, B = 50,
-  seed = NA, ...)
+ratio_estimation(data, stratum, data_stratum, n_stratum, ...,
+  std_errors = TRUE, B = 50, seed = NA)
 }
 \arguments{
 \item{data}{\code{data.frame}}
 
-\item{n_stratum}{unquoted variable indicating the number of polling stations
+\item{stratum}{Unquoted variable indicating the stratum for each polling
+station.}
+
+\item{data_stratum}{Data frame with stratum variable (named exactly as in 
+\code{data}) and number of polling stations per strata.}
+
+\item{n_stratum}{Unquoted variable indicating the number of polling stations
 in each stratum.}
 
-\item{std_errors}{binary value indicating whether to compute standard errors
-(bootstrap).}
+\item{...}{Unquoted variables indicating the number of votes in each polling
+station for each candidate.}
 
-\item{B}{number of bootstrap replicates used to compute standard errors.}
+\item{std_errors}{Logical value indicating whether to compute standard errors
+(using bootstrap), defaults to TRUE.}
+
+\item{B}{Number of bootstrap replicates used to compute standard errors, 
+defaults to 50.}
 
 \item{seed}{integer value used to set the state of the random number
 generator (optional). It will only be used when computing standard errors.}
-
-\item{...}{unquoted variables indicating the number of votes in each polling
-station for each candidate.}
 }
 \value{
-A \code{list} with the object fitted using R2jags::jags and the
-vector of simulated counts per candidate.
+A \code{data.frame} including the ratio estimation for each party 
+  and standard errors (if requested).
 }
 \description{
 Compute ratio estimator for each candidate, standard errors are computed
@@ -36,18 +43,17 @@ error of the samples (no corrections).
 \details{
 The bootstrap approach we use is not suitable
 when the number of sampled polling stations within a strata is small.
-Coverage might improve if confidence intervals are constructed with ABCs or
+Coverage might improve if confidence intervals are constructed with BCas or
 t-tables.
 }
 \examples{
 # count number of polling stations per stratum
+library(dplyr)
 gto_stratum_sizes <- gto_2012 \%>\%
     dplyr::group_by(distrito_loc_17) \%>\%
-    dplyr::mutate(n_stratum = n())
+    dplyr::summarise(n_stratum = n())
 # stratified random sample (size 6\%), sample size proportional to strata size
-gto_sample <- select_sample_prop(gto_stratum_sizes,
-stratum = distrito_loc_17, 0.06)
-gto_sample \%>\%
-    ratio_estimation(stratum = distrito_loc_17, n_stratum = n_stratum,
-    ... = pri_pvem:otros)
+gto_sample <- select_sample_prop(gto_2012, stratum = distrito_loc_17, 0.06)
+ratio_estimation(gto_sample, stratum = distrito_loc_17, 
+  data_stratum = gto_stratum_sizes, n_stratum = n_stratum, pri_pvem:otros)
 }
