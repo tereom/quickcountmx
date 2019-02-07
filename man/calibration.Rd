@@ -9,12 +9,12 @@
 \title{Calibration}
 \usage{
 calibration_party(data, party, stratum, frac = 1, n_iter = 2000,
-  n_burnin = 500, n_chains = 3, seed = NA, cl_cores = 14, n_rep = 5,
-  model_string = NULL)
+  n_burnin = 500, n_chains = 3, seed = NA, cl_cores = 14,
+  n_rep = 5, model_string = NULL)
 
 calibration_prop(data, ..., stratum, frac = 1, n_iter = 2000,
-  n_burnin = 500, n_chains = 3, seed = NA, cl_cores = 3, n_rep = 5,
-  model_string = NULL, num_missing_strata = 0)
+  n_burnin = 500, n_chains = 3, seed = NA, cl_cores = 3,
+  n_rep = 5, model_string = NULL, num_missing_strata = 0)
 
 summary_calibration_party(calib_run_party, alpha_r = 0.05)
 

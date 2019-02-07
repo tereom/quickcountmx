@@ -3,7 +3,6 @@
 \name{pp_check}
 \alias{pp_check}
 \alias{pp_check_party}
-\alias{pp_check}
 \title{Posterior predictive checks for bayesian vote count models.}
 \usage{
 pp_check_party(model_fit_party)

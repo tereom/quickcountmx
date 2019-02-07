@@ -1,12 +1,22 @@
 #' Postratified estimation for the number of votes for several candidates.
 #'
-#' The function fits a model using the \code{rstan} package and
-#' predicts proportional of votes for all candidates candidate in unobserved polling
-#' stations. Optionally the model can be fit with a stratified random sample
-#' @param ... One or more unquoted expressions separated by commas, indicating 
-#' the column names with the votes for each candidate.
-#' @inheritParams mrp_estimation_stan
-#' @param n_warmup burnin size
+#' This function calls \code{\link{mrp_party_estimation_stan}} using all the parties
+#' specified in `...`, once there is an estimation of the number of votes for
+#' each party/candidate it computes the proportion of votes for each one.
+#' @param ... One or more unquoted expressions separated by commas, indicating
+#'   the column names with the votes for each candidate.
+#' @inheritParams mrp_party_estimation_stan
+#' @param parallel Logical value indicating whether to parallelize the models,
+#'   if TRUE package parallel must be installed (uses mclapply and can not be
+#'   used in Windows).
+#' @param set_strata_na Option to exclude strata when fitting the model, used
+#'   for model evaluation and calibration.
+#' @param n_cores If parallelizing, the number of cores to use, parameter is
+#'   used in \code{\link[parallel]{mclapply}}, \code{\link[parallel]{mclapply}}
+#' @return A \code{list} with the object fitted using rstan::sampling and a
+#'   data.frame with the estimation summary (posterior means, medians, standard
+#'   deviations and probability intervals per party).
+#' @seealso  \code{\link{mrp_party_estimation_stan}}
 #' @import methods
 #' @import Rcpp
 #' @import rstantools
@@ -16,7 +26,7 @@
 #' @export
 mrp_estimation_stan <- function(data, ..., stratum, frac = 1,  n_iter = 500,
     n_warmup = 250, n_chains = 1, seed = NA, 
-    parallel = FALSE, n_cores = 1, model_string = NULL,
+    parallel = FALSE, n_cores = 1, stan_cores = 1, model_string = NULL,
     set_strata_na = integer(0)
     ){
     if (is.na(seed)) seed <- sample(1:1000, 1)
@@ -27,9 +37,59 @@ mrp_estimation_stan <- function(data, ..., stratum, frac = 1,  n_iter = 500,
         split(.$party)
     if(parallel){
         if(.Platform$OS.type == "unix"){
-            
+            parties_models <- parallel::mclapply(parties_split, function(x){
+                quickcountmx::mrp_party_estimation_stan(
+                    x,
+                    party         = n_votes,
+                    stratum       = !!stratum_enquo, 
+                    frac          = frac, 
+                    n_iter        = n_iter,
+                    warmup        = n_warmup,
+                    seed          = seed,
+                    model_string  = model_string,
+                    set_strata_na = set_strata_na,
+                    n_chains      = n_chains,
+                    stan_cores    = stan_cores
+                )
+            },
+            mc.cores = n_cores)
         } else {
-            
+            clust <-  parallel::makeCluster(getOption("cl.cores", n_cores))
+            parties_split_vars <- purrr::map(
+                parties_split,
+                ~list(
+                    data          = .,
+                    party         = .$party[1],
+                    stratum       = rlang::quo_text(stratum_enquo),
+                    frac          = frac, 
+                    n_iter        = n_iter,
+                    warmup        = n_warmup,
+                    seed          = seed,
+                    model_string  = model_string,
+                    set_strata_na = set_strata_na,
+                    n_chains      = n_chains,
+                    stan_cores    = stan_cores
+                )
+            )
+            parties_models <- parallel::parLapply(
+                cl = clust, 
+                X = parties_split_vars, fun = function(x){		
+                    quickcountmx::mrp_party_estimation_stan(
+                        x$data,
+                        party         = n_votes,		
+                        stratum       = !!rlang::sym(x$stratum),
+                        frac          = x$frac, 
+                        n_iter        = x$n_iter,
+                        warmup        = x$n_warmup,
+                        seed          = x$seed,
+                        model_string  = x$model_string,
+                        set_strata_na = x$set_strata_na,
+                        n_chains      = x$n_chains,
+                        stan_cores    = x$stan_cores
+                    )
+                }
+            )
+            parallel::stopCluster(clust)
         }
     } else { 
         parties_models <- parties_split %>% 
@@ -44,7 +104,8 @@ mrp_estimation_stan <- function(data, ..., stratum, frac = 1,  n_iter = 500,
                     seed          = seed,
                     model_string  = model_string,
                     set_strata_na = set_strata_na,
-                    n_chains      = n_chains
+                    n_chains      = n_chains,
+                    stan_cores    = stan_cores
                 )                
             )
     }
