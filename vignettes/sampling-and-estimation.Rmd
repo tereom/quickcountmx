@@ -24,7 +24,6 @@ To install the package use [devtools](https://github.com/r-lib/devtools)
 # devtools::install_github("tereom/quickcountmx")
 library(quickcountmx)
 library(tidyverse)
-library(R2jags)
 ```
 
 The package includes the results of the 2012 Guanajuato Governor election, which
@@ -49,7 +48,8 @@ gto_srs <- select_sample_prop(gto_2012, frac = 0.02)
 
 For stratified sample we can specify the desired sample size in each stratum 
 or we can specify the percentage of the observations to be selected within 
-each stratum (allocation corresponding to probability proportional to size).
+each stratum (corresponding to stratified random sampling with proportional 
+allocation).
 
 If we are to specify sample size within strata we need to supply a data.frame
 with the sample sizes. For example, lets suppose we are stratifying by federal 
@@ -68,7 +68,7 @@ gto_equal <- select_sample_str(gto_2012, allo_df, n, distrito_fed_17)
 table(gto_equal$distrito_fed_17)
 ```
 
-And selecting with probability proportional to size (pps) we can choose a 
+And selecting with proportional allocation we can choose a 
 stratified sample with 2% of the polling stations:
 
 ```{r}
@@ -88,7 +88,7 @@ local districts):
 # count number of polling stations per stratum
 gto_stratum_sizes <- gto_2012 %>%
     dplyr::group_by(distrito_loc_17) %>%
-    dplyr::mutate(n_stratum = n())
+    dplyr::summarise(n_stratum = n())
 ```
 
 Now lets suppose we have a stratified random sample with 4% of the data (pps):

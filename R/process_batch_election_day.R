@@ -245,7 +245,6 @@ process_batch_stan <- function(path_name, file_name, path_out, path_results,
     }
     
     #######################
-    #######################
     saveRDS(data_out, file = new_name)
     
     # run model ###################
