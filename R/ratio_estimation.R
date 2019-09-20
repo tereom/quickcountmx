@@ -37,7 +37,7 @@
 #' @importFrom magrittr %>%
 #' @importFrom rlang !! !!! :=
 #' @export
-ratio_estimation <- function (data, stratum, data_stratum, n_stratum, ..., 
+ratio_estimation <- function(data, stratum, data_stratum, n_stratum, ..., 
     std_errors = TRUE, B = 50, seed = NA){
     stratum_enquo <- dplyr::enquo(stratum)
     n_stratum_enquo <- dplyr::enquo(n_stratum)
@@ -69,9 +69,9 @@ ratio_estimation <- function (data, stratum, data_stratum, n_stratum, ...,
         dplyr::mutate(r = 100 * y / sum(y)) %>%
         dplyr::select(-y)
     
-    if (std_errors == TRUE){
+    if (std_errors == TRUE) {
         ratios_sd <- sd_ratio_estimation(data, data_stratum = data_stratum, 
-            B = B, ... = !!!parties_quo)
+            B = B, !!!parties_quo)
         ratios <- dplyr::left_join(ratios, ratios_sd, by = "party") %>%
             dplyr::arrange(desc(r))
     }
@@ -80,7 +80,7 @@ ratio_estimation <- function (data, stratum, data_stratum, n_stratum, ...,
 sd_ratio_estimation <- function(data, data_stratum, ..., B){
     # B bootstrap replicates
     ratio_reps <- purrr::rerun(B, sd_ratio_estimation_aux(data = data,
-        data_stratum = data_stratum, ... = !!!dplyr::quos(...)))
+        data_stratum = data_stratum, !!!dplyr::quos(...)))
     std_errors <- dplyr::bind_rows(!!!ratio_reps) %>%
         dplyr::group_by(party) %>%
         dplyr::summarise(std_error = sd(r)) %>% 
@@ -92,8 +92,8 @@ sd_ratio_estimation_aux <- function(data, data_stratum, ...){
     sample_boot <- select_sample_prop(data, stratum = strata, frac = 1, 
         replace = TRUE)
     ratio_estimation(data = select(sample_boot, -n_strata), stratum = strata, 
-        data_stratum = data_stratum, n_stratum = n_strata, 
-        ... = !!!dplyr::quos(...), std_errors = FALSE)
+        data_stratum = data_stratum, n_stratum = n_strata, !!!dplyr::quos(...), 
+        std_errors = FALSE)
 
 }
 
