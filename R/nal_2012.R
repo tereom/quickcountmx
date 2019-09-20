@@ -3,7 +3,7 @@
 #' A dataset containing the election results for president 2012, each row
 #' corresponds to a polling station.
 #'
-#' @format A data frame with 6746 rows and 21 variables:
+#' @format A data frame with 143132 rows and 23 variables:
 #' \describe{
 #'   \item{casilla_id}{Numeric identifier of the polling station.}
 #'   \item{distrito_fed_17, distrito_fed_12}{Federal district, the districts
