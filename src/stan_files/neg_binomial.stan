@@ -48,7 +48,7 @@ model {
   beta ~ normal(0 , 1);
   beta_st_raw ~ normal(0, 1);
   sigma_st ~ normal(0, 1);
-  beta_bn ~ normal(0, 1);
+  beta_bn ~ normal(1, 1);
 
   y ~ neg_binomial_2(alpha_bn , beta_bn[stratum] .* alpha_bn);
 
