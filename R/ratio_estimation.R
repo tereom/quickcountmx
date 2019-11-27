@@ -91,9 +91,9 @@ sd_ratio_estimation <- function(data, data_stratum, ..., B){
 sd_ratio_estimation_aux <- function(data, data_stratum, ...){
     sample_boot <- select_sample_prop(data, stratum = strata, frac = 1, 
         replace = TRUE)
-    ratio_estimation(data = select(sample_boot, -n_strata), stratum = strata, 
-        data_stratum = data_stratum, n_stratum = n_strata, !!!dplyr::quos(...), 
-        std_errors = FALSE)
+    ratio_estimation(data = dplyr::select(sample_boot, -n_strata), 
+        stratum = strata, data_stratum = data_stratum, n_stratum = n_strata, 
+        !!!dplyr::quos(...), std_errors = FALSE)
 
 }
 

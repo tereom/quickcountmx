@@ -32,9 +32,9 @@
 #'   str = sample(1:5, 100, replace = TRUE),
 #'   val = rnorm(100))
 #' # allocation given by column n in allo data.frame
-#' allo <- dplyr::sampling_frame %>%
+#' allo <- sampling_frame %>%
 #'     group_by(str) %>%
-#'     summarise(n = 0.4 * n())
+#'     summarise(n = round(0.4 * n()))
 #' select_sample_str(sampling_frame, allo, n, str)
 #' # SRS (simple random sample)
 #' select_sample_prop(sampling_frame, frac = 0.2)
@@ -84,7 +84,7 @@ select_sample_str <- function(sampling_frame, allocation,
 select_sample_prop <- function(sampling_frame, stratum = stratum, frac,
     seed = NA, replace = FALSE){
     if (!is.na(seed)) set.seed(seed)
-    if (missing(stratum)){
+    if (missing(stratum)) {
         sample <- dplyr::sample_frac(sampling_frame, size = frac,
             replace = replace)
     } else {
