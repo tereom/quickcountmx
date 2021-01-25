@@ -6,8 +6,9 @@
 \alias{process_batch_stan}
 \title{Functions for estimating on election day}
 \usage{
-process_batch(path_name, file_name, path_out, path_results, team = "default",
-  n_iter = 4000, n_burnin = 3000, n_chains = 1, parallel = TRUE)
+process_batch(path_name, file_name, path_out, path_results,
+  team = "default", n_iter = 4000, n_burnin = 3000, n_chains = 1,
+  parallel = TRUE)
 
 process_batch_stan(path_name, file_name, path_out, path_results,
   team = "default", n_iter = 500, n_warmup = 200, n_chains = 1)

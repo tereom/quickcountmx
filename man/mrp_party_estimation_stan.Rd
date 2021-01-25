@@ -6,7 +6,7 @@
 \usage{
 mrp_party_estimation_stan(data, party, stratum, frac = 1, n_iter = 300,
   warmup = 150, n_chains = 2, seed = NA, model_string = NULL,
-  set_strata_na = integer(0))
+  stan_cores = 1, set_strata_na = integer(0))
 }
 \arguments{
 \item{data}{A \code{data.frame} with variables: ln_total, region,
@@ -33,6 +33,9 @@ generator.}
 
 \item{model_string}{String indicating the model to be used, defaults to
 \code{"neg_binomial"}.}
+
+\item{stan_cores}{The number of cores to use, parameter is
+used in \code{\link[rstan]{sampling}}.}
 
 \item{set_strata_na}{Option to exclude strata when fitting the model, used
 for model evaluation and calibration.}

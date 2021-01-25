@@ -4,39 +4,64 @@
 \alias{mrp_estimation_stan}
 \title{Postratified estimation for the number of votes for several candidates.}
 \usage{
-mrp_estimation_stan(data, stratum, n_iter = 500, n_warmup = 250,
-  n_chains = 1, seed = NA, model_string = NULL,
-  set_strata_na = integer(0), partidos = c("RAC", "JAMK", "AMLO", "JHRC",
-  "OTROS"), frame_name = "marco_nal_2018")
+mrp_estimation_stan(data, ..., stratum, frac = 1, n_iter = 500,
+  n_warmup = 250, n_chains = 1, seed = NA, parallel = FALSE,
+  n_cores = 1, stan_cores = 1, model_string = NULL,
+  set_strata_na = integer(0))
 }
 \arguments{
 \item{data}{A \code{data.frame} with variables: ln_total, region,
 distrito_loc_17, tamano_md, tamano_gd, casilla_ex and the column with
 number of votes for the party.}
 
+\item{...}{One or more unquoted expressions separated by commas, indicating
+the column names with the votes for each candidate.}
+
 \item{stratum}{If sampling the data, unquoted variable indicating the column
 from the data.frame to be used as strata. The strata will also be used in
 the hierarchical structure of the model.}
 
-\item{n_iter}{Number of iterations, burnin size and chains.
-to be used in \code{\link[R2jags]{jags}}.}
+\item{frac}{If sampling the data, numeric value indicating the fraction
+of the data to sample, the sample is selected using stratified sampling
+with probability proportional to size.}
 
-\item{n_warmup}{burnin size}
+\item{n_iter}{Number of iterations, number of warmup
+ iterations and number of chains.
+to be used in \code{\link[rstan]{sampling}}.}
 
-\item{n_chains}{Number of iterations, burnin size and chains.
-to be used in \code{\link[R2jags]{jags}}.}
+\item{n_chains}{Number of iterations, number of warmup
+ iterations and number of chains.
+to be used in \code{\link[rstan]{sampling}}.}
 
 \item{seed}{Integer value used to set the state of the random number
 generator.}
 
-\item{model_string}{String indicating the model to be used, if NULL defaults
-to \code{"model_bern_t"}, also available \code{"model_t"}.}
+\item{parallel}{Logical value indicating whether to parallelize the models,
+if TRUE package parallel must be installed (uses mclapply and can not be
+used in Windows).}
+
+\item{n_cores}{If parallelizing, the number of cores to use, parameter is
+used in \code{\link[parallel]{mclapply}}, \code{\link[parallel]{mclapply}}}
+
+\item{stan_cores}{The number of cores to use, parameter is
+used in \code{\link[rstan]{sampling}}.}
+
+\item{model_string}{String indicating the model to be used, defaults to
+\code{"neg_binomial"}.}
 
 \item{set_strata_na}{Option to exclude strata when fitting the model, used
 for model evaluation and calibration.}
 }
+\value{
+A \code{list} with the object fitted using rstan::sampling and a
+  data.frame with the estimation summary (posterior means, medians, standard
+  deviations and probability intervals per party).
+}
 \description{
-The function fits a model using the \code{rstan} package and
-predicts proportional of votes for all candidates candidate in unobserved polling
-stations. Optionally the model can be fit with a stratified random sample
+This function calls \code{\link{mrp_party_estimation_stan}} using all the parties
+specified in `...`, once there is an estimation of the number of votes for
+each party/candidate it computes the proportion of votes for each one.
+}
+\seealso{
+\code{\link{mrp_party_estimation_stan}}
 }

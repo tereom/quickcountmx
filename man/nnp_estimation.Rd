@@ -4,7 +4,8 @@
 \alias{nnp_estimation}
 \title{Normal No-Pooling model}
 \usage{
-nnp_estimation(data, ln, stratum, data_stratum, n_stratum, ..., n_sims = 1000)
+nnp_estimation(data, ln, stratum, data_stratum, n_stratum, ...,
+  n_sims = 1000)
 }
 \arguments{
 \item{data}{\code{data.frame}}
@@ -54,4 +55,5 @@ gto_nnp <- nnp_estimation(data = gto_sample, ln = ln_total,
   stratum = distrito_loc_17, 
   data_stratum = gto_stratum_sizes, n_stratum = n_stratum, 
   pri_pvem:otros, n_sims = 100)
+gto_nnp$lambdas_summary
 }

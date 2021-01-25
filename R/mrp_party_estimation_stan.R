@@ -22,6 +22,8 @@
 #'   generator.
 #' @param model_string String indicating the model to be used, defaults to
 #'   \code{"neg_binomial"}.
+#' @param stan_cores The number of cores to use, parameter is
+#'   used in \code{\link[rstan]{sampling}}.
 #' @param set_strata_na Option to exclude strata when fitting the model, used
 #'   for model evaluation and calibration.
 #' @return A list containing fit object and vector
@@ -40,7 +42,7 @@
 #' @export
 mrp_party_estimation_stan <- function(data, party, stratum, frac = 1,
                                       n_iter = 300, warmup = 150, n_chains = 2, seed = NA, model_string = NULL,
-                                      set_strata_na = integer(0)){
+                                      stan_cores = 1, set_strata_na = integer(0)){
     if (is.null(model_string)) {
         model_string <- "neg_binomial"
     }
@@ -74,7 +76,7 @@ mrp_party_estimation_stan <- function(data, party, stratum, frac = 1,
                       x_f = x_full)
     stan_fit <- sampling(stanmodels[[model_string]], iter = n_iter,
                          warmup = warmup, chains = n_chains, data = c(data_sample, data_full),
-                         init = "0", cores = n_chains, control = list(max_treedepth = 15))
+                         init = "0", cores = stan_cores, control = list(max_treedepth = 15))
     y_sims <- rstan::extract(stan_fit, "y_out")[[1]]
     return(list(fit = stan_fit, y = y_sims))
 }
